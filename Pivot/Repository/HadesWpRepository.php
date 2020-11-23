@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AcMarche\Pivot;
+namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
 
@@ -28,7 +28,7 @@ class HadesWpRepository
     {
         global $wpdb;
 
-        $acquery = new WP_Query(
+        $acquery = new \WP_Query(
             array(
                 'post_type' => array('hades_event'),
                 'post_status' => 'publish',

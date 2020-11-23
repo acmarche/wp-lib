@@ -37,7 +37,7 @@ trait ConnectionTrait
         $headers = [
             'headers' => [
                 'WS_KEY' => $this->clef,
-                'Accept' => 'application/json',
+                'Accept' => Pivot::FORMAT_JSON,
             ],
         ];
 

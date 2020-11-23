@@ -1,9 +1,12 @@
 <?php
 
 
-namespace AcMarche\Pivot;
+namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
+use AcMarche\Pivot\ConnectionTrait;
+use AcMarche\Pivot\Entity\Event;
+use AcMarche\Pivot\Pivot;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -31,36 +34,32 @@ class PivotRemoteRepository
             return file_get_contents(ABSPATH.'/data.json');
         }
 
-        $urlDetail = 'https://pivotweb.tourismewallonie.be/PivotWeb-3.1/query/'.$this->code.';content='.$detailLvl;
+        $urlDetail = $this->url.'/query/'.$this->code.';content='.$detailLvl;
         $response  = $this->httpClient->request(
             'GET',
             $urlDetail,
         );
         $content   = $response->getContent();
 
-        //$httpLogs = $response->getInfo('debug');
 
         return $content;
     }
 
-    public function getDetailOffer(string $offer)
+    /**
+     * @param string $codeCgt
+     * info: label
+     *
+     * @return string
+     */
+    public function getDetailOffer(string $codeCgt, int $detailLvl = Pivot::OFFER_DETAIL_LVL_DEFAULT)
     {
-        var_dump($offer);
-
-        $url = $this->url.'/offer/'.$offer;
+        $url = $this->url.'/offer/'.$codeCgt.';info=true;infolvl=10;content='.$detailLvl;
         try {
             $request = $this->httpClient->request(
                 'GET',
                 $url,
                 [
-                    'headers' => [
-                        'WS_KEY' => $this->clef,
-                        'Accept' => 'application/json',
-                    ],
-                    'query'   => [
-                        //   'fmt'     => Hades::FORMAT_JSON,
-                        //   'content' => Hades::CONTENT_OFFRE_DEFAULT,
-                    ],
+
                 ]
             );
         } catch (TransportExceptionInterface $e) {
@@ -68,7 +67,7 @@ class PivotRemoteRepository
         }
 
         try {
-            var_dump($request->getHeaders());
+            //$httpLogs = $request->getInfo('debug');
 
             return $content = $request->getContent();
         } catch (ClientExceptionInterface $e) {
@@ -80,6 +79,31 @@ class PivotRemoteRepository
         } catch (TransportExceptionInterface $e) {
             return $e->getMessage();
         }
+    }
+
+    /**
+     * @return Event[]
+     */
+    public function getAllEvents(): array
+    {
+        $data2  = $this->getAllOffers(Pivot::QUERY_DETAIL_LVL_LIES);
+        $data   = json_decode($data2);
+        $count  = $data->count;
+        $offers = $data->offre;
+        $events = [];
+
+        foreach ($offers as $offer) {
+            if ($offer instanceof \stdClass) {
+                $type = $offer->typeOffre;
+
+                if ($type->idTypeOffre === 9) {
+                    $event    = new Event();
+                    $events[] = $event->createFromStd($offer);
+                }
+            }
+        }
+
+        return $events;
     }
 
     public function getImages(string $offer)
@@ -94,13 +118,17 @@ class PivotRemoteRepository
         //3 etoiles
     }
 
+    /**
+     * La liste des types d’offres existants est disponible dans le thésaurus
+     */
     public function getThesaurus()
     {
-        ///thesaurus/typeofr;fmt=json
+        //https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/typeofr;fmt=json
     }
 
     public function getFields(string $typeOffre)
     {
+        //https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/typeofr/9;fmt=json;pretty=true
         ///thesaurus/typeofr/01;pretty=true;fmt=json
     }
 

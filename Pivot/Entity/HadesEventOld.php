@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AcMarche\Pivot;
+namespace AcMarche\Pivot\Entity;
 
 class HadesEventOld
 {
@@ -10,53 +10,52 @@ class HadesEventOld
     public function getConcordance()
     {
         $base = array(
-            'id' => 'eve_id',
-            'titre' => 'eve_titre_fr',
+            'id'          => 'eve_id',
+            'titre'       => 'eve_titre_fr',
             'description' => 'eve_desc_fr',
-            'date_maj' => 'lastmod',
-            'code_CGT' => 'eve_codecgt',
+            'date_maj'    => 'lastmod',
+            'code_CGT'    => 'eve_codecgt',
         );
 
         $complements = array(
-            'adresse' => 'lieu_adr',
-            'localite' => 'loc_nom',
-            'cp' => 'loc_cp',
-            'nom' => 'eve_contact_nom',
-            'latitude' => 'lieu_lat',
+            'adresse'   => 'lieu_adr',
+            'localite'  => 'loc_nom',
+            'cp'        => 'loc_cp',
+            'nom'       => 'eve_contact_nom',
+            'latitude'  => 'lieu_lat',
             'longitude' => 'lieu_long',
-            'info' => 'eve_info_fr',
+            'info'      => 'eve_info_fr',
             'telephone' => 'eve_tel',
-            'gsm' => '',
-            'website' => 'eve_url',
-            'email' => 'eve_mail',
-            'fax' => 'eve_fax',
+            'gsm'       => '',
+            'website'   => 'eve_url',
+            'email'     => 'eve_mail',
+            'fax'       => 'eve_fax',
         );
 
         return array_merge($base, $complements);
     }
 
 
-
     public function importEvents()
     {
-        $events = $this->getEventsFromXml();
+        $events     = $this->getEventsFromXml();
         $categories = array(5);
-        $data_type = 'hades_event';
+        $data_type  = 'hades_event';
         $clef_titre = 'eve_titre_fr';
-        $clef_id = 'eve_id';
-        $prefix = $this->getPrefix();
-        $tagname = 'categories_fr'; //to set tag to article
-        $villes = array(19, 92, 109, 134, 162, 179, 234, 247, 676, 677, 678, 679, 680, 681, 683, 685, 828);
+        $clef_id    = 'eve_id';
+        $prefix     = $this->getPrefix();
+        $tagname    = 'categories_fr'; //to set tag to article
+        $villes     = array(19, 92, 109, 134, 162, 179, 234, 247, 676, 677, 678, 679, 680, 681, 683, 685, 828);
 
         $hades = new Pivot();
 
         foreach ($events as $event) {
             $loc_id = $event->loc_id;
             $loc_cp = $event->loc_cp;
-            $titre = $event->eve_titre_fr;
+            $titre  = $event->eve_titre_fr;
 
             if ($loc_cp == 6900) {
-                if (!preg_match("#euro#", $titre)) {
+                if ( ! preg_match("#euro#", $titre)) {
                     $hades->create_post(
                         $event,
                         $categories,
@@ -79,23 +78,23 @@ class HadesEventOld
     public function getOld()
     {
         $max_row = 6;
-        $prefix = $this->getPrefix();
+        $prefix  = $this->getPrefix();
 
-        $date = new DateTime();
+        $date  = new DateTime();
         $today = $date->format("Y-m-d");
 
         $meta_query = array(
             array(
-                'key' => $prefix.'eve_date_fin',
-                'value' => $today,
+                'key'     => $prefix.'eve_date_fin',
+                'value'   => $today,
                 'compare' => '<',
             ),
         );
 
         $args = array(
-            'post_type' => array('hades_event'),
+            'post_type'      => array('hades_event'),
             'posts_per_page' => $max_row,
-            'meta_query' => $meta_query,
+            'meta_query'     => $meta_query,
         );
 
         add_filter('posts_join', 'HadesEvent::alter_posts_join');
@@ -125,14 +124,14 @@ class HadesEventOld
             $events
         );
 
-        $query = "SELECT * FROM `wp_4_hadesmeta` WHERE `meta_key` LIKE '%event_eve_id%'";
-        $result = $wpdb->get_results($query);
+        $query         = "SELECT * FROM `wp_4_hadesmeta` WHERE `meta_key` LIKE '%event_eve_id%'";
+        $result        = $wpdb->get_results($query);
         $postsToDelete = array_map(
             function ($row) use ($idsFlux) {
                 $postId = $row->hades_id; //post_ID
-                $eveId = $row->meta_value; //eve_id
-                $eveId = $row->meta_value; //eve_id
-                if (!in_array($eveId, $idsFlux)) {
+                $eveId  = $row->meta_value; //eve_id
+                $eveId  = $row->meta_value; //eve_id
+                if ( ! in_array($eveId, $idsFlux)) {
                     return $postId;
                 }
 
@@ -157,7 +156,7 @@ class HadesEventOld
     public function getAttribute(int $postId, string $key): ?string
     {
         global $wpdb;
-        $query = "SELECT * FROM `wp_4_hadesmeta` WHERE `meta_key` = '$key' AND `hades_id` = $postId";
+        $query     = "SELECT * FROM `wp_4_hadesmeta` WHERE `meta_key` = '$key' AND `hades_id` = $postId";
         $attribute = $wpdb->get_row($query);
         if ($attribute instanceof stdClass) {
             return $attribute->meta_value;
@@ -182,7 +181,7 @@ class HadesEventOld
                 //var_dump(wp_get_post_categories($post->ID));
                 $result = wp_delete_post($post->ID, true);
 
-                if (!$result) {
+                if ( ! $result) {
                     echo "Rate pour $title <br />";
                 }
             }
@@ -190,7 +189,7 @@ class HadesEventOld
         /**
          * delete all meta data
          */
-        $sql = "DELETE FROM `wp_4_hadesmeta` WHERE `meta_key` LIKE '%event%'";
+        $sql    = "DELETE FROM `wp_4_hadesmeta` WHERE `meta_key` LIKE '%event%'";
         $result = $wpdb->query($sql);
         var_dump($result);
         echo "<p>Metas affacee : $result</p>";
@@ -200,15 +199,15 @@ class HadesEventOld
     {
         $schema = array(
             array(
-                'COLUMN_NAME' => 'eve_date_affichage',
+                'COLUMN_NAME'    => 'eve_date_affichage',
                 'COLUMN_COMMENT' => 'Date affichée réellement (sans traduction) comme 01/02->05/02/2007 ou 02-03-05/02/2007',
             ),
             array(
-                'COLUMN_NAME' => 'eve_date_debut',
+                'COLUMN_NAME'    => 'eve_date_debut',
                 'COLUMN_COMMENT' => 'format de date pour traitement (recherches, tris)',
             ),
             array(
-                'COLUMN_NAME' => 'eve_date_fin',
+                'COLUMN_NAME'    => 'eve_date_fin',
                 'COLUMN_COMMENT' => 'format de date pour traitement (recherches, tris)',
             ),
             array('COLUMN_NAME' => 'eve_titre_fr', 'COLUMN_COMMENT' => 'Titre FR'),
@@ -227,7 +226,7 @@ class HadesEventOld
             //   array('COLUMN_NAME' => 'eve_info_de', 'COLUMN_COMMENT' => 'Informations de date heures et prix (de)'),
             //?exite pas array('COLUMN_NAME' => 'eve_info_pt', 'COLUMN_COMMENT' => 'Informations de date heures et prix (pt)'),
             array(
-                'COLUMN_NAME' => 'eve_rec',
+                'COLUMN_NAME'    => 'eve_rec',
                 'COLUMN_COMMENT' => 'Expression de la récurrence [ si non-null => événement récurrent ]',
             ),
             array('COLUMN_NAME' => 'eve_contact_nom', 'COLUMN_COMMENT' => 'Nom du contact associé au téléphone'),
@@ -244,7 +243,7 @@ class HadesEventOld
             array('COLUMN_NAME' => 'loc_id', 'COLUMN_COMMENT' => 'Clé de liaison vers les localités'),
             array('COLUMN_NAME' => 'lieu_id', 'COLUMN_COMMENT' => 'Clé de liaison vers la table des lieux'),
             array(
-                'COLUMN_NAME' => 'eve_intreg',
+                'COLUMN_NAME'    => 'eve_intreg',
                 'COLUMN_COMMENT' => 'Code indiquant la portée de l\'événement [ Niveaux : 1=> SI ; 2=> MT ; 3=> FED ; 4=> OPT/CGT ]',
             ),
             //   array('COLUMN_NAME' => 'eve_mod_dat', 'COLUMN_COMMENT' => 'Date de la dernière modification'),
@@ -252,11 +251,11 @@ class HadesEventOld
             //   array('COLUMN_NAME' => 'eve_cre_dat', 'COLUMN_COMMENT' => 'Date de la Création'),
             //   array('COLUMN_NAME' => 'eve_cre_user', 'COLUMN_COMMENT' => 'Responsable de la Création'),
             array(
-                'COLUMN_NAME' => 'contact_id',
+                'COLUMN_NAME'    => 'contact_id',
                 'COLUMN_COMMENT' => 'Clé étrangère vers la table des contacts ( sources de l\'information ou organisateurs)',
             ),
             array(
-                'COLUMN_NAME' => 'eve_trad_nl',
+                'COLUMN_NAME'    => 'eve_trad_nl',
                 'COLUMN_COMMENT' => 'est à 1 si la traduction NL à été complétée et vérifiée',
             ),
             //   array('COLUMN_NAME' => 'eve_trad_en', 'COLUMN_COMMENT' => 'est à 1 si la traduction EN à été complétée et vérifiée'),
@@ -278,15 +277,15 @@ class HadesEventOld
     {
         $photos = get_metadata('hades', $post->ID, $this->getPrefix().'photo', true);
 
-        if (!$photos) {
+        if ( ! $photos) {
             return false;
         }
 
-        if (!is_array($photos)) {
+        if ( ! is_array($photos)) {
             $photos = array($photos);
         }
 
-        if (!$display) {
+        if ( ! $display) {
             return $photos;
         }
 
@@ -312,7 +311,7 @@ class HadesEventOld
 
     public static function getPdfAgenda($idEve, $titre)
     {
-        $PathImg = "http://www.ftlb.be/dbimages/docs/";
+        $PathImg     = "http://www.ftlb.be/dbimages/docs/";
         $PathFilePdf = $PathImg."event".$idEve;
 
         $url = $PathFilePdf;
