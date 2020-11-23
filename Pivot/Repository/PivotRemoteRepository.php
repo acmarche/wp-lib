@@ -41,8 +41,45 @@ class PivotRemoteRepository
         );
         $content   = $response->getContent();
 
+        file_put_contents(ABSPATH.'/data.json', $content);
 
         return $content;
+    }
+
+    /**
+     * @param string $codeCgt
+     * info: label
+     *
+     * @return string
+     */
+    public function search(string $codeCgt, int $detailLvl = Pivot::OFFER_DETAIL_LVL_DEFAULT)
+    {
+        $url = $this->url.'/query/';
+        try {
+            $request = $this->httpClient->request(
+                'POST',
+                $url,
+                [
+
+                ]
+            );
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
+
+        try {
+            //$httpLogs = $request->getInfo('debug');
+
+            return $content = $request->getContent();
+        } catch (ClientExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (RedirectionExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (ServerExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -99,6 +136,7 @@ class PivotRemoteRepository
                 if ($type->idTypeOffre === 9) {
                     $event    = new Event();
                     $events[] = $event->createFromStd($offer);
+
                 }
             }
         }
@@ -109,6 +147,33 @@ class PivotRemoteRepository
     public function getImages(string $offer)
     {
         ///img/ALD-01-00096Z
+        $url = $this->url.'/img/'.$offer;
+        try {
+            $request = $this->httpClient->request(
+                'POST',
+                $url,
+                [
+
+                ]
+            );
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
+
+        try {
+            $httpLogs = $request->getInfo('debug');
+            var_dump($httpLogs);
+
+            return $content = $request->getContent();
+        } catch (ClientExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (RedirectionExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (ServerExceptionInterface $e) {
+            return $e->getMessage();
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
     }
 
     public function getPictogrammes(string $picto, ?string $color)
@@ -134,6 +199,6 @@ class PivotRemoteRepository
 
     public function getOneField(string $field)
     {
-        ///thesaurus/urn/urn:fld:nomofr;fmt=json;pretty=true
+        //https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/urn/urn:fld:nomofr;fmt=json;pretty=true
     }
 }

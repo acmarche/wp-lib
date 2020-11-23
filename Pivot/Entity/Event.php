@@ -4,52 +4,125 @@
 namespace AcMarche\Pivot\Entity;
 
 use AcMarche\Common\PropertyUtils;
+use stdClass;
 
 class Event
 {
-    const PREFIX = 'event_';
     const CODE_OFFRE = 'EVT';
     const NUM_OFFRE = 9;
 
+    /**
+     * @var stdClass
+     */
     public $offer;
+    /**
+     * @var string
+     */
     public $codeCgt;
+    /**
+     * @var stdClass
+     */
     public $typeOffre;
+    /**
+     * @var string
+     */
     public $nom;
     /**
      * @deprecated
-     * @var
+     * @var string
      */
     public $visibilite;
+    /**
+     * @var stdClass
+     */
     public $visibiliteUrn;
     /**
      * @deprecated
-     * @var
+     * @var string
      */
     public $estActive;
+    /**
+     * @var stdClass
+     */
     public $estActiveUrn;
+    /**
+     * @var stdClass
+     */
     public $adresse1;
+    /**
+     * @var stdClass
+     */
     public $spec;
+    /**
+     * @var string
+     */
     public $dateModification;
+    /**
+     * @var string
+     */
     public $textTypeOffre;
+    /**
+     * @var string
+     */
     public $idTypeOffre;
+    /**
+     * @var string
+     */
     public $longitude;
+    /**
+     * @var string
+     */
     public $latitude;
+    /**
+     * @var string
+     */
     public $localite;
+    /**
+     * @var string
+     */
     public $dateDebut;
+    /**
+     * @var string
+     */
     public $dateFin;
+    /**
+     * @var string
+     */
     public $description;
+    /**
+     * @var string
+     */
     public $dateRange;
+    /**
+     * @var string
+     */
     public $code_postal;
+    /**
+     * @var string
+     */
     public $url;
+    /**
+     * @var string
+     */
     public $day;
+    /**
+     * @var string
+     */
     public $month;
+    /**
+     * @var string
+     */
     public $year;
+    /**
+     * @var array
+     */
+    private $images;
 
-    public function createFromStd(\stdClass $data): self
+    public function createFromStd(stdClass $data): self
     {
-        $this->offer   = $data;
-        $utils         = new PropertyUtils();
-        $properties    = $utils->getProperties(Event::class);
+        $this->offer = $data;
+        $utils       = new PropertyUtils();
+        $properties  = $utils->getProperties(Event::class);
 
         foreach ($properties as $property) {
             if (isset($data->$property)) {
@@ -60,6 +133,7 @@ class Event
         $this->setTypes();
         $this->setAdresses();
         $this->setSpecs();
+        $this->setRelOffre();
 
         return $this;
     }
@@ -93,6 +167,7 @@ class Event
             if ($urn === 'urn:fld:descmarket') {
                 $this->description = $spec->value;
             }
+
             if ($urn === 'urn:fld:datedebvalid') {
                 $this->dateDebut = $spec->value;
             }
@@ -108,19 +183,19 @@ class Event
             if ($urn === 'urn:fld:catevt:spectacle') {
                 $this->category = $spec->value;
             }
+
+            if ($urn === 'urn:obj:date') {
+                $specs = $spec->spec;
+                foreach ($specs as $spec2) {
+                    if ($spec2->urn === 'urn:fld:date:daterange') {
+                        $this->dateRange = $spec2->value;
+                    }
+                }
+            }
         }
 
         if (preg_match("#/#", $this->dateDebut)) {
             list($this->day, $this->month, $this->year) = explode("/", $this->dateDebut);
-        }
-
-        return;
-
-        if ( ! isset($spec[8]->value)) {
-            var_dump(123);
-            var_dump($this->nom);
-            var_dump($spec[8]);
-            var_dump(456);
         }
 
         return;
@@ -132,6 +207,31 @@ class Event
             $dateFin         = $specs[1]->value;//urn:fld:date:datefin
             $this->dateRange = $specs[2]->value;//urn:fld:date:daterange
         }
+    }
+
+    private function setRelOffre()
+    {
+        $imgs      = [];
+        $relations = [];
+        if (is_array($this->offer->relOffre)) {
+            foreach ($this->offer->relOffre as $relation) {
+                if ($relation->urn === 'urn:lnk:media:autre') {
+                    //   var_dump($relation);
+                    $offre   = $relation->offre;
+                    $codeCgt = $offre->codeCgt;
+                    $nom     = $offre->nom;
+                    foreach ($offre->spec as $spec) {
+                        if ($spec->urn === 'urn:fld:url') {
+                            $imgs[] = $spec->value;
+                        }
+                    }
+                    $relations[] = $relation;
+                }
+            }
+        }
+        $this->images = $imgs;
+        var_dump($imgs);
+        //echo json_encode($relations);
     }
 
 }
