@@ -136,7 +136,6 @@ class PivotRemoteRepository
                 if ($type->idTypeOffre === 9) {
                     $event    = new Event();
                     $events[] = $event->createFromStd($offer);
-
                 }
             }
         }

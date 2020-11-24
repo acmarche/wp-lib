@@ -116,7 +116,7 @@ class Event
     /**
      * @var array
      */
-    private $images;
+    public $images;
 
     public function createFromStd(stdClass $data): self
     {
@@ -230,7 +230,6 @@ class Event
             }
         }
         $this->images = $imgs;
-        var_dump($imgs);
         //echo json_encode($relations);
     }
 

@@ -10,7 +10,7 @@ class WpRepository
     /**
      * @return WP_Post[]
      */
-    static function getAllNews(int $max): array
+    static function getAllNews(int $max = 20): array
     {
         $sites   = MarcheConst::SITES;
         $allnews = array();
