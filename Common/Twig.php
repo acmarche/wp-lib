@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-use AcMarche\Theme\Lib\Setup;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
@@ -19,11 +18,13 @@ class Twig
 
         $loader = new FilesystemLoader($path);
 
-        $environnement = new Environment($loader, [
-            'cache'=>ABSPATH .'var/cache',
-            'debug' => WP_DEBUG,
-            'strict_variables'=> WP_DEBUG,
-        ]);
+        $environnement = new Environment(
+            $loader, [
+                'cache'            => ABSPATH.'var/cache',
+                'debug'            => WP_DEBUG,
+                'strict_variables' => WP_DEBUG,
+            ]
+        );
 
         $environnement->addGlobal('template_directory', get_template_directory_uri());
         $environnement->addFilter(self::categoryLink());
@@ -55,7 +56,13 @@ class Twig
     {
         return new TwigFunction(
             'showTemplate', function (): string {
-            return Setup::show_template();
+            if (true === WP_DEBUG) {
+                global $template;
+
+                return 'template: '.$template;
+            }
+
+            return '';
         }
         );
     }
