@@ -30,8 +30,8 @@ class PivotRemoteRepository
 
     public function getAllOffers(int $detailLvl = Pivot::QUERY_DETAIL_LVL_DEFAULT)
     {
-        if (is_readable(ABSPATH.'/data.json')) {
-            return file_get_contents(ABSPATH.'/data.json');
+        if (is_readable(ABSPATH.'/var/data.json')) {
+            return file_get_contents(ABSPATH.'/var/data.json');
         }
 
         $urlDetail = $this->url.'/query/'.$this->code.';content='.$detailLvl;
