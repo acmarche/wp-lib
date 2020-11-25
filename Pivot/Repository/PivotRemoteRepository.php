@@ -123,24 +123,29 @@ class PivotRemoteRepository
      */
     public function getAllEvents(): array
     {
-        $data2  = $this->getAllOffers(Pivot::QUERY_DETAIL_LVL_LIES);
-        $data   = json_decode($data2);
-        $count  = $data->count;
-        $offers = $data->offre;
-        $events = [];
+        return $this->cache->get(
+            Cache::AGENDA_FULL,
+            function () {
+                $data2  = $this->getAllOffers(Pivot::QUERY_DETAIL_LVL_LIES);
+                $data   = json_decode($data2);
+                $count  = $data->count;
+                $offers = $data->offre;
+                $events = [];
 
-        foreach ($offers as $offer) {
-            if ($offer instanceof \stdClass) {
-                $type = $offer->typeOffre;
+                foreach ($offers as $offer) {
+                    if ($offer instanceof \stdClass) {
+                        $type = $offer->typeOffre;
 
-                if ($type->idTypeOffre === 9) {
-                    $event    = new Event();
-                    $events[] = $event->createFromStd($offer);
+                        if ($type->idTypeOffre === 9) {
+                            $event    = new Event();
+                            $events[] = $event->createFromStd($offer);
+                        }
+                    }
                 }
-            }
-        }
 
-        return $events;
+                return $events;
+            }
+        );
     }
 
     public function getImages(string $offer)

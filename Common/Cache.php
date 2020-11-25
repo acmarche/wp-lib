@@ -10,6 +10,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 class Cache
 {
     const MENU_CACHE_NAME = 'menu_all';
+    const AGENDA_FULL = 'agenda_full';
 
     public static function instance(): CacheInterface
     {
