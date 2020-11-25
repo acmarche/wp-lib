@@ -8,12 +8,14 @@ use WP_Query;
 class WpRepository
 {
     /**
+     * @param int $max
+     *
      * @return WP_Post[]
      */
     static function getAllNews(int $max = 20): array
     {
-        $sites   = MarcheConst::SITES;
-        $allnews = array();
+        $sites = MarcheConst::SITES;
+        $news  = array();
 
         foreach ($sites as $siteId => $name) :
             switch_to_blog($siteId);
@@ -33,8 +35,7 @@ class WpRepository
             }
 
             $querynews = new WP_Query($args);
-            //echo $querynews->request;
-            $count = $querynews->post_count;
+
             while ($querynews->have_posts()) :
 
                 $post = $querynews->next_post();
@@ -57,14 +58,21 @@ class WpRepository
                 $post->blog    = $name;
                 $post->color   = MarcheConst::COLORS[$siteId];
 
-                $allnews[] = $post;
+                $news[] = $post;
             endwhile;
 
         endforeach;
         wp_reset_postdata();
 
-        return $allnews;
+        if (count($news) > $max) {
+            $i   = 0;
+            $end = count($news) - $max;
+            while ($i < $end) {
+                unset($news[$i]);
+                $i++;
+            }
+        }
+        $news = array_values( $news);
+        return $news;
     }
-
-
 }
