@@ -4,6 +4,7 @@
 namespace AcMarche\Common;
 
 use Twig\Environment;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -26,6 +27,9 @@ class Twig
             ]
         );
 
+        if (WP_DEBUG) {
+            $environnement->addExtension(new DebugExtension());
+        }
         $environnement->addGlobal('template_directory', get_template_directory_uri());
         $environnement->addFilter(self::categoryLink());
         $environnement->addFilter(self::permalinkArticle());
