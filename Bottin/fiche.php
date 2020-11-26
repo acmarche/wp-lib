@@ -22,7 +22,7 @@ if ($idFiche > 0) {
     $synchronizer = new FicheSynchronizer();
     $bottinRepository = new BottinRepository();
     $wpRepository = new WpRepository();
-    $fiche = $bottinRepository->getFiche($idFiche);
+    $fiche = $bottinRepository->getFicheById($idFiche);
 
     if (!$fiche) {
         Bottin::sendEmail('Fiche non trouvable dans db bottin', "idfiche ".$idFiche);

@@ -87,7 +87,7 @@ foreach (MarcheConst::SITES as $site) {
         if (!$idFiche) {
             continue;
         }
-        $fiche = $bottinRepository->getFiche($idFiche);
+        $fiche = $bottinRepository->getFicheById($idFiche);
         if (!$fiche) {
             Bottin::sendEmail(
                 'Sync id Fiche dans wp mais non trouvable dans le bottin ',
