@@ -135,6 +135,7 @@ class Event
             }
         }
 
+        $this->url = '/tourisme/manifestation/'.$this->codeCgt;
         $this->setTypes();
         $this->setAdresses($this->adresse1);
         $this->setSpecs();
