@@ -11,8 +11,10 @@ use Twig\TwigFunction;
 
 class Twig
 {
+
     public static function LoadTwig(?string $path = null): Environment
     {
+        //todo get instance
         if ( ! $path) {
             $path = get_template_directory().'/templates';
         }
@@ -30,6 +32,7 @@ class Twig
         if (WP_DEBUG) {
             $environnement->addExtension(new DebugExtension());
         }
+
         $environnement->addGlobal('template_directory', get_template_directory_uri());
         $environnement->addFilter(self::categoryLink());
         $environnement->addFilter(self::permalinkArticle());

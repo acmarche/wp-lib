@@ -46,7 +46,7 @@ class Menu
     public function getAllItems(): array
     {
         return $this->cache->get(
-            Cache::MENU_CACHE_NAME,
+            Cache::MENU_CACHE_NAME.time(),//todo remove time
             function (): array {
                 $blog = get_current_blog_id();
                 $data = [];

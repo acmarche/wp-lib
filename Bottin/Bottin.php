@@ -5,6 +5,7 @@ namespace AcMarche\Bottin;
 
 
 use AcMarche\Common\Env;
+use AcMarche\Common\Twig;
 
 class Bottin
 {
@@ -35,17 +36,12 @@ class Bottin
 
     public static function getExcerpt(\stdClass $fiche): string
     {
-        $excerpt = $fiche->localite;
-        if ($fiche->nom) {
-            $excerpt .= ' '.$fiche->nom.''.$fiche->prenom.' <br> ';
-        }
-        if ($fiche->telephone || $fiche->gsm || $fiche->telephone_autre) {
-            $excerpt .= ' '.$fiche->telephone.''.$fiche->gsm.''.$fiche->telephone_autre;
-        }
-        if ($fiche->email) {
-            $excerpt .= ' '.$fiche->email;
-        }
-
-        return $excerpt;
+        $twig    = Twig::LoadTwig();
+        return $twig->render(
+            'fiche/_excerpt.html.twig',
+            [
+                'fiche' => $fiche,
+            ]
+        );
     }
 }
