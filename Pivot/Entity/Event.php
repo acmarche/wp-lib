@@ -4,12 +4,13 @@
 namespace AcMarche\Pivot\Entity;
 
 use AcMarche\Common\PropertyUtils;
+use AcMarche\Pivot\PivotType;
 use stdClass;
 
 class Event
 {
     const CODE_OFFRE = 'EVT';
-    const NUM_OFFRE = 9;
+    const NUM_OFFRE = PivotType::TYPE_EVENEMENT;
 
     /**
      * @var stdClass
@@ -117,6 +118,10 @@ class Event
      * @var array
      */
     public $images;
+    /**
+     * @var array
+     */
+    public $contact;
 
     public function createFromStd(stdClass $data): self
     {
@@ -131,9 +136,10 @@ class Event
         }
 
         $this->setTypes();
-        $this->setAdresses();
+        $this->setAdresses($this->adresse1);
         $this->setSpecs();
-        $this->setRelOffre();
+        $this->setImages();
+        $this->setContact();
 
         return $this;
     }
@@ -148,14 +154,25 @@ class Event
         $this->textTypeOffre = $label->value;
     }
 
-    public function setAdresses()
+    public function getAdresse(stdClass $data): stdClass
     {
-        $adresse1          = $this->adresse1;
-        $this->code_postal = $adresse1->cp;
-        $localite          = $adresse1->localite;
-        $this->localite    = $localite[0]->value;
-        $this->latitude    = $adresse1->latitude;
-        $this->longitude   = $adresse1->longitude;
+        $adresse              = new stdClass;
+        $adresse->code_postal = $data->cp;
+        $adresses             = $data->localite;//array multi languages
+        $adresse->localite    = $adresses[0]->value;//fr
+        $adresse->latitude    = $data->latitude;
+        $adresse->longitude   = $data->longitude;
+
+        return $adresse;
+    }
+
+    public function setAdresses(stdClass $data)
+    {
+        $adresse           = $this->getAdresse($data);
+        $this->code_postal = $adresse->code_postal;
+        $this->localite    = $adresse->localite;
+        $this->latitude    = $adresse->latitude;
+        $this->longitude   = $adresse->longitude;
     }
 
     public function setSpecs()
@@ -195,29 +212,44 @@ class Event
         }
 
         if (preg_match("#/#", $this->dateDebut)) {
-            list($this->day, $this->month, $this->year) = explode("/", $this->dateDebut);
-        }
-
-        return;
-        $this->description = $spec[8]->value; //urn:fld:descmarket30
-        $this->description = $spec[9]->value; //urn:fld:descmarket
-        $specs             = $spec[10]->spec; //urn:obj:date
-        if (is_array($specs)) {
-            $dateDebut       = $specs[0]->value;//urn:fld:date:datedeb
-            $dateFin         = $specs[1]->value;//urn:fld:date:datefin
-            $this->dateRange = $specs[2]->value;//urn:fld:date:daterange
+            [$this->day, $this->month, $this->year] = explode("/", $this->dateDebut);
         }
     }
 
-    private function setRelOffre()
+    private function setContact()
+    {
+        $contacts  = [];
+        if (is_array($this->offer->relOffre)) {
+            foreach ($this->offer->relOffre as $relation) {
+                if ($relation->urn === 'urn:lnk:offre:voiraussi') {
+                    $contact = [];
+                    $offre   = $relation->offre;
+                    $codeCgt = $offre->codeCgt;
+                    $nom     = $offre->nom;
+                    foreach ($offre->spec as $spec) {
+
+                        $contact = ['nom' => $nom];
+                        if ($spec->urn === 'urn:fld:url') {
+                            $contact['nom']     = $spec->value;
+                            $contact['adresse'] = $this->getAdresse($spec->adresse1);
+                        }
+                    }
+                    $contacts[] = $contact;
+                }
+            }
+        }
+
+        $this->contact = $contacts;
+    }
+
+    private function setImages()
     {
         $imgs      = [];
         $relations = [];
         if (is_array($this->offer->relOffre)) {
             foreach ($this->offer->relOffre as $relation) {
-                if ($relation->urn === 'urn:lnk:media:autre') {
-                    //   var_dump($relation);
-                    $offre   = $relation->offre;
+                $offre   = $relation->offre;
+                if ($offre->typeOffre->idTypeOffre === PivotType::TYPE_MEDIA) {
                     $codeCgt = $offre->codeCgt;
                     $nom     = $offre->nom;
                     foreach ($offre->spec as $spec) {
@@ -230,7 +262,6 @@ class Event
             }
         }
         $this->images = $imgs;
-        //echo json_encode($relations);
     }
 
 }

@@ -7,6 +7,7 @@ use AcMarche\Common\Cache;
 use AcMarche\Pivot\ConnectionTrait;
 use AcMarche\Pivot\Entity\Event;
 use AcMarche\Pivot\Pivot;
+use AcMarche\Pivot\PivotType;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -90,7 +91,7 @@ class PivotRemoteRepository
      */
     public function getDetailOffer(string $codeCgt, int $detailLvl = Pivot::OFFER_DETAIL_LVL_DEFAULT)
     {
-        $url = $this->url.'/offer/'.$codeCgt.';info=true;infolvl=10;content='.$detailLvl;
+        $url = $this->url.'/offer/'.$codeCgt;
         try {
             $request = $this->httpClient->request(
                 'GET',
@@ -104,7 +105,8 @@ class PivotRemoteRepository
         }
 
         try {
-            //$httpLogs = $request->getInfo('debug');
+            $httpLogs = $request->getInfo('debug');
+            var_dump($httpLogs);
 
             return $content = $request->getContent();
         } catch (ClientExceptionInterface $e) {
@@ -124,10 +126,9 @@ class PivotRemoteRepository
     public function getAllEvents(): array
     {
         return $this->cache->get(
-            Cache::AGENDA_FULL,
+            Cache::AGENDA_FULL.time(),//todo remove time
             function () {
-                $data2  = $this->getAllOffers(Pivot::QUERY_DETAIL_LVL_LIES);
-                $data   = json_decode($data2);
+                $data   = json_decode($this->getAllOffers(Pivot::QUERY_DETAIL_LVL_LIES));
                 $count  = $data->count;
                 $offers = $data->offre;
                 $events = [];
@@ -135,8 +136,7 @@ class PivotRemoteRepository
                 foreach ($offers as $offer) {
                     if ($offer instanceof \stdClass) {
                         $type = $offer->typeOffre;
-
-                        if ($type->idTypeOffre === 9) {
+                        if ($type->idTypeOffre === PivotType::TYPE_EVENEMENT) {
                             $event    = new Event();
                             $events[] = $event->createFromStd($offer);
                         }
@@ -190,15 +190,50 @@ class PivotRemoteRepository
     /**
      * La liste des types d’offres existants est disponible dans le thésaurus
      */
-    public function getThesaurus()
+    public function getTypes()
     {
-        //https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/typeofr;fmt=json
+        $url = $this->url.'/thesaurus/typeofr;fmt=json';
+        try {
+            $request = $this->httpClient->request(
+                'GET',
+                $url,
+                [
+
+                ]
+            );
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
+
+        return $content = $request->getContent();
     }
 
-    public function getFields(string $typeOffre)
+    /**
+     * https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/typeofr/9;fmt=json;pretty=true
+     * @param int $numberType
+     *
+     * @return string
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getFields(int $numberType): string
     {
-        //https://pivotweb.tourismewallonie.be/PivotWeb-3.1/thesaurus/typeofr/9;fmt=json;pretty=true
-        ///thesaurus/typeofr/01;pretty=true;fmt=json
+        $url = $this->url.'/thesaurus/typeofr/'.$numberType.';fmt=json';
+        try {
+            $request = $this->httpClient->request(
+                'GET',
+                $url,
+                [
+
+                ]
+            );
+        } catch (TransportExceptionInterface $e) {
+            return $e->getMessage();
+        }
+
+        return $content = $request->getContent();
     }
 
     public function getOneField(string $field)
