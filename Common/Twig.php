@@ -11,7 +11,6 @@ use Twig\TwigFunction;
 
 class Twig
 {
-
     public static function LoadTwig(?string $path = null): Environment
     {
         //todo get instance
@@ -35,8 +34,8 @@ class Twig
 
         $environnement->addGlobal('template_directory', get_template_directory_uri());
         $environnement->addFilter(self::categoryLink());
-        $environnement->addFilter(self::permalinkArticle());
         $environnement->addFunction(self::showTemplate());
+        $environnement->addFunction(self::currentUrl());
 
         return $environnement;
     }
@@ -46,15 +45,6 @@ class Twig
         return new TwigFilter(
             'category_link', function (int $categoryId): ?string {
             return get_category_link($categoryId);
-        }
-        );
-    }
-
-    protected static function permalinkArticle(): TwigFilter
-    {
-        return new TwigFilter(
-            'permalink', function (int $postId): ?string {
-            return the_permalink($postId);
         }
         );
     }
@@ -70,6 +60,19 @@ class Twig
             }
 
             return '';
+        }
+        );
+    }
+
+    /**
+     * For sharing pages
+     * @return TwigFunction
+     */
+    protected static function currentUrl(): TwigFunction
+    {
+        return new TwigFunction(
+            'currentUrl', function (): string {
+            return get_site_url().esc_url_raw(add_query_arg([]));
         }
         );
     }
