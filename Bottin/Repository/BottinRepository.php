@@ -169,6 +169,21 @@ class BottinRepository
     }
 
     /**
+     * @param string $slug
+     *
+     * @return \stdClass|bool
+     * @throws \Exception
+     */
+    public function getCategoryBySlug(string $slug): \stdClass
+    {
+        $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
+        $sth = $this->dbh->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $sth->execute(array(':slug' => $slug));
+
+        return $sth->fetchObject();
+    }
+
+    /**
      * @param int $id
      *
      * @return array
@@ -179,7 +194,7 @@ class BottinRepository
         $sql   = 'SELECT * FROM category WHERE `parent_id` = '.$parentId;
         $query = $this->execQuery($sql);
 
-        return $query->fetchAll();
+        return $query->fetchAll(\PDO::FETCH_OBJ);
     }
 
     public function getFichesByCategory($id): array
