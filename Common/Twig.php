@@ -28,6 +28,7 @@ class Twig
             ]
         );
 
+       // wp_get_environment_type();
         if (WP_DEBUG) {
             $environnement->addExtension(new DebugExtension());
         }
