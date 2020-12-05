@@ -1,0 +1,74 @@
+properties:
+  type:
+    type: keyword
+  blog:
+    type: text
+    index: 'false'
+  date:
+    type: date
+    format: strict_date_optional_time||epoch_millis
+  guid:
+    type: text
+    index: 'false'
+  permalink:
+    type: text
+    index: 'false'
+  post_ID:
+    type: long
+    index: 'false'
+  post_content:
+    type: text
+    analyzer: french_light
+    fields:
+      stemmed:
+        type: text
+        analyzer: french_heavy
+  post_date:
+    type: date
+    format: strict_date_optional_time||epoch_millis
+  post_excerpt:
+    type: text
+    analyzer: french_light
+    fields:
+      stemmed:
+        type: text
+        analyzer: french_heavy
+  post_name:
+    type: text
+    index: 'false'
+  post_title:
+    type: text
+    analyzer: french_light
+    boost: 2
+    fields:
+      stemmed:
+        type: text
+        analyzer: french_heavy
+  post_suggest:
+    type: completion
+    analyzer: standard
+    search_analyzer: simple
+  post_autocomplete:
+    type: text
+    analyzer: standard
+    search_analyzer: standard
+  categories:
+    properties:
+      cat_name:
+        type: text
+        analyzer: french
+      cat_name_autocomplete:
+        type: text
+        analyzer: standard
+        search_analyzer: standard
+      cat_description:
+        type: text
+        analyzer: french_light
+        fields:
+          stemmed:
+            type: text
+            analyzer: french_heavy
+  post_mime_type:
+    type: text
+  post_status:
+    type: text

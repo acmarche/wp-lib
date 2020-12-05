@@ -1,0 +1,33 @@
+filter:
+  app_french_stemmer:
+    type: stemmer
+    language: light_french
+  app_french_elision:
+    type: elision
+    articles_case: true
+    articles:
+      - l
+      - m
+      - t
+      - qu
+      - n
+      - s
+      - j
+      - d
+      - c
+      - jusqu
+      - quoiqu
+      - lorsqu
+      - puisqu
+analyzer:
+  app_french_heavy:
+    tokenizer: icu_tokenizer
+    filter:
+      - app_french_elision
+      - icu_folding
+      - app_french_stemmer
+  app_french_light:
+    tokenizer: icu_tokenizer
+    filter:
+      - app_french_elision
+      - icu_folding

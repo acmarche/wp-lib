@@ -1,0 +1,11 @@
+settings:
+  number_of_replicas: 0
+  number_of_shards: 2
+  # Include analyzers.yaml here
+mappings:
+  dynamic: false
+  properties:
+    name: &txt_basic
+      type: text
+      analyzer: app_french_light
+    ref: *txt_basic
