@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-
 class MarcheConst
 {
     const SITES = [
@@ -14,7 +13,10 @@ class MarcheConst
         5  => 'sport',
         6  => 'sante',
         7  => 'social',
+        8  => 'marchois',
         11 => 'culture',
+        12 => 'roman',
+        13 => 'noel',
         14 => 'enfance',
     ];
 
