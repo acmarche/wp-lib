@@ -197,7 +197,7 @@ class BottinRepository
         return $query->fetchAll(\PDO::FETCH_OBJ);
     }
 
-    public function getFichesByCategory($id): array
+    public function getFichesByCategory(int $id): array
     {
         $category = $this->getCategory($id);
         if ( ! $category) {
@@ -228,6 +228,5 @@ class BottinRepository
 
         return $query;
     }
-
 
 }

@@ -3,7 +3,6 @@
 namespace AcMarche\Elasticsearch;
 
 use AcMarche\Bottin\Repository\BottinRepository;
-use AcMarche\Bottin\Repository\WpBottinRepository as WpBottinRepository;
 use AcMarche\Common\MarcheConst;
 use AcMarche\Common\WpRepository;
 
@@ -17,11 +16,16 @@ class ElasticData
      * @var WpRepository
      */
     private $wpRepository;
+    /**
+     * @var ElasticBottinData
+     */
+    private $bottinData;
 
     public function __construct()
     {
         $this->bottinRepository = new BottinRepository();
         $this->wpRepository     = new WpRepository();
+        $this->bottinData       = new ElasticBottinData();
     }
 
     public function getCategoriesBySite(int $siteId)
@@ -52,7 +56,7 @@ class ElasticData
             $data = [];
 
             $name                      = Cleaner::cleandata($category->name);
-            $data['post_title']        = $name;
+            $data['name']              = $name;
             $data['post_autocomplete'] = $name;
 
             $description = '';
@@ -62,16 +66,18 @@ class ElasticData
 
             $content = $description;
 
-            $cat_ID          = $category->cat_ID;
-            $data['post_ID'] = $cat_ID;
+            $cat_ID     = $category->cat_ID;
+            $data['id'] = $cat_ID;
 
             foreach ($this->getPosts($siteId, $cat_ID) as $post) {
-                $content .= $post['post_title'];
-                $content .= $post['post_excerpt'];
-                $content .= $post['post_content'];
+                $content .= $post['name'];
+                $content .= $post['excerpt'];
+                $content .= $post['content'];
             }
 
-            $data['post_content'] = $content;
+            $content .= $this->getFiches($data);
+
+            $data['content'] = $content;
 
             $category_nicename = $category->category_nicename;
             $data['post_name'] = $category_nicename;
@@ -87,8 +93,8 @@ class ElasticData
 
             $data['blog'] = $siteId;
 
-            $data['post_excerpt'] = '';
-            $data['guid']         = $guid;
+            $data['excerpt'] = '';
+            $data['guid']    = $guid;
 
             $data['type'] = "category"; //force
 
@@ -137,7 +143,7 @@ class ElasticData
         return $datas;
     }
 
-    public function getPages(int $blogId)
+    private function getPages(int $blogId)
     {
         $args  = array(
             'sort_order'   => 'asc',
@@ -170,20 +176,17 @@ class ElasticData
     private function extractData(\WP_Post $post, int $blogId)
     {
         $data              = [];
-        $data['post_ID']   = $post->ID;
+        $data['id']        = $post->ID;
         $post_title        = Cleaner::cleandata($post->post_title);
         $data['post_type'] = 'post';
 
-        $data['post_title']        = $post_title;
         $data['name']              = $post_title;
         $data['post_suggest']      = Cleaner::cleandata($post_title);
         $data['post_autocomplete'] = Cleaner::cleandata($post_title);
 
-        $post_excerpt         = Cleaner::cleandata($post->post_excerpt);
-        $data['post_excerpt'] = $post_excerpt;
-        $data['excerpt']      = $post_excerpt;
+        $data['excerpt'] = Cleaner::cleandata($post->post_excerpt);
 
-        $data['post_content'] = Cleaner::cleandata($post->post_content);
+        $data['content'] = Cleaner::cleandata($post->post_content);
 
         $data['post_mime_type'] = $post->post_mime_type;
         $data['guid']           = $post->guid;
@@ -209,6 +212,19 @@ class ElasticData
 
         return $data;
 
+    }
+
+    private function getFiches(array $category): string
+    {
+        $categoryBottinId = get_term_meta($category['id'], \BottinCategoryMetaBox::KEY_NAME, true);
+        if ($categoryBottinId) {
+            $fiches = $this->bottinRepository->getFichesByCategory($categoryBottinId);
+            dump(count($fiches));
+
+            return $this->bottinData->getContentForCategory($fiches);
+        }
+
+        return '';
     }
 
 }

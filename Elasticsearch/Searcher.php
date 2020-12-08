@@ -26,7 +26,7 @@ class Searcher
      */
     public function search(string $query): ResultSet
     {
-        $result = $this->index->search(new Match('post_title', $query));
+        $result = $this->index->search(new Match('name', $query));
 
         return $result;
     }

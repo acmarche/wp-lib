@@ -1,8 +1,6 @@
 <?php
 
-
 namespace AcMarche\Elasticsearch;
-
 
 use AcMarche\Common\AcSerializer;
 use AcMarche\Common\MarcheConst;
@@ -48,6 +46,7 @@ class ElasticIndexer
         }
 
         foreach ($sites as $siteId => $nom) {
+            $this->outPut->section($nom);
             $posts = $this->elasticData->getPosts($siteId);
             foreach ($posts as $post) {
                 $this->addPost($post);
@@ -59,7 +58,7 @@ class ElasticIndexer
     public function addPost(array $post)
     {
         $content = $this->serializer->serialize($post, 'json');
-        $id      = 'post_'.$post['blog'].'_'.$post['post_ID'];
+        $id      = 'post_'.$post['blog'].'_'.$post['id'];
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
     }
@@ -71,9 +70,11 @@ class ElasticIndexer
         }
 
         foreach ($sites as $siteId => $nom) {
+            $this->outPut->section($nom);
             $categories = $this->elasticData->getCategoriesBySite($siteId);
             foreach ($categories as $category) {
                 $this->addCategory($category);
+                $this->outPut->writeln($category['name']);
             }
         }
     }
@@ -81,7 +82,7 @@ class ElasticIndexer
     public function addCategory(array $category)
     {
         $content = $this->serializer->serialize($category, 'json');
-        $id      = 'category_'.$category['blog'].'_'.$category['cat_ID'];
+        $id      = 'category_'.$category['blog'].'_'.$category['id'];
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
     }

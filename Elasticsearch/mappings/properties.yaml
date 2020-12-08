@@ -15,7 +15,7 @@ permalink:
 post_ID:
   type: long
   index: 'false'
-post_content:
+content:
   type: text
   analyzer: app_french_light
   fields:
@@ -25,13 +25,6 @@ post_content:
 post_date:
   type: date
   format: strict_date_optional_time||epoch_millis
-post_excerpt:
-  type: text
-  analyzer: app_french_light
-  fields:
-    stemmed:
-      type: text
-      analyzer: app_french_heavy
 excerpt:
   type: text
   analyzer: app_french_light
@@ -42,14 +35,6 @@ excerpt:
 post_name:
   type: text
   index: 'false'
-post_title:
-  type: text
-  analyzer: app_french_light
-  boost: 2
-  fields:
-    stemmed:
-      type: text
-      analyzer: app_french_heavy
 name:
   type: text
   analyzer: app_french_light
