@@ -32,10 +32,25 @@ post_excerpt:
     stemmed:
       type: text
       analyzer: app_french_heavy
+excerpt:
+  type: text
+  analyzer: app_french_light
+  fields:
+    stemmed:
+      type: text
+      analyzer: app_french_heavy
 post_name:
   type: text
   index: 'false'
 post_title:
+  type: text
+  analyzer: app_french_light
+  boost: 2
+  fields:
+    stemmed:
+      type: text
+      analyzer: app_french_heavy
+name:
   type: text
   analyzer: app_french_light
   boost: 2

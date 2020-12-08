@@ -134,11 +134,13 @@ class ElasticData
             $post_title = Cleaner::cleandata($post->post_title);
 
             $data['post_title']        = $post_title;
+            $data['name']              = $post_title;
             $data['post_suggest']      = Cleaner::cleandata($post_title);
             $data['post_autocomplete'] = Cleaner::cleandata($post_title);
 
             $post_excerpt         = Cleaner::cleandata($post->post_excerpt);
             $data['post_excerpt'] = $post_excerpt;
+            $data['excerpt']      = $post_excerpt;
 
             $post_type = $post->post_type;
 
@@ -183,7 +185,8 @@ class ElasticData
 
             $data['categories'] = $categories;
             $data['blog']       = $blogId;
-            $data['post_date'] = $post->post_date;
+            list($date, $time) = explode(" ", $post->post_date);
+            $data['post_date'] = $date;
 
             $datas[] = $data;
         }
