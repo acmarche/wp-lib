@@ -3,13 +3,19 @@
 namespace AcMarche\Elasticsearch;
 
 use Elastica\Client;
+use Elastica\Index;
 
 trait ElasticClientTrait
 {
     /**
      * @var Client
      */
-    private $client;
+    public $client;
+
+    /**
+     * @var Index
+     */
+    private $index;
 
     public function connect(string $host = 'localhost', int $port = 9200)
     {

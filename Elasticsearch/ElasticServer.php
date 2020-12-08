@@ -3,10 +3,8 @@
 namespace AcMarche\Elasticsearch;
 
 use Elastica\Document;
-use Elastica\Index;
 use Elastica\Mapping;
-use Elastica\Query\Match;
-use Elastica\ResultSet;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -17,17 +15,24 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ElasticServer
 {
+
     use ElasticClientTrait;
 
+    const INDEX_NAME_MARCHE_BE = 'marchebe2';
+
     /**
-     * @var Index
+     * @var SerializerInterface
      */
-    private $index;
+    private $serializer;
+
+    public function __construct()
+    {
+        $this->connect();
+        $this->index = $this->client->getIndex(self::INDEX_NAME_MARCHE_BE);
+    }
 
     public function createIndex()
     {
-        $this->connect();
-        $this->index = $this->client->getIndex('marchebe2');
         try {
             $analyser = Yaml::parse(file_get_contents(__DIR__.'/mappings/analyzers.yaml'));
             $maps     = Yaml::parse(file_get_contents(__DIR__.'/mappings/mapping.yaml'));
@@ -35,34 +40,39 @@ class ElasticServer
             printf('Unable to parse the YAML string: %s', $e->getMessage());
         }
 
-        dump($maps);
         $maps['settings']['analysis'] = $analyser;
-
-        $this->index->create($maps);
-        dump($maps);
-        $properties = [];
-        $mapping    = new Mapping($properties);
-        // $this->index->setMapping($mapping);
+        $response                     = $this->index->create($maps, true);
+        dump($response);
     }
 
-    public function addPost(\WP_Post $post)
+    public function setProperties()
     {
-        $content          = ['name' => 'Jf', 'content' => 'zeze'];
-        $this->serializer = new SerializerJf();
-        $this->serializer->serialize($content, 'json');
-        $content = '{"name": "hans", "likes": ["2", "3"]}';
-        $id      = 5;
+        try {
+            $properties = Yaml::parse(file_get_contents(__DIR__.'/mappings/properties.yaml'));
+        } catch (ParseException $e) {
+            printf('Unable to parse the YAML string: %s', $e->getMessage());
+        }
+
+        $mapping  = new Mapping($properties);
+        $response = $this->index->setMapping($mapping);
+        dump($response);
+    }
+
+    public function indexAllPosts()
+    {
+        $this->serializer = (new ElasticSerializer())->create();
+        $elasticData      = new ElasticData();
+        $posts            = $elasticData->getPosts(1);
+        foreach ($posts as $post) {
+            $this->addPost($post);
+        }
+    }
+
+    public function addPost(array $post)
+    {
+        $content = $this->serializer->serialize($post, 'json');
+        $id      = $post['blog'].'_'.$post['post_ID'];
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
-    }
-
-    public function search(string $query): Result
-    {
-        $result = $this->index->search(new Match('name', $query));
-
-        $result = new ResultSet\DefaultBuilder($hit);
-
-
-        return $result;
     }
 }
