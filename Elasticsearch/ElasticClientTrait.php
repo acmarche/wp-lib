@@ -25,6 +25,12 @@ trait ElasticClientTrait
                 'port' => $port,
             ]
         );
+        $this->setIndex(ElasticServer::INDEX_NAME_MARCHE_BE);
+    }
+
+    public function setIndex(string $name)
+    {
+        $this->index = $this->client->getIndex($name);
     }
 
 }

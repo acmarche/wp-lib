@@ -1,8 +1,11 @@
 <?php
 
 
-namespace AcMarche\Elasticsearch;
+namespace AcMarche\Elasticsearch\Command;
 
+use AcMarche\Elasticsearch\ElasticIndexer;
+use AcMarche\Elasticsearch\ElasticServer;
+use AcMarche\Elasticsearch\Searcher;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,12 +19,6 @@ class ElasticCommand extends Command
      * @var SymfonyStyle
      */
     private $io;
-
-    public function __construct(
-        string $name = null
-    ) {
-        parent::__construct($name);
-    }
 
     protected function configure()
     {
@@ -57,20 +54,6 @@ class ElasticCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function reset()
-    {
-        $elastic = new ElasticServer();
-
-        $elastic->createIndex();
-        $elastic->setProperties();
-    }
-
-    protected function index()
-    {
-        $elastic = new ElasticServer();
-        $elastic->indexAllPosts();
-    }
-
     protected function search(string $query)
     {
         $searcher = new Searcher();
@@ -82,4 +65,19 @@ class ElasticCommand extends Command
             $this->io->writeln($source['name']);
         }
     }
+
+    protected function reset()
+    {
+        $elastic = new ElasticServer();
+
+        $elastic->createIndex();
+        $elastic->setProperties();
+    }
+
+    protected function index()
+    {
+        $elastic = new ElasticIndexer($this->io);
+        $elastic->indexAllPosts([2]);
+    }
+
 }

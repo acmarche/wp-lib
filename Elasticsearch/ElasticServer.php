@@ -2,9 +2,7 @@
 
 namespace AcMarche\Elasticsearch;
 
-use Elastica\Document;
 use Elastica\Mapping;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -15,20 +13,13 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ElasticServer
 {
-
     use ElasticClientTrait;
 
     const INDEX_NAME_MARCHE_BE = 'marchebe2';
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
     public function __construct()
     {
         $this->connect();
-        $this->index = $this->client->getIndex(self::INDEX_NAME_MARCHE_BE);
     }
 
     public function createIndex()
@@ -58,21 +49,4 @@ class ElasticServer
         dump($response);
     }
 
-    public function indexAllPosts()
-    {
-        $this->serializer = (new ElasticSerializer())->create();
-        $elasticData      = new ElasticData();
-        $posts            = $elasticData->getPosts(1);
-        foreach ($posts as $post) {
-            $this->addPost($post);
-        }
-    }
-
-    public function addPost(array $post)
-    {
-        $content = $this->serializer->serialize($post, 'json');
-        $id      = $post['blog'].'_'.$post['post_ID'];
-        $doc     = new Document($id, $content);
-        $this->index->addDocument($doc);
-    }
 }

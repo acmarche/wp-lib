@@ -3,8 +3,9 @@
 namespace AcMarche\Elasticsearch;
 
 use AcMarche\Bottin\Repository\BottinRepository;
-use AcMarche\Bottin\Repository\WpRepository;
+use AcMarche\Bottin\Repository\WpBottinRepository as WpBottinRepository;
 use AcMarche\Common\MarcheConst;
+use AcMarche\Common\WpRepository;
 
 class ElasticData
 {
@@ -12,17 +13,20 @@ class ElasticData
      * @var BottinRepository
      */
     private $bottinRepository;
+    /**
+     * @var WpRepository
+     */
     private $wpRepository;
 
     public function __construct()
     {
         $this->bottinRepository = new BottinRepository();
-        $this->wpRepository     = new \AcMarche\Common\WpRepository();
+        $this->wpRepository     = new WpRepository();
     }
 
-    public function getCategoriesOfBlog($blog)
+    public function getCategoriesBySite(int $siteId)
     {
-        switch_to_blog($blog);
+        switch_to_blog($siteId);
 
         $args = array(
             'type'         => 'post',
@@ -41,58 +45,55 @@ class ElasticData
 
         $categories = get_categories($args);
         $datas      = [];
+        $today      = new \DateTime();
 
         foreach ($categories as $category) {
-            $count = $category->count;
 
-            if ($count > 0) {
-                $data = [];
+            $data = [];
 
-                $name               = $category->name;
-                $data['post_title'] = AcElasticUtil::cleandata($name);
+            $name                      = Cleaner::cleandata($category->name);
+            $data['post_title']        = $name;
+            $data['post_autocomplete'] = $name;
 
-                $data['post_autocomplete'] = AcElasticUtil::cleandata($name);
-
-                $description = '';
-                if ($category->description) {
-                    $description = AcElasticUtil::cleandata($category->description);
-                }
-
-                $content = $description;
-
-                $cat_ID          = $category->cat_ID;
-                $data['post_ID'] = $cat_ID;
-
-                foreach ($this->getPosts($blog, $cat_ID) as $post) {
-                    $content .= $post['post_title'];
-                    $content .= $post['post_excerpt'];
-                    $content .= $post['post_content'];
-                }
-
-                $data['post_content'] = $content;
-
-                $category_nicename = $category->category_nicename;
-                $data['post_name'] = $category_nicename;
-
-                $url               = get_category_link($cat_ID);
-                $data['permalink'] = $url;
-
-                $date              = '2019-06-05T18:34:36.731Z';
-                $data['post_date'] = $date;
-                $data['date']      = $date;
-
-                $guid = "cat-".$blog.'-'.$cat_ID;
-
-                $data['blog'] = $blog;
-
-                $data['post_excerpt'] = '';
-                $data['guid']         = $guid;
-
-                $data['post_type'] = 'category';
-                $data['type']      = "category"; //force
-
-                $datas[] = $data;
+            $description = '';
+            if ($category->description) {
+                $description = Cleaner::cleandata($category->description);
             }
+
+            $content = $description;
+
+            $cat_ID          = $category->cat_ID;
+            $data['post_ID'] = $cat_ID;
+
+            foreach ($this->getPosts($siteId, $cat_ID) as $post) {
+                $content .= $post['post_title'];
+                $content .= $post['post_excerpt'];
+                $content .= $post['post_content'];
+            }
+
+            $data['post_content'] = $content;
+
+            $category_nicename = $category->category_nicename;
+            $data['post_name'] = $category_nicename;
+
+            $url               = get_category_link($cat_ID);
+            $data['permalink'] = $url;
+
+            $date              = $today->format('Y-m-d');
+            $data['post_date'] = $date;
+            $data['date']      = $date;
+
+            $guid = "cat-".$siteId.'-'.$cat_ID;
+
+            $data['blog'] = $siteId;
+
+            $data['post_excerpt'] = '';
+            $data['guid']         = $guid;
+
+            $data['type'] = "category"; //force
+
+            $datas[] = $data;
+
         }
 
         return $datas;
@@ -122,79 +123,21 @@ class ElasticData
         }
 
         $posts = get_posts($args);
-        $datas = array();
+        $datas = [];
 
-        date_default_timezone_set('Europe/Brussels');
-
-        //  $posts = array();
         foreach ($posts as $post) {
-            $ID              = $post->ID;
-            $data['post_ID'] = $ID;
+            $datas[] = $this->extractData($post, $blogId);
+        }
 
-            $post_title = Cleaner::cleandata($post->post_title);
-
-            $data['post_title']        = $post_title;
-            $data['name']              = $post_title;
-            $data['post_suggest']      = Cleaner::cleandata($post_title);
-            $data['post_autocomplete'] = Cleaner::cleandata($post_title);
-
-            $post_excerpt         = Cleaner::cleandata($post->post_excerpt);
-            $data['post_excerpt'] = $post_excerpt;
-            $data['excerpt']      = $post_excerpt;
-
-            $post_type = $post->post_type;
-
-            $data['type']      = "post"; //force
-            $data['post_type'] = $post_type;
-
-            switch ($post_type) {
-                case 'bottin_fiche' :
-                    $post_content = $this->getFicheBottin($post);
-                    break;
-                default:
-                    $post_content = $post->post_content;
-                    break;
-            }
-
-            $post_content         = Cleaner::cleandata($post_content);
-            $data['post_content'] = $post_content;
-
-            $post_mime_type         = $post->post_mime_type;
-            $data['post_mime_type'] = $post_mime_type;
-            $guid                   = $post->guid;
-            $data['guid']           = $guid;
-
-            $post_name         = $post->post_name;
-            $data['post_name'] = $post_name;
-
-            $post_status         = $post->post_status;
-            $data['post_status'] = $post_status;
-
-            $permalink         = get_permalink($ID);
-            $data['permalink'] = $permalink;
-
-            $categoriesTmp = get_the_category($ID);
-            $categories    = array();
-            $i             = 0;
-            foreach ($categoriesTmp as $category) {
-                $categories[$i]['cat_name']              = $category->cat_name;
-                $categories[$i]['cat_name_autocomplete'] = $category->cat_name;
-                $categories[$i]['cat_description']       = $category->cat_description;
-                $i++;
-            }
-
-            $data['categories'] = $categories;
-            $data['blog']       = $blogId;
-            list($date, $time) = explode(" ", $post->post_date);
-            $data['post_date'] = $date;
-
-            $datas[] = $data;
+        if ($blogId == MarcheConst::ADMINISTRATION) {
+            $pages = $this->getPages($blogId);
+            $datas = array_merge($datas, $pages);
         }
 
         return $datas;
     }
 
-    public function getPages($blog)
+    public function getPages(int $blogId)
     {
         $args  = array(
             'sort_order'   => 'asc',
@@ -215,221 +158,57 @@ class ElasticData
         );
         $pages = get_pages($args);
 
-        $datas = array();
+        $datas = [];
 
-        date_default_timezone_set('Europe/Brussels');
-
-        //  $posts = array();
         foreach ($pages as $post) {
-            $ID              = $post->ID;
-            $data['post_ID'] = $ID;
-
-            $post_title = AcElasticUtil::cleandata($post->post_title);
-
-            $data['post_title']        = $post_title;
-            $data['post_suggest']      = AcElasticUtil::cleandata($post_title);
-            $data['post_autocomplete'] = AcElasticUtil::cleandata($post_title);
-
-            $post_excerpt         = AcElasticUtil::cleandata($post->post_excerpt);
-            $data['post_excerpt'] = $post_excerpt;
-
-            $post_type = $post->post_type;
-
-            $data['type']      = "post"; //force
-            $data['post_type'] = $post_type;
-
-            switch ($post_type) {
-                case 'bottin_fiche' :
-                    $post_content = $this->getFicheBottin($post);
-                    break;
-                default:
-                    $post_content = $post->post_content;
-                    break;
-            }
-
-            $post_content         = AcElasticUtil::cleandata($post_content);
-            $data['post_content'] = $post_content;
-
-            $post_mime_type         = $post->post_mime_type;
-            $data['post_mime_type'] = $post_mime_type;
-            $guid                   = $post->guid;
-            $data['guid']           = $guid;
-
-            $post_name         = $post->post_name;
-            $data['post_name'] = $post_name;
-
-            $post_status         = $post->post_status;
-            $data['post_status'] = $post_status;
-
-            $permalink         = get_permalink($ID);
-            $data['permalink'] = $permalink;
-
-            $data['type'] = 'page';
-
-            $categoriesTmp = get_the_category($ID);
-            $categories    = array();
-            $i             = 0;
-            foreach ($categoriesTmp as $category) {
-                $categories[$i]['cat_name']              = $category->cat_name;
-                $categories[$i]['cat_name_autocomplete'] = $category->cat_name;
-                $categories[$i]['cat_description']       = $category->cat_description;
-                $i++;
-            }
-            $data['categories'] = $categories;
-
-            $data['blog'] = $blog;
-
-            $datas[] = $data;
+            $datas[] = $this->extractData($post, $blogId);
         }
 
         return $datas;
     }
 
-    public function getNowel($blog)
+    private function extractData(\WP_Post $post, int $blogId)
     {
-        $datas = array();
-
-        date_default_timezone_set('Europe/Brussels');
-
-        $ID              = 9999999999;
-        $data['post_ID'] = $ID;
-
-        $post_title = AcElasticUtil::cleandata("Marché de Noël - SITE");
+        $data              = [];
+        $data['post_ID']   = $post->ID;
+        $post_title        = Cleaner::cleandata($post->post_title);
+        $data['post_type'] = 'post';
 
         $data['post_title']        = $post_title;
-        $data['post_suggest']      = AcElasticUtil::cleandata($post_title);
-        $data['post_autocomplete'] = AcElasticUtil::cleandata($post_title);
+        $data['name']              = $post_title;
+        $data['post_suggest']      = Cleaner::cleandata($post_title);
+        $data['post_autocomplete'] = Cleaner::cleandata($post_title);
 
-        $post_excerpt = AcElasticUtil::cleandata(
-            "Outre le traditionnel Village de Noël et les illuminations, elle accueillera pour la deuxième fois une patinoire à glace, d’une surface de 230 mètres carrés et pour la première fois, un village des artisans."
-        );
-
+        $post_excerpt         = Cleaner::cleandata($post->post_excerpt);
         $data['post_excerpt'] = $post_excerpt;
+        $data['excerpt']      = $post_excerpt;
 
-        $data['type'] = "post";
+        $data['post_content'] = Cleaner::cleandata($post->post_content);
 
-        $args = array(
-            'numberposts'      => 5000,
-            'offset'           => 0,
-            'category'         => 0,
-            'orderby'          => 'post_title',
-            'order'            => 'ASC',
-            'include'          => array(),
-            'exclude'          => array(),
-            'meta_key'         => '',
-            'meta_value'       => '',
-            'post_type'        => array('post', 'hades_logement', 'bottin_fiche', 'hades_event'),
-            'suppress_filters' => true,
-            'post_status'      => 'publish',
-        );
+        $data['post_mime_type'] = $post->post_mime_type;
+        $data['guid']           = $post->guid;
 
-        $posts   = get_posts($args);
-        $content = "";
+        $data['post_name']   = $post->post_name;
+        $data['post_status'] = $post->post_status;
 
-        foreach ($posts as $post) {
-            $content .= $post->post_title." ".$post->post_content;
-        }
-
-        $post_content         = AcElasticUtil::cleandata($content);
-        $data['post_content'] = $post_content;
-
-        $data['post_mime_type'] = null;
-
-        $data['guid'] = null;
-
-        $post_name         = "marche_de_noel";
-        $data['post_name'] = $post_name;
-
-        $data['post_status'] = "publish";
-
-        $data['permalink'] = "https://www.marche.be/noelamarche/";
-
-        $data['type'] = 'post';
+        $data['permalink'] = get_permalink($post->ID);
 
         $categories = array();
+        $i          = 0;
+        foreach (get_the_category($post->ID) as $category) {
+            $categories[$i]['cat_name']              = $category->cat_name;
+            $categories[$i]['cat_name_autocomplete'] = $category->cat_name;
+            $categories[$i]['cat_description']       = $category->cat_description;
+            $i++;
+        }
 
         $data['categories'] = $categories;
+        $data['blog']       = $blogId;
+        list($date, $time) = explode(" ", $post->post_date);
+        $data['post_date'] = $date;
 
-        $data['blog'] = $blog;
+        return $data;
 
-        $datas[] = $data;
-
-        return $datas;
-    }
-
-    public function getFicheBottin($post): string
-    {
-        $content = '';
-        $key     = WpRepository::DATA_TYPE;
-        WpRepository::set_table_meta();
-
-        $idfiche = get_metadata($key, $post->ID, 'id', true);
-        $fiche   = $this->bottinRepository->getFiche($idfiche);
-
-        $content .= ' '.$fiche->localite;
-        $content .= ' '.$fiche->nom;
-        $content .= ' '.$fiche->prenom;
-        $content .= ' '.$fiche->email;
-        $content .= ' '.$fiche->website;
-
-        $content .= ' '.$fiche->contact_localite;
-        $content .= ' '.$fiche->contact_email;
-
-        $content .= ' '.$fiche->comment1;
-        $content .= ' '.$fiche->comment2;
-        $content .= ' '.$fiche->comment3;
-
-        $content .= ' '.$fiche->facebook;
-        $content .= ' '.$fiche->twitter;
-
-        return $content;
-    }
-
-    public function getAllPosts(): array
-    {
-        $elasticData = new self();
-
-        $sites = MarcheConst::SITES;
-
-        $datas = [];
-        foreach ($sites as $blogId => $name) {
-            $datas[$blogId] = $elasticData->getPosts($blogId);
-
-            if ($blogId == 2) {
-                $datas[$blogId] = array_merge($datas[$blogId], $elasticData->getPages($blogId));
-            }
-
-            if ($blogId == 13) {
-                $datas[$blogId] = array_merge($datas[$blogId], $elasticData->getNowel($blogId));
-            }
-        }
-
-        return $datas;
-    }
-
-    public function getAllCategories(): array
-    {
-        $blogs = [
-            "citoyen"        => 1,
-            "administration" => 2,
-            "economie"       => 3,
-            "tourisme"       => 4,
-            "sport"          => 5,
-            "sante"          => 6,
-            "social"         => 7,
-            "marchois"       => 8,
-            "culture"        => 11,
-            "eroman"         => 12,
-            "noel"           => 13,
-            "enfance"        => 14,
-        ];
-
-        $datas = [];
-        foreach ($blogs as $blog) {
-            $datas[$blog] = $this->getCategoriesOfBlog($blog);
-        }
-
-        return $datas;
     }
 
 }

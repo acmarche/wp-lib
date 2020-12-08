@@ -5,7 +5,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-an
 
 french_elision: il enlève les articles pouvant précéder un mot, et donc d’origine devient origine.
 
-french_stop:  clause DSL common, il n’est plus nécessaire d’utiliser ce filtre 
+french_stop:  clause DSL common, il n’est plus nécessaire d’utiliser ce filtre
 
 french_stemmer: permet de supprimer les formes plurielles, les différentes conjugaisons, accord de genre sur un mot
 

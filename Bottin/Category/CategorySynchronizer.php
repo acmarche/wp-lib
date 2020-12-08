@@ -3,8 +3,7 @@
 
 namespace AcMarche\Bottin\Category;
 
-use AcMarche\Bottin\Bottin;
-use AcMarche\Bottin\Repository\WpRepository;
+use AcMarche\Bottin\Repository\WpBottinRepository;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Common\MarcheConst;
 
@@ -15,7 +14,7 @@ class CategorySynchronizer
      */
     private $categoryId;
     /**
-     * @var WpRepository
+     * @var WpBottinRepository
      */
     private $wpRepository;
     /**
@@ -31,7 +30,7 @@ class CategorySynchronizer
     {
         $this->categoryId = $categoryId;
         $this->bottinRepository = new BottinRepository();
-        $this->wpRepository = new WpRepository();
+        $this->wpRepository = new WpBottinRepository();
         $this->categoryCreator = new CategoryCreator();
     }
 

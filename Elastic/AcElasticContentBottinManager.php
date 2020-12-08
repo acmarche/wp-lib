@@ -216,5 +216,4 @@ class AcElasticContentBottinManager
         $categorie['content'] = $content;
     }
 
-
 }

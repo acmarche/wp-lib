@@ -3,6 +3,7 @@
 
 namespace AcMarche\Elasticsearch;
 
+use Elastica\Exception\InvalidException;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
 use Elastica\Query\SimpleQueryString;
@@ -15,9 +16,14 @@ class Searcher
     public function __construct()
     {
         $this->connect();
-        $this->index = $this->client->getIndex(ElasticServer::INDEX_NAME_MARCHE_BE);
     }
 
+    /**
+     * @param string $query
+     *
+     * @return ResultSet
+     * @throws  InvalidException
+     */
     public function search(string $query): ResultSet
     {
         $result = $this->index->search(new Match('post_title', $query));

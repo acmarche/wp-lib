@@ -6,7 +6,7 @@ namespace AcMarche\Bottin\Repository;
 
 use WP_Term;
 
-class WpRepository
+class WpBottinRepository
 {
     const DATA_TYPE = 'bottin_fiche';
     const DATA_KEY = 'bottin_fiche_id';
@@ -103,7 +103,7 @@ class WpRepository
         );
 
         if (count($results) > 0) {
-            $key = WpRepository::DATA_KEY;
+            $key = WpBottinRepository::DATA_KEY;
             $result['status'] = "updated";
             $ID = $results[0]->$key;
 
@@ -124,7 +124,7 @@ class WpRepository
 
         $results = $wpdb->delete(
             $table,
-            [WpRepository::DATA_KEY => $postId],
+            [WpBottinRepository::DATA_KEY => $postId],
             ['%d']
         );
 
@@ -135,7 +135,7 @@ class WpRepository
     {
         $this::set_table_meta();
 
-        return get_metadata(WpRepository::DATA_TYPE, $postId, 'id', true);
+        return get_metadata(WpBottinRepository::DATA_TYPE, $postId, 'id', true);
     }
 
     public function getPostByFicheId(int $ficheId): ?\WP_Post
