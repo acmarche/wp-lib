@@ -9,6 +9,11 @@ use Elastica\Query\Match;
 use Elastica\Query\SimpleQueryString;
 use Elastica\ResultSet;
 
+/**
+ * https://github.com/ruflin/Elastica/tree/master/tests
+ * Class Searcher
+ * @package AcMarche\Elasticsearch
+ */
 class Searcher
 {
     use ElasticClientTrait;
@@ -19,14 +24,20 @@ class Searcher
     }
 
     /**
-     * @param string $query
+     * @param string $keywords
      *
      * @return ResultSet
      * @throws  InvalidException
      */
-    public function search(string $query): ResultSet
+    public function search(string $keywords): ResultSet
     {
-        $result = $this->index->search(new Match('name', $query));
+        $query  = new BoolQuery();
+        $match  = new Match('name', $keywords);
+        $match2 = new Match('content', $keywords);
+        $query->addShould($match);
+        $query->addShould($match2);
+
+        $result = $this->index->search($query);
 
         return $result;
     }

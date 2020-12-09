@@ -14,6 +14,11 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
+/**
+ * http://w3.ftlb.be/wiki/index.php/Flux
+ * Class PivotRemoteRepository
+ * @package AcMarche\Pivot\Repository
+ */
 class PivotRemoteRepository
 {
     use ConnectionTrait;
