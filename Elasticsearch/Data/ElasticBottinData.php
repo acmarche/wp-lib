@@ -1,6 +1,6 @@
 <?php
 
-namespace AcMarche\Elasticsearch;
+namespace AcMarche\Elasticsearch\Data;
 
 use AcMarche\Bottin\Repository\BottinRepository;
 

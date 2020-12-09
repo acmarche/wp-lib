@@ -61,4 +61,28 @@ class Searcher
         $fullTextQuery->setParam("analyze_wildcard", true);
         $query->addMust($fullTextQuery);
     }
+
+    protected function createQuery(string $motclef)
+    {
+        $query = [
+            "multi_match" => [
+                "query" => $motclef,
+                "fields" => [
+                    'post_title',
+                    'name',
+                    'content',
+                    'description',
+                    'post_title.stemmed',//trouve pluriels
+                    'post_content',
+                    'post_content.stemmed',//trouve pluriels
+                    'post_excerpt',
+                    'post_excerpt.stemmed',//trouve pluriels
+                    'categories.cat_name',
+                    'categories.cat_description',
+                ],
+            ],
+        ];
+
+        return $query;
+    }
 }

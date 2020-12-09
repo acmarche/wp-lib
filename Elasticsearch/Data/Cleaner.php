@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AcMarche\Elasticsearch;
+namespace AcMarche\Elasticsearch\Data;
 
 
 class Cleaner
