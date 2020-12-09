@@ -6,6 +6,7 @@ namespace AcMarche\Elasticsearch;
 use Elastica\Exception\InvalidException;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
+use Elastica\Query\MultiMatch;
 use Elastica\Query\SimpleQueryString;
 use Elastica\ResultSet;
 
@@ -31,11 +32,30 @@ class Searcher
      */
     public function search(string $keywords): ResultSet
     {
-        $query  = new BoolQuery();
-        $match  = new Match('name', $keywords);
-        $match2 = new Match('content', $keywords);
-        $query->addShould($match);
-        $query->addShould($match2);
+        $query        = new BoolQuery();
+        $matchName    = new Match('name', $keywords);
+        $matchContent = new Match('content', $keywords);
+        $matchExcerpt = new Match('excerpt', $keywords);
+        $matchCatName = new Match('categories.cat_name', $keywords);
+        $matchCatDescription = new Match('categories.cat_description', $keywords);
+        $query->addShould($matchName)->setBoost(3);
+        $query->addShould($matchExcerpt);
+        $query->addShould($matchContent);
+        $query->addShould($matchCatName);
+        $query->addShould($matchCatDescription);
+
+        $result = $this->index->search($query);
+
+        return $result;
+    }
+
+    public function search2(string $keywords): ResultSet
+    {
+        $query        = new MultiMatch();
+        $query->setFields([
+            'name','content','excerpt','categories.cat_name','categories.cat_description'
+        ]);
+        $query->setQuery($keywords);
 
         $result = $this->index->search($query);
 
@@ -45,7 +65,7 @@ class Searcher
     /**
      * https://camillehdl.dev/php-compose-elastica-queries/
      */
-    public function search2()
+    public function search3()
     {
         $request       = [
             "title" => ["q" => "Apocalypse"],
@@ -66,7 +86,7 @@ class Searcher
     {
         $query = [
             "multi_match" => [
-                "query" => $motclef,
+                "query"  => $motclef,
                 "fields" => [
                     'post_title',
                     'name',
