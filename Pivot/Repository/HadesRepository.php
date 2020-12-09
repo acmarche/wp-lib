@@ -3,51 +3,64 @@
 
 namespace AcMarche\Pivot\Repository;
 
-
 use AcMarche\Common\Cache;
-use AcMarche\Pivot\ConnectionHadesTrait;
+use AcMarche\Common\Mailer;
+use AcMarche\Pivot\Entity\Event;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class HadesRepository
 {
-    use ConnectionHadesTrait;
-
     /**
      * @var CacheInterface
      */
     private $cache;
+    /**
+     * @var HadesRemoteRepository
+     */
+    private $hadesRemoteRepository;
 
     public function __construct()
     {
-        $this->connect();
-        $this->cache = Cache::instance();
+        $this->hadesRemoteRepository = new HadesRemoteRepository();
+        $this->cache                 = Cache::instance();
     }
 
-    /**
-     * https://www.ftlb.be/rss/xmlinterreg.php?pays=9&offre=evenements&quoi=tout
-     * @return string
-     * @throws \Psr\Cache\InvalidArgumentException
-     */
-    public function getEvents(): string
+    public function getEvents(): array
     {
         return $this->cache->get(
             'events_hades'.time(),
             function () {
-                //$url      = $this->url.'pays=9&offre=evenements&quoi=tout';
-                $response = $this->httpClient->request(
-                    'GET',
-                    $this->url,
-                    [
-                        'query' => [
-                            'pays'  => 9,
-                            'offre' => 'evenements',
-                            'quoi'  => 'tout',
-                        ],
-                    ]
-                );
+                $data = $this->decodeXml($this->hadesRemoteRepository->getEvents());
 
-                return $response->getContent();
+                foreach ($data->offres as $offres) {
+                    $events = [];
+                    foreach ($offres as $offre) {
+                        $events[] = Event::createFromStd($offre);
+                    }
+                }
+
+                return $events;
             }
         );
+    }
+
+    /**
+     * @param string $xmlString
+     *
+     * @return array|\Exception
+     */
+    private function decodeXml(string $xmlString): object
+    {
+        try {
+            $xml   = simplexml_load_string($xmlString);
+            $json  = json_encode($xml);
+            $array = json_decode($json);
+
+            return $array;
+        } catch (\Exception $exception) {
+            Mailer::sendError('Erreur avec le xml hades event', $exception->getMessage());
+
+            return new \Exception('Erreur avec le xml');
+        }
     }
 }

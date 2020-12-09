@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot;
 
-
 use AcMarche\Common\Env;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -30,13 +29,15 @@ trait ConnectionHadesTrait
     public function connect()
     {
         Env::loadEnv();
-        $this->url  = $_ENV['HADES_URL'];
+        $this->url = $_ENV['HADES_URL'];
+        $user      = $_ENV['HADES_USER'];
+        $password  = $_ENV['HADES_PASSWORD'];
 
-        $headers = [
-
+        $options   = [
+            'auth_basic' => [$user, $password],
         ];
 
-        $this->httpClient = HttpClient::create($headers);
+        $this->httpClient = HttpClient::create($options);
     }
 
 }

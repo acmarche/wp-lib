@@ -3,268 +3,67 @@
 
 namespace AcMarche\Pivot\Entity;
 
-use AcMarche\Common\PropertyUtils;
-use AcMarche\Pivot\PivotType;
 use stdClass;
 
 class Event
 {
-    const CODE_OFFRE = 'EVT';
-    const NUM_OFFRE = PivotType::TYPE_EVENEMENT;
-
-    /**
-     * @var stdClass
-     */
-    public $offer;
-    /**
-     * @var string
-     */
-    public $codeCgt;
-    /**
-     * @var stdClass
-     */
-    public $typeOffre;
-    /**
-     * @var string
-     */
-    public $nom;
-    /**
-     * @deprecated
-     * @var string
-     */
-    public $visibilite;
-    /**
-     * @var stdClass
-     */
-    public $visibiliteUrn;
-    /**
-     * @deprecated
-     * @var string
-     */
-    public $estActive;
-    /**
-     * @var stdClass
-     */
-    public $estActiveUrn;
-    /**
-     * @var stdClass
-     */
-    public $adresse1;
-    /**
-     * @var stdClass
-     */
-    public $spec;
-    /**
-     * @var string
-     */
-    public $dateModification;
-    /**
-     * @var string
-     */
-    public $textTypeOffre;
-    /**
-     * @var string
-     */
-    public $idTypeOffre;
-    /**
-     * @var string
-     */
-    public $longitude;
-    /**
-     * @var string
-     */
-    public $latitude;
-    /**
-     * @var string
-     */
-    public $localite;
-    /**
-     * @var string
-     */
-    public $dateDebut;
-    /**
-     * @var string
-     */
-    public $dateFin;
-    /**
-     * @var string
-     */
-    public $description;
-    /**
-     * @var string
-     */
-    public $dateRange;
-    /**
-     * @var string
-     */
-    public $code_postal;
-    /**
-     * @var string
-     */
-    public $url;
-    /**
-     * @var string
-     */
-    public $day;
-    /**
-     * @var string
-     */
-    public $month;
-    /**
-     * @var string
-     */
-    public $year;
-    /**
-     * @var array
-     */
-    public $images;
-    /**
-     * @var array
-     */
-    public $contact;
-
-    public function createFromStd(stdClass $data): self
+    public static function createFromStd(stdClass $offre): array
     {
-        $this->offer = $data;
-        $utils       = new PropertyUtils();
-        $properties  = $utils->getProperties(Event::class);
+        $event = [];
+        if (is_array($offre->titre)) {
+            $event['nom'] = $offre->titre[0];
+        } else {
+            $event['nom'] = $offre->titre;
+        }
+        $localisations = $offre->localisation->localite;
+        $descriptions  = $offre->descriptions;
 
-        foreach ($properties as $property) {
-            if (isset($data->$property)) {
-                $this->$property = $data->$property;
-            }
+        if (is_array($descriptions->description)) {
+            $event['description1'] = $descriptions->description[0]->texte;//Informations pratiques
+            $event['description']  = $descriptions->description[1]->texte;//Description générale
+        } else {
+
         }
 
-        $this->url = '/tourisme/manifestation/'.$this->codeCgt;
-        $this->setTypes();
-        $this->setAdresses($this->adresse1);
-        $this->setSpecs();
-        $this->setImages();
-        $this->setContact();
-
-        return $this;
-    }
-
-    public function setTypes()
-    {
-        $type              = $this->typeOffre;
-        $this->idTypeOffre = $type->idTypeOffre;
-        $labels            = $type->label;
-        $label             = $labels[0];//fr 1=> nl
-        $label->lang;
-        $this->textTypeOffre = $label->value;
-    }
-
-    public function getAdresse(stdClass $data): stdClass
-    {
-        $adresse              = new stdClass;
-        $adresse->code_postal = $data->cp;
-        $adresses             = $data->localite;//array multi languages
-        $adresse->localite    = $adresses[0]->value;//fr
-        $adresse->latitude    = $data->latitude;
-        $adresse->longitude   = $data->longitude;
-
-        return $adresse;
-    }
-
-    public function setAdresses(stdClass $data)
-    {
-        $adresse           = $this->getAdresse($data);
-        $this->code_postal = $adresse->code_postal;
-        $this->localite    = $adresse->localite;
-        $this->latitude    = $adresse->latitude;
-        $this->longitude   = $adresse->longitude;
-    }
-
-    public function setSpecs()
-    {
-        foreach ($this->spec as $spec) {
-            //var_dump($spec);
-            $urn = $spec->urn;
-
-            if ($urn === 'urn:fld:descmarket') {
-                $this->description = $spec->value;
+        if (is_array($localisations)) {
+            $localites = [];
+            foreach ($localisations as $localisation) {
+                $localites[] = $localisation->l_nom;
             }
-
-            if ($urn === 'urn:fld:datedebvalid') {
-                $this->dateDebut = $spec->value;
+            $event['localite'] = join(',', $localites);
+        } else {
+            $event['localite']  = $localisations->l_nom;
+            $event['latitude']  = $localisations->x;
+            $event['longitude'] = $localisations->y;
+        }
+        $medias = $offre->medias->media;
+        $images = [];
+        if (is_array($medias)) {
+            foreach ($medias as $media) {
+                $images[] = $media->url;
             }
-
-            if ($urn === 'urn:fld:datefinvalid') {
-                $this->dateFin = $spec->value;
+        } else {
+            $images[] = $medias->url;
+        }
+        $attributs = $offre->attributs;
+        $horaires  = $offre->horaires->horaire;
+        if (is_array($horaires->horline)) {
+            foreach ($horaires->horline as $horaire) {
+                $event['date_deb'] = $horaire->date_deb;
+                list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
+                $event['date_deb']       = $horaire->date_fin;
+                $event['date_affichage'] = $horaire->date_deb;
             }
-
-            if ($urn === 'nl:urn:fld:nomofr') {
-                $this->nomFr = $spec->value;
-            }
-
-            if ($urn === 'urn:fld:catevt:spectacle') {
-                $this->category = $spec->value;
-            }
-
-            if ($urn === 'urn:obj:date') {
-                $specs = $spec->spec;
-                foreach ($specs as $spec2) {
-                    if ($spec2->urn === 'urn:fld:date:daterange') {
-                        $this->dateRange = $spec2->value;
-                    }
-                }
-            }
+        } else {
+            $event['date_deb'] = $horaires->horline->date_deb;
+            list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
+            $event['date_deb']       = $horaires->horline->date_fin;
+            $event['date_affichage'] = $horaires->texte[0];
         }
 
-        if (preg_match("#/#", $this->dateDebut)) {
-            [$this->day, $this->month, $this->year] = explode("/", $this->dateDebut);
-        }
+        $event['url']    = 'iti';
+        $event['images'] = $images;
+
+        return $event;
     }
-
-    private function setContact()
-    {
-        $contacts  = [];
-        if (is_array($this->offer->relOffre)) {
-            foreach ($this->offer->relOffre as $relation) {
-                if ($relation->urn === 'urn:lnk:offre:voiraussi') {
-                    $contact = [];
-                    $offre   = $relation->offre;
-                    $codeCgt = $offre->codeCgt;
-                    $nom     = $offre->nom;
-                    foreach ($offre->spec as $spec) {
-
-                        $contact = ['nom' => $nom];
-                        if ($spec->urn === 'urn:fld:url') {
-                            $contact['nom']     = $spec->value;
-                            $contact['adresse'] = $this->getAdresse($spec->adresse1);
-                        }
-                    }
-                    $contacts[] = $contact;
-                }
-            }
-        }
-
-        $this->contact = $contacts;
-    }
-
-    private function setImages()
-    {
-        $imgs      = [];
-        $relations = [];
-        if (is_array($this->offer->relOffre)) {
-            foreach ($this->offer->relOffre as $relation) {
-                $offre   = $relation->offre;
-                if ($offre->typeOffre->idTypeOffre === PivotType::TYPE_MEDIA) {
-                    $codeCgt = $offre->codeCgt;
-                    $nom     = $offre->nom;
-                    foreach ($offre->spec as $spec) {
-                        if ($spec->urn === 'urn:fld:url') {
-                            $imgs[] = $spec->value;
-                        }
-                    }
-                    $relations[] = $relation;
-                }
-            }
-        }
-        $this->images = $imgs;
-    }
-
 }
-
-?>
