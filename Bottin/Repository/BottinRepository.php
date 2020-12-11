@@ -197,6 +197,16 @@ class BottinRepository
         return $query->fetchAll(\PDO::FETCH_OBJ);
     }
 
+    public function getFichesByCategories(array $ids): array
+    {
+        $fiches = [[]];
+        foreach ($ids as $id) {
+            $fiches[] = $this->getFichesByCategory($id);
+        }
+
+        return array_merge(...$fiches);
+    }
+
     public function getFichesByCategory(int $id): array
     {
         $category = $this->getCategory($id);
@@ -228,5 +238,4 @@ class BottinRepository
 
         return $query;
     }
-
 }
