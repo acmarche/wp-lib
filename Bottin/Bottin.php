@@ -3,18 +3,11 @@
 
 namespace AcMarche\Bottin;
 
-
 use AcMarche\Common\Env;
 use AcMarche\Common\Twig;
 
 class Bottin
 {
-    public static function sendEmail(string $sujet, string $message): void
-    {
-        Env::loadEnv();
-        wp_mail($_ENV['DB_BOTTIN_EMAIL'], $sujet, $message);
-    }
-
     public static function getUrlBottin(): string
     {
         Env::loadEnv();
@@ -36,7 +29,8 @@ class Bottin
 
     public static function getExcerpt(\stdClass $fiche): string
     {
-        $twig    = Twig::LoadTwig();
+        $twig = Twig::LoadTwig();
+
         return $twig->render(
             'fiche/_excerpt.html.twig',
             [

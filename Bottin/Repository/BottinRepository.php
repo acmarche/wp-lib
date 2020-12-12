@@ -4,6 +4,7 @@ namespace AcMarche\Bottin\Repository;
 
 use AcMarche\Bottin\Bottin;
 use AcMarche\Common\Env;
+use AcMarche\Common\Mailer;
 
 class BottinRepository
 {
@@ -233,6 +234,7 @@ class BottinRepository
         $query = $this->dbh->query($sql);
         $error = $this->dbh->errorInfo();
         if ($error[0] != '0000') {
+            Mailer::sendError("wp error sql", $sql.' '.$error[2]);
             throw new \Exception($error[2]);
         };
 
