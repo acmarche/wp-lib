@@ -10,8 +10,13 @@ use AcMarche\Theme\Inc\Router;
 
 class TemplateRender
 {
-    public static function renderCategory(\WP_Query $wp_query): string
+    public static function renderCategory(): string
     {
+        /**
+         * @var \WP_Query $wp_query
+         */
+        global $wp_query;
+
         $twig             = Twig::LoadTwig();
         $bottinRepository = new BottinRepository();
 
@@ -21,7 +26,7 @@ class TemplateRender
 
         $blodId   = get_current_blog_id();
         $siteSlug = get_blog_details($blodId)->path;
-        $color = MarcheConst::COLORS[$blodId];
+        $color    = MarcheConst::COLORS[$blodId];
 
         $posts = $wp_query->get_posts();
 
