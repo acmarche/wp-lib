@@ -19,6 +19,10 @@ class TemplateRender
         $description = category_description($cat_ID);
         $title       = single_cat_title('', false);
 
+        $blodId   = get_current_blog_id();
+        $siteSlug = get_blog_details($blodId)->path;
+        $color = MarcheConst::COLORS[$blodId];
+
         $posts = $wp_query->get_posts();
 
         $args     = ['parent' => $cat_ID, 'hide_empty' => false];
@@ -61,6 +65,9 @@ class TemplateRender
                 'description' => $description,
                 'children'    => $children,
                 'posts'       => $all,
+                'category_id' => $cat_ID,
+                'site_slug'   => $siteSlug,
+                'color'       => $color,
             ]
         );
 
