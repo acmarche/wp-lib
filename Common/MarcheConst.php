@@ -5,6 +5,8 @@ namespace AcMarche\Common;
 
 class MarcheConst
 {
+    const ADMINISTRATION = 2;
+
     const SITES = [
         1                    => 'citoyen',
         self::ADMINISTRATION => 'administration',
@@ -31,6 +33,4 @@ class MarcheConst
         11                   => 'color-cat-cul',
         14                   => 'color-cat-enf',
     ];
-
-    const ADMINISTRATION = 2;
 }

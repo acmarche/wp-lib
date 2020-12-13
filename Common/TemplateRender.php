@@ -24,9 +24,13 @@ class TemplateRender
         $description = category_description($cat_ID);
         $title       = single_cat_title('', false);
 
-        $blodId   = get_current_blog_id();
-        $siteSlug = get_blog_details($blodId)->path;
-        $color    = MarcheConst::COLORS[$blodId];
+        $blodId = get_current_blog_id();
+        if ($blodId === 1) {
+            $siteSlug = 'Citoyen';
+        } else {
+            $siteSlug = get_blog_details($blodId)->path;
+        }
+        $color = MarcheConst::COLORS[$blodId];
 
         $posts = $wp_query->get_posts();
 

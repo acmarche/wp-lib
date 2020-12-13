@@ -175,13 +175,14 @@ class BottinRepository
      * @return \stdClass|bool
      * @throws \Exception
      */
-    public function getCategoryBySlug(string $slug): \stdClass
+    public function getCategoryBySlug(string $slug): object
     {
         $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
+        $t = $sth->fetch(\PDO::FETCH_OBJ);
 
-        return $sth->fetchObject();
+        return $t;
     }
 
     /**
