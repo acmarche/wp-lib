@@ -56,12 +56,12 @@ class BottinRepository
      * @return object|bool
      * @throws Exception
      */
-    public function getFicheById(int $id): object
+    public function getFicheById(int $id): ?object
     {
         $sql   = 'SELECT * FROM fiche WHERE `id` = '.$id;
         $query = $this->execQuery($sql);
 
-        return $query->fetchObject();
+        return $query->fetch(PDO::FETCH_OBJ);
     }
 
     /**
@@ -70,13 +70,16 @@ class BottinRepository
      * @return object|bool
      * @throws Exception
      */
-    public function getFicheBySlug(string $slug): object
+    public function getFicheBySlug(string $slug): ?object
     {
         $sql = 'SELECT * FROM fiche WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+            return null;
+        }
 
-        return $sth->fetchObject();
+        return $data;
     }
 
     /**
@@ -166,9 +169,12 @@ class BottinRepository
     public function getCategory(int $id): ?object
     {
         $sql   = 'SELECT * FROM category WHERE `id` = '.$id;
-        $query = $this->execQuery($sql);
+        $sth = $this->execQuery($sql);
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+            return null;
+        }
 
-        return $query->fetchObject();
+        return $data;
     }
 
     /**
@@ -177,13 +183,16 @@ class BottinRepository
      * @return object|bool
      * @throws Exception
      */
-    public function getCategoryBySlug(string $slug): object
+    public function getCategoryBySlug(string $slug): ?object
     {
         $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+            return null;
+        }
 
-        return $sth->fetch(PDO::FETCH_OBJ);
+        return $data;
     }
 
     /**
