@@ -246,7 +246,7 @@ class BottinRepository
         if ($error[0] != '0000') {
             Mailer::sendError("wp error sql", $sql.' '.$error[2]);
             throw new Exception($error[2]);
-        };
+        }
 
         return $query;
     }
