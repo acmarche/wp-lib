@@ -5,11 +5,13 @@ namespace AcMarche\Bottin\Repository;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Common\Env;
 use AcMarche\Common\Mailer;
+use Exception;
+use PDO;
 
 class BottinRepository
 {
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $dbh;
 
@@ -20,10 +22,10 @@ class BottinRepository
         $username = $_ENV['DB_BOTTIN_USER'];
         $password = $_ENV['DB_BOTTIN_PASS'];
         $options  = array(
-            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
         );
 
-        $this->dbh = new \PDO($dsn, $username, $password, $options);
+        $this->dbh = new PDO($dsn, $username, $password, $options);
     }
 
     public function getClassementsFiche(int $ficheId): array
@@ -51,10 +53,10 @@ class BottinRepository
     /**
      * @param int $id
      *
-     * @return \stdClass|bool
-     * @throws \Exception
+     * @return object|bool
+     * @throws Exception
      */
-    public function getFicheById(int $id): \stdClass
+    public function getFicheById(int $id): object
     {
         $sql   = 'SELECT * FROM fiche WHERE `id` = '.$id;
         $query = $this->execQuery($sql);
@@ -65,21 +67,21 @@ class BottinRepository
     /**
      * @param int $id
      *
-     * @return \stdClass|bool
-     * @throws \Exception
+     * @return object|bool
+     * @throws Exception
      */
-    public function getFicheBySlug(string $slug): \stdClass
+    public function getFicheBySlug(string $slug): object
     {
         $sql = 'SELECT * FROM fiche WHERE `slug` = :slug ';
-        $sth = $this->dbh->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
 
         return $sth->fetchObject();
     }
 
     /**
-     * @return \stdClass[]
-     * @throws \Exception
+     * @return object[]
+     * @throws Exception
      */
     public function getFiches(): array
     {
@@ -93,7 +95,7 @@ class BottinRepository
      * @param int $id
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getImagesFiche(int $id): array
     {
@@ -107,7 +109,7 @@ class BottinRepository
      * @param int $id
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDocuments(int $id): array
     {
@@ -121,7 +123,7 @@ class BottinRepository
      * @param int $id
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSituations(int $id): array
     {
@@ -158,10 +160,10 @@ class BottinRepository
     /**
      * @param int $id
      *
-     * @return \stdClass|null
-     * @throws \Exception
+     * @return object|null
+     * @throws Exception
      */
-    public function getCategory(int $id): ?\stdClass
+    public function getCategory(int $id): ?object
     {
         $sql   = 'SELECT * FROM category WHERE `id` = '.$id;
         $query = $this->execQuery($sql);
@@ -172,31 +174,30 @@ class BottinRepository
     /**
      * @param string $slug
      *
-     * @return \stdClass|bool
-     * @throws \Exception
+     * @return object|bool
+     * @throws Exception
      */
     public function getCategoryBySlug(string $slug): object
     {
         $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
-        $sth = $this->dbh->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
-        $t = $sth->fetch(\PDO::FETCH_OBJ);
 
-        return $t;
+        return $sth->fetch(PDO::FETCH_OBJ);
     }
 
     /**
      * @param int $id
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function getCategories(int $parentId): array
     {
         $sql   = 'SELECT * FROM category WHERE `parent_id` = '.$parentId;
         $query = $this->execQuery($sql);
 
-        return $query->fetchAll(\PDO::FETCH_OBJ);
+        return $query->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function getFichesByCategories(array $ids): array
@@ -213,7 +214,7 @@ class BottinRepository
     {
         $category = $this->getCategory($id);
         if ( ! $category) {
-            //send email error
+            Mailer::sendError('fiche non trouvée', 'categorie id: '.$id);
         }
 
         $sql         = 'SELECT * FROM classements WHERE `category_id` = '.$id;
@@ -227,16 +228,24 @@ class BottinRepository
             $classements
         );
 
-        return array_unique($fiches, SORT_REGULAR);
+        $fiches = array_unique($fiches, SORT_REGULAR);
+
+        return $fiches;
     }
 
+    /**
+     * @param $sql
+     *
+     * @return false|\PDOStatement
+     * @throws Exception
+     */
     public function execQuery($sql)
     {
         $query = $this->dbh->query($sql);
         $error = $this->dbh->errorInfo();
         if ($error[0] != '0000') {
             Mailer::sendError("wp error sql", $sql.' '.$error[2]);
-            throw new \Exception($error[2]);
+            throw new Exception($error[2]);
         };
 
         return $query;
