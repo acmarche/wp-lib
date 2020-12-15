@@ -51,7 +51,7 @@ class Event
             foreach ($horaires->horline as $horaire) {
                 $event['date_deb'] = $horaire->date_deb;
                 list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
-                $event['date_deb']       = $horaire->date_fin;
+                $event['date_fin']       = $horaire->date_fin;
                 $event['date_affichage'] = $horaire->date_deb;
             }
         } else {
