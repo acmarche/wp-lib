@@ -7,8 +7,9 @@ use stdClass;
 
 class Event
 {
-    public static function createFromStd(stdClass $offre): array
+    public static function createFromStd(stdClass $offre): ?array
     {
+        $today = new \DateTime();
         $event = [];
         if (is_array($offre->titre)) {
             $event['nom'] = $offre->titre[0];
@@ -51,14 +52,20 @@ class Event
             foreach ($horaires->horline as $horaire) {
                 $event['date_deb'] = $horaire->date_deb;
                 list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
-                $event['date_fin']       = $horaire->date_fin;
+                $event['date_fin'] = $horaire->date_fin;
+                if ($today->format('d-m-Y') > $event['date_fin']) {
+                    return null;
+                }
                 $event['date_affichage'] = $horaire->date_deb;
             }
         } else {
             $event['date_deb'] = $horaires->horline->date_deb;
             list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
-            $event['date_deb']       = $horaires->horline->date_fin;
+            $event['date_fin']       = $horaires->horline->date_fin;
             $event['date_affichage'] = $horaires->texte[0];
+            if ($today->format('d-m-Y') > $event['date_fin']) {
+                return null;
+            }
         }
 
         $event['url']    = 'iti';

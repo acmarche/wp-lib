@@ -34,8 +34,10 @@ class HadesRepository
 
                 foreach ($data->offres as $offres) {
                     $events = [];
-                    foreach ($offres as $offre) {
-                        $events[] = Event::createFromStd($offre);
+                    foreach ($offres as $offre) {$event = Event::createFromStd($offre);
+                        if ($event  !== null) {
+                            $events[] = $event;
+                        }
                     }
                 }
 
