@@ -23,7 +23,6 @@ class Event
             $event['description1'] = $descriptions->description[0]->texte;//Informations pratiques
             $event['description']  = $descriptions->description[1]->texte;//Description générale
         } else {
-
         }
 
         if (is_array($localisations)) {

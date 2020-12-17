@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Theme\Inc\Router;

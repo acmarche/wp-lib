@@ -71,5 +71,4 @@ class AddItemCommand extends Command
 
         flush_rewrite_rules();
     }
-
 }

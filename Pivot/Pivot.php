@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot;
 
-
 class Pivot
 {
     /**
@@ -61,6 +60,4 @@ class Pivot
     const VISIBILITY_PROVINCIAL = 20;//  provincial
     const VISIBILITY_REGIONAL = 30;//  régional
     const VISIBILITY_INTERNATIONAL = 40;//  international
-
-
 }

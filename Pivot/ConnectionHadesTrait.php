@@ -39,5 +39,4 @@ trait ConnectionHadesTrait
 
         $this->httpClient = HttpClient::create($options);
     }
-
 }

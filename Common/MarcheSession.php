@@ -31,7 +31,4 @@ class MarcheSession
     {
         return $this->session;
     }
-
-
-
 }

@@ -24,7 +24,7 @@ class Menu
         $this->cache = Cache::instance();
     }
 
-    function getItems(int $id_site): array
+    public function getItems(int $id_site): array
     {
         switch_to_blog($id_site);
         $menu = wp_get_nav_menu_object(self::MENU_NAME);

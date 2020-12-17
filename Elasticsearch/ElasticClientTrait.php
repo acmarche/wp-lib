@@ -32,5 +32,4 @@ trait ElasticClientTrait
     {
         $this->index = $this->client->getIndex($name);
     }
-
 }

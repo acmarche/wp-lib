@@ -3,7 +3,6 @@
 
 namespace AcMarche\Elasticsearch\Data;
 
-
 class Cleaner
 {
     public static function cleandata($data)

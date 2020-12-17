@@ -3,7 +3,6 @@
 
 namespace AcMarche\Bottin\Fiche;
 
-
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Bottin\Repository\WpBottinRepository;
 

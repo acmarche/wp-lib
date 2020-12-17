@@ -31,7 +31,7 @@ class ElasticSearcherCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $query = $input->getArgument('query');
-        if ( ! $query) {
+        if (! $query) {
             $this->io->error('Entrez un mot clef');
 
             return Command::FAILURE;

@@ -142,7 +142,6 @@ class PivotRemoteRepository
                     if ($offer instanceof \stdClass) {
                         $type = $offer->typeOffre;
                         if ($type->idTypeOffre === PivotType::TYPE_EVENEMENT) {
-
                             $event    = new Event();
                             $events[] = $event->createFromStd($offer);
                         }

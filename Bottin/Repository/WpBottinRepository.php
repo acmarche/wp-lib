@@ -3,7 +3,6 @@
 
 namespace AcMarche\Bottin\Repository;
 
-
 use WP_Term;
 
 class WpBottinRepository

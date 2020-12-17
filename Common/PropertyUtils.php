@@ -39,5 +39,4 @@ class PropertyUtils
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
     }
-
 }

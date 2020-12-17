@@ -87,5 +87,4 @@ class ElasticIndexer
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
     }
-
 }

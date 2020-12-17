@@ -48,5 +48,4 @@ class ElasticServer
         $response = $this->index->setMapping($mapping);
         dump($response);
     }
-
 }

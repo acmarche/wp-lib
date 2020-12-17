@@ -30,7 +30,7 @@ class ElasticServerCommand extends Command
         $helper   = $this->getHelper('question');
         $question = new ConfirmationQuestion('Êtes vous sur ? (Y,N) ', false);
 
-        if ( ! $helper->ask($input, $output, $question)) {
+        if (! $helper->ask($input, $output, $question)) {
             return Command::SUCCESS;
         }
 

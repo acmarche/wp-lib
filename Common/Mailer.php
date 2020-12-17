@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-
 class Mailer
 {
     public static function sendError(string $subject, string $message)

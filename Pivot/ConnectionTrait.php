@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot;
 
-
 use AcMarche\Common\Env;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -43,5 +42,4 @@ trait ConnectionTrait
 
         $this->httpClient = HttpClient::create($headers);
     }
-
 }

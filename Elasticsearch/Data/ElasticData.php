@@ -52,7 +52,6 @@ class ElasticData
         $today      = new \DateTime();
 
         foreach ($categories as $category) {
-
             $data = [];
 
             $name                      = Cleaner::cleandata($category->name);
@@ -99,7 +98,6 @@ class ElasticData
             $data['type'] = "category"; //force
 
             $datas[] = $data;
-
         }
 
         return $datas;
@@ -211,7 +209,6 @@ class ElasticData
         $data['post_date'] = $date;
 
         return $data;
-
     }
 
     private function getFiches(array $category): string
@@ -226,5 +223,4 @@ class ElasticData
 
         return '';
     }
-
 }

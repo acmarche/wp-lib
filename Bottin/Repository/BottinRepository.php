@@ -75,7 +75,7 @@ class BottinRepository
         $sql = 'SELECT * FROM fiche WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
-        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -170,7 +170,7 @@ class BottinRepository
     {
         $sql   = 'SELECT * FROM category WHERE `id` = '.$id;
         $sth = $this->execQuery($sql);
-        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -188,7 +188,7 @@ class BottinRepository
         $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
-        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -222,7 +222,7 @@ class BottinRepository
     public function getFichesByCategory(int $id): array
     {
         $category = $this->getCategory($id);
-        if ( ! $category) {
+        if (! $category) {
             Mailer::sendError('fiche non trouvée', 'categorie id: '.$id);
         }
 

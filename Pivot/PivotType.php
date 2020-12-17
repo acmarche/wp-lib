@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot;
 
-
 class PivotType
 {
     //http://pivot.tourismewallonie.be/index.php/9-pivot-gest-pc/142-types-de-fiches-pivot

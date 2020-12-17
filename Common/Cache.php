@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 

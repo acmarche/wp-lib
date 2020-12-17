@@ -73,7 +73,8 @@ class Searcher
         ];
         $query         = new BoolQuery();
         $fullTextQuery = new SimpleQueryString(
-            $request["title"]["q"]."*", [
+            $request["title"]["q"]."*",
+            [
                 "title",
             ]
         );

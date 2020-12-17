@@ -47,8 +47,7 @@ class ElasticBottinData
         if ($categorie['parent_id']) {
             $parent  = $this->bottinRepository->getCategory($categorie['parent_id']);
             $urlBase = "https://cap.marche.be/secteur/".$parent->slug."/";
-            //$content = $this->getDataForCategoryByFiches($categorie);
-
+        //$content = $this->getDataForCategoryByFiches($categorie);
         } else {
             $urlBase = "https://cap.marche.be/secteur/";
         }
@@ -88,5 +87,4 @@ class ElasticBottinData
 
         return $content;
     }
-
 }

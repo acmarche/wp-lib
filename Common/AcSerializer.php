@@ -20,7 +20,8 @@ class AcSerializer
                 new ArrayDenormalizer(),
                 new DateTimeNormalizer(),
                 new ObjectNormalizer(null, null, null, new PhpDocExtractor()),
-            ], [
+            ],
+            [
                 new JsonEncoder(),
             ]
         );

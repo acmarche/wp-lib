@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot\Generator;
 
-
 use AcMarche\Pivot\Repository\PivotRemoteRepository;
 
 class Generator
