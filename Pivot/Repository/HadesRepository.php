@@ -28,7 +28,7 @@ class HadesRepository
     public function getEvents(): array
     {
         return $this->cache->get(
-            'events_hades'.time(),
+            'events_hades',
             function () {
                 $data = $this->decodeXml($this->hadesRemoteRepository->getEvents());
 
