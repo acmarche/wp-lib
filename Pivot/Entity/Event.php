@@ -52,7 +52,7 @@ class Event
                 $event['date_deb'] = $horaire->date_deb;
                 list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
                 $event['date_fin'] = $horaire->date_fin;
-                if ($today->format('d-m-Y') > $event['date_fin']) {
+                if ($today->format('d-m-Y') <= $event['date_fin']) {
                     return null;
                 }
                 $event['date_affichage'] = $horaire->date_deb;
@@ -62,7 +62,7 @@ class Event
             list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
             $event['date_fin']       = $horaires->horline->date_fin;
             $event['date_affichage'] = $horaires->texte[0];
-            if ($today->format('d-m-Y') > $event['date_fin']) {
+            if ($today->format('d-m-Y') <= $event['date_fin']) {
                 return null;
             }
         }
