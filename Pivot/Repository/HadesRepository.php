@@ -25,13 +25,16 @@ class HadesRepository
         $this->cache                 = Cache::instance();
     }
 
+    /**
+     * @return array|Event[]
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function getEvents(): array
     {
         return $this->cache->get(
-            'events_hades',
+            'events_hades'.time(),
             function () {
                 $data = $this->decodeXml($this->hadesRemoteRepository->getEvents());
-
                 foreach ($data->offres as $offres) {
                     $events = [];
                     foreach ($offres as $offre) {
