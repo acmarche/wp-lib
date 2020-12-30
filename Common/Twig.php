@@ -4,6 +4,9 @@
 namespace AcMarche\Common;
 
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
@@ -14,13 +17,13 @@ class Twig
     public static function LoadTwig(?string $path = null): Environment
     {
         //todo get instance
-        if (! $path) {
+        if ( ! $path) {
             $path = get_template_directory().'/templates';
         }
 
         $loader = new FilesystemLoader($path);
 
-        $environnement = new Environment(
+        $environment = new Environment(
             $loader,
             [
                 'cache'            => ABSPATH.'var/cache',
@@ -31,15 +34,35 @@ class Twig
 
         // wp_get_environment_type();
         if (WP_DEBUG) {
-            $environnement->addExtension(new DebugExtension());
+            $environment->addExtension(new DebugExtension());
         }
 
-        $environnement->addGlobal('template_directory', get_template_directory_uri());
-        $environnement->addFilter(self::categoryLink());
-        $environnement->addFunction(self::showTemplate());
-        $environnement->addFunction(self::currentUrl());
+        $environment->addGlobal('template_directory', get_template_directory_uri());
+        $environment->addFilter(self::categoryLink());
+        $environment->addFunction(self::showTemplate());
+        $environment->addFunction(self::currentUrl());
 
-        return $environnement;
+        return $environment;
+    }
+
+    public static function rendPage(string $templatePath, array $variables=[])
+    {
+        $twig = self::LoadTwig();
+        try {
+            echo $twig->render(
+                $templatePath,
+                $variables,
+            );
+        } catch (LoaderError | RuntimeError | SyntaxError $e) {
+            echo $twig->render(
+                'errors/500.html.twig',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+            Mailer::sendError("Error homepage", $e->getMessage());
+        }
+
     }
 
     protected static function categoryLink(): TwigFilter

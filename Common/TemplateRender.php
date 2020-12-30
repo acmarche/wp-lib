@@ -9,7 +9,7 @@ use AcMarche\Theme\Inc\Router;
 
 class TemplateRender
 {
-    public static function renderCategory(): string
+    public static function renderCategory(): void
     {
         /**
          * @var \WP_Query $wp_query
@@ -66,7 +66,7 @@ class TemplateRender
             $all
         );
 
-        $content = $twig->render(
+        Twig::rendPage(
             'category/category.html.twig',
             [
                 'title'       => $title,
@@ -78,7 +78,5 @@ class TemplateRender
                 'color'       => $color,
             ]
         );
-
-        return $content;
     }
 }
