@@ -3,13 +3,17 @@
 
 namespace AcMarche\Pivot\Entity;
 
+use AcMarche\Theme\Inc\Router;
 use stdClass;
 
 class Event
 {
+    private static $today = null;
+
     public static function createFromStd(stdClass $offre): ?array
     {
-        $today = new \DateTime();
+        self::$today = new \DateTime();
+
         $event = [];
         if (is_array($offre->titre)) {
             $event['nom'] = $offre->titre[0];
@@ -45,31 +49,53 @@ class Event
         } else {
             $images[] = $medias->url;
         }
-        $attributs = $offre->attributs;
-        $horaires  = $offre->horaires->horaire;
-        if (is_array($horaires->horline)) {
-            foreach ($horaires->horline as $horaire) {
-                $event['date_deb'] = $horaire->date_deb;
-                list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
-                $event['date_fin'] = $horaire->date_fin;
-                if ($today->format('d-m-Y') <= $event['date_fin']) {
-                    return null;
-                }
-                $event['date_affichage'] = $horaire->date_deb;
-            }
-        } else {
-            $event['date_deb'] = $horaires->horline->date_deb;
-            list($event['day'], $event['month'], $event['year']) = explode("/", $event['date_deb']);
-            $event['date_fin']       = $horaires->horline->date_fin;
-            $event['date_affichage'] = $horaires->texte[0];
-            if ($today->format('d-m-Y') <= $event['date_fin']) {
-                return null;
-            }
-        }
-
-        $event['url']    = 'iti';
+        $attributs       = $offre->attributs;
+        $event['dates']  = self::getDatesEvent($offre);
+        $event['url']    = Router::EVENT_URL.$event['nom'];
         $event['images'] = $images;
+        $event['id']     = $offre->off_id_ref;
 
         return $event;
+    }
+
+    private static function getDatesEvent(stdClass $offre): array
+    {
+        $dates    = [];
+        $horaires = $offre->horaires->horaire;
+        if (is_array($horaires->horline)) {
+            foreach ($horaires->horline as $horaire) {
+                if (self::isObsolete($horaire->date_fin)) {
+                    continue;
+                }
+                $date = [];
+                //   dump($event['nom'], $horaire->date_fin);
+                $date['date_fin'] = $horaire->date_fin;
+                $date['date_deb'] = $horaire->date_deb;
+                list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
+                $date['date_affichage'] = $horaire->date_deb;
+                $dates[]                = $date;
+            }
+        } else {
+            $date = [];
+            if (self::isObsolete($horaires->horline->date_fin)) {
+                return [];
+            }
+            $date['date_fin'] = $horaires->horline->date_fin;
+            $date['date_deb'] = $horaires->horline->date_deb;
+            list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
+            $date['date_affichage'] = $horaires->texte[0];
+            $dates[]                = $date;
+        }
+
+        return $dates;
+    }
+
+    private static function isObsolete(string $dateEnd): bool
+    {
+        if ($dateEnd < self::$today->format('d-m-Y')) {
+            return true;
+        }
+
+        return false;
     }
 }

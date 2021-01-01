@@ -39,7 +39,7 @@ class HadesRepository
                     $events = [];
                     foreach ($offres as $offre) {
                         $event = Event::createFromStd($offre);
-                        if ($event  !== null) {
+                        if (count($event['dates']) === 0) {
                             $events[] = $event;
                         }
                     }
