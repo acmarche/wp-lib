@@ -51,9 +51,9 @@ class Event
         }
         $attributs       = $offre->attributs;
         $event['dates']  = self::getDatesEvent($offre);
-        $event['url']    = Router::EVENT_URL.$event['nom'];
         $event['images'] = $images;
         $event['id']     = $offre->off_id_ref;
+        $event['url']    = Router::getUrlEvent($event);
 
         return $event;
     }
