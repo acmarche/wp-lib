@@ -5,6 +5,7 @@ namespace AcMarche\Bottin;
 
 use AcMarche\Common\Env;
 use AcMarche\Common\Twig;
+use stdClass;
 
 class Bottin
 {
@@ -27,7 +28,7 @@ class Bottin
         //  /public/bottin/fiches/
     }
 
-    public static function getExcerpt(\stdClass $fiche): string
+    public static function getExcerpt(stdClass $fiche): string
     {
         $twig = Twig::LoadTwig();
 
