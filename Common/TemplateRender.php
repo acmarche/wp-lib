@@ -16,7 +16,6 @@ class TemplateRender
          */
         global $wp_query;
 
-        $twig             = Twig::LoadTwig();
         $bottinRepository = new BottinRepository();
 
         $cat_ID      = get_queried_object_id();
@@ -67,7 +66,7 @@ class TemplateRender
         );
 
         Twig::rendPage(
-            'category/category.html.twig',
+            'category/index.html.twig',
             [
                 'title'       => $title,
                 'description' => $description,
