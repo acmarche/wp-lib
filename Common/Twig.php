@@ -58,6 +58,8 @@ class Twig
                 'errors/500.html.twig',
                 [
                     'message' => $e->getMessage(),
+                    'title'=>'Error 500',
+                    'tags' =>[]
                 ]
             );
             Mailer::sendError("Error homepage", $e->getMessage());
