@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CommonCommand extends Command
 {
-    protected static $defaultName = 'marche:do';
+    protected static $defaultName = 'marche:doit';
 
     /**
      * @var SymfonyStyle
@@ -37,8 +37,7 @@ class CommonCommand extends Command
             return Command::FAILURE;
         }
 
-        $router = new Router();
-        $router->flushRoutes();
+
 
         return Command::SUCCESS;
     }
