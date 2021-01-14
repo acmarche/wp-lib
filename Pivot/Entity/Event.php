@@ -22,11 +22,22 @@ class Event
         }
         $localisations = $offre->localisation->localite;
         $descriptions  = $offre->descriptions;
-
+        if ($offre->off_id_ref == 'BQZ2ZGN9') {
+            //   dump($offre);
+        }
+        $event['description1'] = [];
+        $event['description']  = [];
         if (is_array($descriptions->description)) {
-            $event['description1'] = $descriptions->description[0]->texte;//Informations pratiques
-            $event['description']  = $descriptions->description[1]->texte;//Description générale
-        } else {
+            if ( ! is_array($description1 = $descriptions->description[1]->texte)) {
+                $event['description1'][0] = $description1;
+            } else {
+                $event['description1'] = $description1;
+            }
+            if ( ! is_array($description = $descriptions->description[1]->texte)) {
+                $event['description'][0] = $description;
+            } else {
+                $event['description'] = $description;
+            }
         }
 
         if (is_array($localisations)) {
@@ -37,8 +48,8 @@ class Event
             $event['localite'] = join(',', $localites);
         } else {
             $event['localite']  = $localisations->l_nom;
-            $event['latitude']  = $localisations->x;
-            $event['longitude'] = $localisations->y;
+            $event['latitude']  = $localisations->y;
+            $event['longitude'] = $localisations->x;
         }
         $medias = $offre->medias->media;
         $images = [];
@@ -87,7 +98,31 @@ class Event
             $dates[]                = $date;
         }
 
+        usort(
+            $dates,
+            function ($a, $b) {
+                {
+                    $debut1 = $a['year'].'-'.$a['month'].'-'.$a['day'];
+                    $debut2 = $b['year'].'-'.$b['month'].'-'.$b['day'];
+                    if ($debut1 == $debut2) {
+                        return 0;
+                    }
+                    return ($debut1 < $debut2) ? -1 : 1;
+                }
+            }
+        );
+
         return $dates;
+    }
+
+    private function getContacts(stdClass $offre)
+    {
+//todo
+    }
+
+    private function getHoraires(stdClass $offre)
+    {
+//todo
     }
 
     private static function isObsolete(string $dateEnd): bool
