@@ -3,16 +3,11 @@
 namespace AcMarche\Common;
 
 use Symfony\Contracts\Cache\CacheInterface;
-use Twig\Environment;
 
 class Menu
 {
     const MENU_NAME = 'top-menu';
 
-    /**
-     * @var Environment
-     */
-    private $twig;
     /**
      * @var CacheInterface
      */
@@ -20,7 +15,6 @@ class Menu
 
     public function __construct()
     {
-        $this->twig  = Twig::LoadTwig();
         $this->cache = Cache::instance();
     }
 
