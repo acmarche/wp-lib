@@ -7,6 +7,7 @@ use AcMarche\Common\Env;
 use AcMarche\Common\Mailer;
 use Exception;
 use PDO;
+use PDOStatement;
 
 class BottinRepository
 {
@@ -75,7 +76,7 @@ class BottinRepository
         $sql = 'SELECT * FROM fiche WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
-        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -168,9 +169,9 @@ class BottinRepository
      */
     public function getCategory(int $id): ?object
     {
-        $sql   = 'SELECT * FROM category WHERE `id` = '.$id;
+        $sql = 'SELECT * FROM category WHERE `id` = '.$id;
         $sth = $this->execQuery($sql);
-        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -188,7 +189,7 @@ class BottinRepository
         $sql = 'SELECT * FROM category WHERE `slug` = :slug ';
         $sth = $this->dbh->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
         $sth->execute(array(':slug' => $slug));
-        if (! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
         }
 
@@ -201,9 +202,13 @@ class BottinRepository
      * @return array
      * @throws Exception
      */
-    public function getCategories(int $parentId): array
+    public function getCategories(?int $parentId): array
     {
-        $sql   = 'SELECT * FROM category WHERE `parent_id` = '.$parentId;
+        if ($parentId == null) {
+            $sql = 'SELECT * FROM category WHERE `parent_id` IS NULL';
+        } else {
+            $sql = 'SELECT * FROM category WHERE `parent_id` = '.$parentId;
+        }
         $query = $this->execQuery($sql);
 
         return $query->fetchAll(PDO::FETCH_OBJ);
@@ -236,7 +241,7 @@ class BottinRepository
     public function getFichesByCategory(int $id): array
     {
         $category = $this->getCategory($id);
-        if (! $category) {
+        if ( ! $category) {
             Mailer::sendError('fiche non trouvée', 'categorie id: '.$id);
         }
 
@@ -256,10 +261,34 @@ class BottinRepository
         return $fiches;
     }
 
+    public function getTreeCategories()
+    {
+        $categories = [];
+        $roots      = $this->getCategories(null);
+        foreach ($roots as $root) {
+            $categories[$root->id][0] = $root;
+            $levels1                  = $this->getCategories($root->id);
+            $categories[$root->id][1] = $levels1;
+
+            foreach ($levels1 as $level) {
+                $categories[$root->id][0]    = $level;
+                $level2                      = $this->getCategories($level->id);
+                $categories[$root->id][1][2] = $level2;
+            }
+        }
+
+        return $categories;
+    }
+
+    public function getTree()
+    {
+
+    }
+
     /**
      * @param $sql
      *
-     * @return false|\PDOStatement
+     * @return false|PDOStatement
      * @throws Exception
      */
     public function execQuery($sql)
