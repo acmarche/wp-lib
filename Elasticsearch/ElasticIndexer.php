@@ -96,7 +96,7 @@ class ElasticIndexer
             $id      = 'fiche_'.$category->id;
             $doc     = new Document($id, $content);
             $this->index->addDocument($doc);
-            $this->outPut->writeln($category->nom);
+            $this->outPut->writeln($category->name);
         }
     }
 
