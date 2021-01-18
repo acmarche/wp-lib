@@ -1,6 +1,8 @@
 settings:
   number_of_replicas: 0
   number_of_shards: 2
+  index.blocks.read_only_allow_delete: null
+
   # Include analyzers.yaml here
 mappings:
   dynamic: false

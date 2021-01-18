@@ -91,7 +91,7 @@ class BottinRepository
         $sql   = 'SELECT * FROM fiche';
         $query = $this->execQuery($sql);
 
-        return $query->fetchAll();
+        return $query->fetchAll(PDO::FETCH_OBJ);
     }
 
     /**
@@ -204,6 +204,20 @@ class BottinRepository
     public function getCategories(int $parentId): array
     {
         $sql   = 'SELECT * FROM category WHERE `parent_id` = '.$parentId;
+        $query = $this->execQuery($sql);
+
+        return $query->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getAllCategories(): array
+    {
+        $sql   = 'SELECT * FROM category';
         $query = $this->execQuery($sql);
 
         return $query->fetchAll(PDO::FETCH_OBJ);

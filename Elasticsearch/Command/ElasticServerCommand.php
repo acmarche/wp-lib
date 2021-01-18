@@ -28,7 +28,7 @@ class ElasticServerCommand extends Command
     {
         $this->io = new SymfonyStyle($input, $output);
         $helper   = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Êtes vous sur ? (Y,N) ', false);
+        $question = new ConfirmationQuestion('Raz. Êtes vous sur ? (Y,N) ', false);
 
         if (! $helper->ask($input, $output, $question)) {
             return Command::SUCCESS;

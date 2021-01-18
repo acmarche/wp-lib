@@ -34,12 +34,6 @@ class ElasticIndexer
         $this->outPut      = $outPut;
     }
 
-    public function indexAll()
-    {
-        $this->indexAllPosts();
-        $this->indexAllCategories();
-    }
-
     public function indexAllPosts(array $sites = array())
     {
         if (count($sites) === 0) {
@@ -56,7 +50,7 @@ class ElasticIndexer
         }
     }
 
-    public function addPost(array $post)
+    private function addPost(array $post)
     {
         $content = $this->serializer->serialize($post, 'json');
         $id      = 'post_'.$post['blog'].'_'.$post['id'];
@@ -80,11 +74,41 @@ class ElasticIndexer
         }
     }
 
-    public function addCategory(array $category)
+    private function addCategory(array $category)
     {
         $content = $this->serializer->serialize($category, 'json');
         $id      = 'category_'.$category['blog'].'_'.$category['id'];
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
+    }
+
+    public function indexAllBottin()
+    {
+        $this->indexFiches();
+        $this->indexCategoriesBottin();
+    }
+
+    public function indexCategoriesBottin()
+    {
+        $categories = $this->elasticData->getAllCategoriesBottin();
+        foreach ($categories as $category) {
+            $content = $this->serializer->serialize($category, 'json');
+            $id      = 'fiche_'.$category->id;
+            $doc     = new Document($id, $content);
+            $this->index->addDocument($doc);
+            $this->outPut->writeln($category->nom);
+        }
+    }
+
+    public function indexFiches()
+    {
+        $fiches = $this->elasticData->getAllfiches();
+        foreach ($fiches as $fiche) {
+            $content = $this->serializer->serialize($fiche, 'json');
+            $id      = 'fiche_'.$fiche->id;
+            $doc     = new Document($id, $content);
+            $this->index->addDocument($doc);
+            $this->outPut->writeln($fiche->societe);
+        }
     }
 }

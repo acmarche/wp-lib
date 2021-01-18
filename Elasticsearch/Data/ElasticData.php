@@ -2,9 +2,11 @@
 
 namespace AcMarche\Elasticsearch\Data;
 
+use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Common\MarcheConst;
 use AcMarche\Common\WpRepository;
+use AcMarche\Theme\Inc\Router;
 
 class ElasticData
 {
@@ -211,16 +213,42 @@ class ElasticData
         return $data;
     }
 
-    private function getFiches(array $category): string
+    public function getFiches(array $category): string
     {
         $categoryBottinId = get_term_meta($category['id'], \BottinCategoryMetaBox::KEY_NAME, true);
         if ($categoryBottinId) {
             $fiches = $this->bottinRepository->getFichesByCategory($categoryBottinId);
-            dump(count($fiches));
 
             return $this->bottinData->getContentForCategory($fiches);
         }
 
         return '';
+    }
+
+    public function getAllfiches(): array
+    {
+        $fiches = $this->bottinRepository->getFiches();
+        foreach ($fiches as $fiche) {
+            $fiche->name    = $fiche->societe;
+            $fiche->excerpt = Bottin::getExcerpt($fiche);
+            $fiche->url     = Router::getUrlFicheBottin($fiche);
+            $fiche->content = $this->bottinData->getContentFiche($fiche);
+            $fiche->url_cap = $this->bottinData->generateUrlCapFiche($fiche);
+        }
+
+        return $fiches;
+    }
+
+    public function getAllCategoriesBottin()
+    {
+        $categories = $this->bottinRepository->getAllCategories();
+        foreach ($categories as $category) {
+            $category->url_cap = $this->bottinData->generateUrlCapCategorie($category);
+            $category->excerpt = $category->description;
+            $fiches            = $this->bottinRepository->getFichesByCategory($category->id);
+            $category->content = $this->bottinData->getContentForCategory($fiches);
+        }
+
+        return $categories;
     }
 }

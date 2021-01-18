@@ -23,7 +23,7 @@ class ElasticIndexerCommand extends Command
     {
         $this
             ->setDescription('Mise à jour des données')
-            ->addArgument('action', InputArgument::OPTIONAL, 'post, bottin');
+            ->addArgument('action', InputArgument::REQUIRED, 'all, post, categories, bottin');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -31,8 +31,22 @@ class ElasticIndexerCommand extends Command
         $action   = $input->getArgument('action');
         $this->io = new SymfonyStyle($input, $output);
         $elastic  = new ElasticIndexer($this->io);
-        $elastic->indexAllPosts();
-        $elastic->indexAllCategories();
+
+        switch ($action) {
+            case 'post':
+                $elastic->indexAllPosts();
+                break;
+            case 'categories':
+                $elastic->indexAllCategories();
+                break;
+            case 'bottin':
+                $elastic->indexAllBottin();
+                break;
+            case 'all':
+                $elastic->indexAllPosts();
+                $elastic->indexAllCategories();
+                $elastic->indexAllBottin();
+        }
 
         return Command::SUCCESS;
     }
