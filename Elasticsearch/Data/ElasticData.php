@@ -83,8 +83,8 @@ class ElasticData
             $category_nicename = $category->category_nicename;
             $data['post_name'] = $category_nicename;
 
-            $url               = get_category_link($cat_ID);
-            $data['permalink'] = $url;
+            $url         = get_category_link($cat_ID);
+            $data['url'] = $url;
 
             $date              = $today->format('Y-m-d');
             $data['post_date'] = $date;
@@ -194,7 +194,7 @@ class ElasticData
         $data['post_name']   = $post->post_name;
         $data['post_status'] = $post->post_status;
 
-        $data['permalink'] = get_permalink($post->ID);
+        $data['url'] = get_permalink($post->ID);
 
         $categories = array();
         $i          = 0;
@@ -243,6 +243,7 @@ class ElasticData
     {
         $categories = $this->bottinRepository->getAllCategories();
         foreach ($categories as $category) {
+            $category->url     = Router::getUrlCategoryBottin($category);
             $category->url_cap = $this->bottinData->generateUrlCapCategorie($category);
             $category->excerpt = $category->description;
             $fiches            = $this->bottinRepository->getFichesByCategory($category->id);

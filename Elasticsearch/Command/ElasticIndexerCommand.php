@@ -22,8 +22,8 @@ class ElasticIndexerCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Mise à jour des données')
-            ->addArgument('action', InputArgument::REQUIRED, 'all, post, categories, bottin');
+            ->setDescription('Mise à jour des données [all, posts, categories, bottin]')
+            ->addArgument('action', InputArgument::REQUIRED, 'all, posts, categories, bottin');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -33,7 +33,7 @@ class ElasticIndexerCommand extends Command
         $elastic  = new ElasticIndexer($this->io);
 
         switch ($action) {
-            case 'post':
+            case 'posts':
                 $elastic->indexAllPosts();
                 break;
             case 'categories':
