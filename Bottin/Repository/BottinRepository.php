@@ -222,7 +222,7 @@ class BottinRepository
      */
     public function getAllCategories(): array
     {
-        $sql   = 'SELECT * FROM category';
+        $sql   = 'SELECT * FROM category ORDER BY `name` ';
         $query = $this->execQuery($sql);
 
         return $query->fetchAll(PDO::FETCH_OBJ);
