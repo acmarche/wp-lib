@@ -41,11 +41,12 @@ class Twig
         $environment->addFilter(self::categoryLink());
         $environment->addFunction(self::showTemplate());
         $environment->addFunction(self::currentUrl());
+        $environment->addFunction(self::isExternalUrl());
 
         return $environment;
     }
 
-    public static function rendPage(string $templatePath, array $variables=[])
+    public static function rendPage(string $templatePath, array $variables = [])
     {
         $twig = self::LoadTwig();
         try {
@@ -58,8 +59,8 @@ class Twig
                 'errors/500.html.twig',
                 [
                     'message' => $e->getMessage(),
-                    'title'=>'Error 500',
-                    'tags' =>[]
+                    'title'   => 'Error 500',
+                    'tags'    => [],
                 ]
             );
             Mailer::sendError("Error homepage", $e->getMessage());
@@ -93,6 +94,24 @@ class Twig
                 }
 
                 return '';
+            }
+        );
+    }
+
+    protected static function isExternalUrl(): TwigFunction
+    {
+        return new TwigFunction(
+            'isExternalUrl',
+            function (string $url): bool {
+                if (preg_match("#http#", $url)) {
+                    if ( ! preg_match("#https://new.marche.be#", $url)) {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
             }
         );
     }
