@@ -69,4 +69,19 @@ class HadesRepository
             return new \Exception('Erreur avec le xml');
         }
     }
+
+    public function getEvent($codeCgt): ?array
+    {
+        $events = $this->getEvents();
+        //$event = $hadesRepository->getDetailEvent($codeCgt);
+        $event = null;
+        foreach ($events as $element) {
+            if ($codeCgt == $element['id']) {
+                $event = $element;
+                break;
+            }
+        }
+
+        return $event;
+    }
 }
