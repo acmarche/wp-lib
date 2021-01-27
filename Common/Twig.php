@@ -3,6 +3,7 @@
 
 namespace AcMarche\Common;
 
+use AcMarche\Theme\Inc\Theme;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -58,9 +59,12 @@ class Twig
             echo $twig->render(
                 'errors/500.html.twig',
                 [
-                    'message' => $e->getMessage(),
-                    'title'   => 'Error 500',
-                    'tags'    => [],
+                    'message'   => $e->getMessage(),
+                    'title'     => 'Error 500',
+                    'tags'      => [],
+                    'color'     => Theme::getColorBlog(1),
+                    'blogName'  => Theme::getTitleBlog(1),
+                    'relations' => [],
                 ]
             );
             Mailer::sendError("Error homepage", $e->getMessage());
