@@ -32,11 +32,11 @@ class Searcher
      */
     public function search(string $keywords): ResultSet
     {
-        $query        = new BoolQuery();
-        $matchName    = new Match('name', $keywords);
-        $matchContent = new Match('content', $keywords);
-        $matchExcerpt = new Match('excerpt', $keywords);
-        $matchCatName = new Match('categories.cat_name', $keywords);
+        $query               = new BoolQuery();
+        $matchName           = new Match('name', $keywords);
+        $matchContent        = new Match('content', $keywords);
+        $matchExcerpt        = new Match('excerpt', $keywords);
+        $matchCatName        = new Match('categories.cat_name', $keywords);
         $matchCatDescription = new Match('categories.cat_description', $keywords);
         $query->addShould($matchName)->setBoost(3);
         $query->addShould($matchExcerpt);
@@ -51,11 +51,19 @@ class Searcher
 
     public function search2(string $keywords): ResultSet
     {
-        $query        = new MultiMatch();
-        $query->setFields([
-            'name','content','excerpt','categories.cat_name','categories.cat_description'
-        ]);
+        $query = new MultiMatch();
+        $query->setFields(
+            [
+                'name^5',
+                'title.autocomplete',
+                'content',
+                'excerpt',
+                'categories.cat_name',
+                'categories.cat_description',
+            ]
+        );
         $query->setQuery($keywords);
+        $query->setType(MultiMatch::TYPE_MOST_FIELDS);
 
         $result = $this->index->search($query);
 

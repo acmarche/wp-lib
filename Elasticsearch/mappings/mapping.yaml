@@ -2,6 +2,7 @@ settings:
   number_of_replicas: 0
   number_of_shards: 2
   index.blocks.read_only_allow_delete: null
+  refresh_interval: 60s
 
   # Include analyzers.yaml here
 mappings:
@@ -11,3 +12,11 @@ mappings:
       type: text
       analyzer: app_french_light
     ref: *txt_basic
+    title:
+      type: text
+      analyzer: english
+      fields:
+        autocomplete:
+          type: text
+          analyzer: app_autocomplete
+          search_analyzer: standard
