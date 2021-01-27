@@ -6,6 +6,7 @@ namespace AcMarche\Common;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Theme\Inc\Router;
+use AcMarche\Theme\Inc\Theme;
 
 class TemplateRender
 {
@@ -22,13 +23,9 @@ class TemplateRender
         $description = category_description($cat_ID);
         $title       = single_cat_title('', false);
 
-        $blodId = get_current_blog_id();
-        if ($blodId === 1) {
-            $siteSlug = 'Citoyen';
-        } else {
-            $siteSlug = get_blog_details($blodId)->path;
-        }
-        $color = MarcheConst::COLORS[$blodId];
+        $blodId   = get_current_blog_id();
+        $color    = Theme::getColorBlog($blodId);
+        $blogName = Theme::getTitleBlog($blodId);
 
         $posts = $wp_query->get_posts();
 
@@ -73,7 +70,7 @@ class TemplateRender
                 'children'    => $children,
                 'posts'       => $all,
                 'category_id' => $cat_ID,
-                'site_slug'   => $siteSlug,
+                'blogName'    => $blogName,
                 'color'       => $color,
             ]
         );
