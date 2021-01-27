@@ -5,6 +5,7 @@ namespace AcMarche\Bottin\Repository;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Common\Env;
 use AcMarche\Common\Mailer;
+use AcMarche\Theme\Inc\Router;
 use Exception;
 use PDO;
 use PDOStatement;
@@ -301,5 +302,26 @@ class BottinRepository
         }
 
         return $query;
+    }
+
+    public function getRelations(array $categories)
+    {
+        $ids             = array_map(
+            function ($category) {
+                return $category->id;
+            },
+            $categories
+        );
+        $recommandations = [];
+        $fiches          = $this->getFichesByCategories($ids);
+        foreach ($fiches as $fiche) {
+            $recommandations[] = [
+                'title' => $fiche->societe,
+                'url'   => Router::getUrlFicheBottin($fiche),
+                'image' => $this->getLogo($fiche->id),
+            ];
+        }
+
+        return $recommandations;
     }
 }

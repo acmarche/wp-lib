@@ -6,6 +6,7 @@ namespace AcMarche\Common;
 class MarcheConst
 {
     const ADMINISTRATION = 2;
+    const TOURISME = 4;
 
     const SITES = [
         1                    => 'citoyen',
