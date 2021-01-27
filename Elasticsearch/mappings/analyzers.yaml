@@ -19,6 +19,10 @@ filter:
       - quoiqu
       - lorsqu
       - puisqu
+  app_autocomplete_filter:
+    type: 'edge_ngram'
+    min_gram: 1
+    max_gram: 20
 analyzer:
   app_french_heavy:
     tokenizer: icu_tokenizer
@@ -31,3 +35,7 @@ analyzer:
     filter:
       - app_french_elision
       - icu_folding
+  app_autocomplete:
+    type: 'custom'
+    tokenizer: 'standard'
+    filter: [ 'lowercase', 'asciifolding', 'elision', 'app_autocomplete_filter' ]
