@@ -88,4 +88,43 @@ class WpRepository
 
         return $news;
     }
+
+    public static function getRelations(int $postId, array $tags): array
+    {
+        $args            = array(
+            'category__in' => array_map(
+                function ($category) {
+                    return $category->cat_ID;
+                },
+                $tags
+            ),
+            'post__not_in' => [$postId],
+            'orderby'      => 'title',
+            'order'        => 'ASC',
+        );
+        $query           = new \WP_Query($args);
+        $recommandations = [];
+        foreach ($query->posts as $post) {
+            $image = null;
+            if (has_post_thumbnail($post)) {
+                $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'original');
+                if ($images) {
+                    $image = $images[0];
+                }
+            }
+            $recommandations[] = [
+                'title' => $post->post_title,
+                'url'   => get_permalink($post->ID),
+                'image' => $image,
+            ];
+
+        }
+
+        return $recommandations;
+    }
+
+    public static function getCategoryBySlug(string $slug)
+    {
+        return get_category_by_slug($slug);
+    }
 }
