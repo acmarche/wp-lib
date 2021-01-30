@@ -75,27 +75,26 @@ class Event
         $horaires = $offre->horaires->horaire;
         if (is_array($horaires->horline)) {
             foreach ($horaires->horline as $horaire) {
-                if (self::isObsolete($horaire->date_fin)) {
+                $date                   = [];
+                $date['date_fin']       = $horaire->date_fin;
+                $date['date_deb']       = $horaire->date_deb;
+                $date['date_affichage'] = $horaire->date_deb;
+                list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
+                if (self::isObsolete($date['year'], $date['month'], $date['day'])) {
                     continue;
                 }
-                $date = [];
-                //   dump($event['nom'], $horaire->date_fin);
-                $date['date_fin'] = $horaire->date_fin;
-                $date['date_deb'] = $horaire->date_deb;
-                list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
-                $date['date_affichage'] = $horaire->date_deb;
-                $dates[]                = $date;
+                $dates[] = $date;
             }
         } else {
-            $date = [];
-            if (self::isObsolete($horaires->horline->date_fin)) {
+            $date                   = [];
+            $date['date_fin']       = $horaires->horline->date_fin;
+            $date['date_deb']       = $horaires->horline->date_deb;
+            $date['date_affichage'] = $horaires->texte[0];
+            list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
+            if (self::isObsolete($date['year'], $date['month'], $date['day'])) {
                 return [];
             }
-            $date['date_fin'] = $horaires->horline->date_fin;
-            $date['date_deb'] = $horaires->horline->date_deb;
-            list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
-            $date['date_affichage'] = $horaires->texte[0];
-            $dates[]                = $date;
+            $dates[] = $date;
         }
 
         usort(
@@ -107,6 +106,7 @@ class Event
                     if ($debut1 == $debut2) {
                         return 0;
                     }
+
                     return ($debut1 < $debut2) ? -1 : 1;
                 }
             }
@@ -125,9 +125,10 @@ class Event
 //todo
     }
 
-    private static function isObsolete(string $dateEnd): bool
+    private static function isObsolete(string $year, string $month, string $day): bool
     {
-        if ($dateEnd < self::$today->format('d-m-Y')) {
+        $dateEnd = $year.'-'.$month.'-'.$day;
+        if ($dateEnd < self::$today->format('Y-m-d')) {
             return true;
         }
 

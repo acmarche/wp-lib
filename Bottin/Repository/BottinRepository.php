@@ -304,7 +304,7 @@ class BottinRepository
         return $query;
     }
 
-    public function getRelations(array $categories)
+    public function getRelations(int $ficheId, array $categories)
     {
         $ids             = array_map(
             function ($category) {
@@ -315,11 +315,13 @@ class BottinRepository
         $recommandations = [];
         $fiches          = $this->getFichesByCategories($ids);
         foreach ($fiches as $fiche) {
-            $recommandations[] = [
-                'title' => $fiche->societe,
-                'url'   => Router::getUrlFicheBottin($fiche),
-                'image' => $this->getLogo($fiche->id),
-            ];
+            if ($fiche->id != $ficheId) {
+                $recommandations[] = [
+                    'title' => $fiche->societe,
+                    'url'   => Router::getUrlFicheBottin($fiche),
+                    'image' => $this->getLogo($fiche->id),
+                ];
+            }
         }
 
         return $recommandations;
