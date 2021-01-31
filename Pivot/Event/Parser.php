@@ -32,9 +32,10 @@ class Parser
 
     public function offreId()
     {
-        $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
+        // $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
         $idOffreValue = $this->offre->getAttribute('id');
-        $this->offre->attributes->item(0);//donne attribut id
+
+        //$this->offre->attributes->item(0);//donne attribut id
 
         return $idOffreValue;
     }
@@ -51,12 +52,11 @@ class Parser
         return $domElement->item(0)->nodeValue;
     }
 
-
     public function geocodes()
     {
-        $coordinates     = [];
-        $geocodes = $this->offre->getElementsByTagName('geocodes');
-        $geocode  = $geocodes->item(0);
+        $coordinates = [];
+        $geocodes    = $this->offre->getElementsByTagName('geocodes');
+        $geocode     = $geocodes->item(0);
 
         foreach ($geocode->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
@@ -71,7 +71,28 @@ class Parser
         return $coordinates;
     }
 
-    public function getCategories()
+    public function localisation()
+    {
+        $data          = [];
+        $localisations = $this->offre->getElementsByTagName('localisation');
+        $localisation  = $localisations->item(0);
+
+        foreach ($localisation->childNodes as $child) {
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                $catId = $child->getAttributeNode('id');//134
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        $data[$cat->nodeName] = $cat->nodeValue;
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+
+    public function categories()
     {
         $data       = [];
         $categories = $this->offre->getElementsByTagName('categories');
