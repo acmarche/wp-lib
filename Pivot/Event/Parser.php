@@ -53,30 +53,31 @@ class Parser
 
     public function getCategories()
     {
+        $data       = [];
         $categories = $this->offre->getElementsByTagName('categories');
 
         foreach ($categories as $category) {
-            dump($category->tagName);
+            $t = [];
+            dump($category->tagName);//categories
             foreach ($category->childNodes as $child) {
                 if ($child->nodeType == XML_ELEMENT_NODE) {
-                    dump($child->tagName);
-                    $catId = $child->getAttributeNode('id');
-                    dump($catId->nodeValue);
+                    dump($child->tagName);//categorie
+                    $catId   = $child->getAttributeNode('id');
                     foreach ($child->childNodes as $cat) {
                         if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            if ($cat->tagName == 'lg') {
-
-                            }
                             $lg = $cat->getAttribute('lg');
                             if ($lg == 'fr') {
                                 dump($cat->nodeValue);
+                                $t[$catId->nodeValue] = $cat->nodeValue;
                             }
                         }
                     }
                 }
                 // dump($child->getAttributeNode('id'))->nodeValue;
             }
+            $data[] = $t;
         }
+        dump($data);
     }
 
 }
