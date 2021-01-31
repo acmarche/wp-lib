@@ -51,33 +51,53 @@ class Parser
         return $domElement->item(0)->nodeValue;
     }
 
+
+    public function geocodes()
+    {
+        $coordinates     = [];
+        $geocodes = $this->offre->getElementsByTagName('geocodes');
+        $geocode  = $geocodes->item(0);
+
+        foreach ($geocode->childNodes as $child) {
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        $coordinates[$cat->nodeName] = $cat->nodeValue;
+                    }
+                }
+            }
+        }
+
+        return $coordinates;
+    }
+
     public function getCategories()
     {
         $data       = [];
         $categories = $this->offre->getElementsByTagName('categories');
-
-        foreach ($categories as $category) {
-            $t = [];
-            dump($category->tagName);//categories
-            foreach ($category->childNodes as $child) {
-                if ($child->nodeType == XML_ELEMENT_NODE) {
-                    dump($child->tagName);//categorie
-                    $catId   = $child->getAttributeNode('id');
-                    foreach ($child->childNodes as $cat) {
-                        if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            $lg = $cat->getAttribute('lg');
-                            if ($lg == 'fr') {
-                                dump($cat->nodeValue);
-                                $t[$catId->nodeValue] = $cat->nodeValue;
-                            }
+        $category   = $categories->item(0);
+        //    foreach ($categories as $category) {
+        $t = [];
+        dump($category->tagName);//categories
+        foreach ($category->childNodes as $child) {
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                dump($child->tagName);//categorie
+                $catId = $child->getAttributeNode('id');
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        $lg = $cat->getAttribute('lg');
+                        if ($lg == 'fr') {
+                            dump($cat->nodeValue);
+                            $t[$catId->nodeValue] = $cat->nodeValue;
                         }
                     }
                 }
-                // dump($child->getAttributeNode('id'))->nodeValue;
             }
-            $data[] = $t;
         }
-        dump($data);
+        $data[] = $t;
+
+        //   }
+        return $data;
     }
 
 }
