@@ -5,7 +5,6 @@ namespace AcMarche\Pivot\Event;
 
 use DOMDocument;
 use DOMElement;
-use DOMNodeList;
 
 class Parser
 {
@@ -31,17 +30,9 @@ class Parser
 
     public function offreId()
     {
-        // $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
-        $idOffreValue = $this->offre->getAttribute('id');
-
         //$this->offre->attributes->item(0);//donne attribut id
-
-        return $idOffreValue;
-    }
-
-    public function childs(DOMNodeList $details)
-    {
-
+        // $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
+        return $this->offre->getAttribute('id');
     }
 
     public function getAttributs(string $name): string
@@ -78,7 +69,8 @@ class Parser
 
         foreach ($localisation->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                $catId = $child->getAttributeNode('id');//134
+                //$catId      = $child->getAttributeNode('id');//134
+                $data['id'] = $child->getAttributeNode('id')->nodeValue;
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         $data[$cat->nodeName] = $cat->nodeValue;
@@ -146,6 +138,38 @@ class Parser
         return $data;
     }
 
+    public function horaires()
+    {
+        $data     = [];
+        $horaires = $this->offre->getElementsByTagName('horaires');
+
+        foreach ($horaires as $horaire) {
+            $t    = [];
+            $year = $horaire->getAttributeNode('an');
+            foreach ($horaire->childNodes as $child) {
+                if ($child->nodeType == XML_ELEMENT_NODE) {
+                    $catId = $child->getAttributeNode('id');
+                    foreach ($child->childNodes as $cat) {
+                        if ($cat->nodeType == XML_ELEMENT_NODE) {
+                            $lg = $cat->getAttribute('lg');
+                            if ($cat->nodeName == 'horline') {
+                                $t['horaires'] = $this->extractHoraires($cat);
+                            } else {
+                                if ($lg == 'fr') {
+                                    $t[$cat->nodeName] = $cat->nodeValue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $data[] = $t;
+        }
+        dump($data);
+
+        return $data;
+    }
+
     public function categories()
     {
         $data       = [];
@@ -175,7 +199,7 @@ class Parser
         return $data;
     }
 
-    private function extractCommunications($communication): array
+    private function extractCommunications(DOMElement $communication): array
     {
         $data = [];
         foreach ($communication->childNodes as $childNode) {
@@ -199,6 +223,20 @@ class Parser
                 $data[] = $t;
             }
         }
+
+        return $data;
+    }
+
+    private function extractHoraires(DOMElement $horline):array
+    {
+        $data = [];
+        $id   = $horline->getAttribute('id');
+        foreach ($horline->childNodes as $node) {
+            if ($node->nodeType == XML_ELEMENT_NODE) {
+                $data[$node->nodeName] = $node->nodeValue;
+            }
+        }
+
         return $data;
     }
 }
