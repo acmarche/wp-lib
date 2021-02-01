@@ -49,11 +49,11 @@ class Event
     /**
      * @var Media[]
      */
-    private $medias;
+    public $medias;
     /**
      * @var Categorie[]
      */
-    private $categories;
+    public $categories;
 
     public static function createFromStd(\DOMElement $offre): ?Event
     {

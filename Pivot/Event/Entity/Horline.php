@@ -50,4 +50,16 @@ class Horline
      * @var string
      */
     public $jour_;
+    /**
+     * @var string
+     */
+    public $year;
+    /**
+     * @var string
+     */
+    public $month;
+    /**
+     * @var string
+     */
+    public $day;
 }

@@ -21,5 +21,5 @@ class Horaire
     /**
      * @var Horline
      */
-    public $horaires;
+    public $horline;
 }

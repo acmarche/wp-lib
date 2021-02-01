@@ -168,7 +168,7 @@ class Parser
                         if ($cat->nodeType == XML_ELEMENT_NODE) {
                             $lg = $cat->getAttribute('lg');
                             if ($cat->nodeName == 'horline') {
-                                $t->horaires = $this->extractHoraires($cat);
+                                $t->horline = $this->extractHoraires($cat);
                             } else {
                                 if ($lg == 'fr') {
                                     $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
@@ -246,7 +246,7 @@ class Parser
                         $lg = $cat->getAttribute('lg');
                         if ($lg == 'fr') {
                             $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
-                         //   $t[$catId->nodeValue] = $cat->nodeValue;
+                            //   $t[$catId->nodeValue] = $cat->nodeValue;
                         }
                     }
                 }
@@ -294,6 +294,7 @@ class Parser
                 $this->propertyAccessor->setValue($data, $node->nodeName, $node->nodeValue);
             }
         }
+        list($data->day, $data->month, $data->year) = explode("/", $data->date_deb);
 
         return $data;
     }
