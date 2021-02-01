@@ -5,7 +5,8 @@ namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
-use AcMarche\Pivot\Entity\Event;
+use AcMarche\Pivot\Event\Entity\Event;
+use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class HadesRepository
@@ -34,14 +35,15 @@ class HadesRepository
         return $this->cache->get(
             'events_hades'.time(),
             function () {
-                $data = $this->decodeXml($this->hadesRemoteRepository->getEvents());
-                foreach ($data->offres as $offres) {
-                    $events = [];
-                    foreach ($offres as $offre) {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getEvents());
+                $data   = $domdoc->getElementsByTagName('offres');
+                $offres = $data->item(0);
+                $events = [];
+                foreach ($offres->childNodes as $offre) {
+                    if ($offre->nodeType == XML_ELEMENT_NODE) {
                         $event = Event::createFromStd($offre);
-                        if (count($event['dates']) > 0) {
-                            $events[] = $event;
-                        }
+                        // if (count($event['dates']) > 0) {
+                        $events[] = $event;
                     }
                 }
 
@@ -55,14 +57,13 @@ class HadesRepository
      *
      * @return array|\Exception
      */
-    private function decodeXml(string $xmlString): object
+    private function loadXml(string $xmlString): DOMDocument
     {
         try {
-            $xml   = simplexml_load_string($xmlString);
-            $json  = json_encode($xml);
-            $array = json_decode($json);
+            $domdoc = new DOMDocument();
+            $domdoc->loadXML($xmlString);
 
-            return $array;
+            return $domdoc;
         } catch (\Exception $exception) {
             Mailer::sendError('Erreur avec le xml hades event', $exception->getMessage());
 
@@ -73,10 +74,9 @@ class HadesRepository
     public function getEvent($codeCgt): ?array
     {
         $events = $this->getEvents();
-        //$event = $hadesRepository->getDetailEvent($codeCgt);
         $event = null;
         foreach ($events as $element) {
-            if ($codeCgt == $element['id']) {
+            if ($codeCgt == $element->reference) {
                 $event = $element;
                 break;
             }

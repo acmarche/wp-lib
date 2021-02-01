@@ -57,11 +57,13 @@ class HadesRemoteRepository
      */
     public function getEvents(): string
     {
-        return $this->cache->get(
+        $t = $this->cache->get(
             'events_hades_remote'.time(),
             function () {
                 return $this->getOffres(join(',', Hades::EVENEMENTS));
             }
         );
+     //   echo($t);
+        return $t;
     }
 }
