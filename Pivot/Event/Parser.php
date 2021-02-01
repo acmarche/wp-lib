@@ -3,7 +3,6 @@
 
 namespace AcMarche\Pivot\Event;
 
-
 use DOMDocument;
 use DOMElement;
 use DOMNodeList;
@@ -91,6 +90,61 @@ class Parser
         return $data;
     }
 
+    public function contacts()
+    {
+        $data         = [];
+        $descriptions = $this->offre->getElementsByTagName('contacts');
+        foreach ($descriptions as $description) {
+            $t = [];
+            // dump($description->tagName);//
+            foreach ($description->childNodes as $child) {
+                if ($child->nodeType == XML_ELEMENT_NODE) {
+                    // dump($child->tagName);
+                    foreach ($child->childNodes as $cat) {
+                        if ($cat->nodeType == XML_ELEMENT_NODE) {
+                            if ($cat->nodeName == 'communications') {
+                                $t['communications'] = $this->extractCommunications($cat);
+                            } else {
+                                //  dump($cat->nodeValue);
+                                $t[$cat->nodeName] = $cat->nodeValue;
+                            }
+                        }
+                    }
+                }
+            }
+            $data[] = $t;
+        }
+
+        return $data;
+    }
+
+    public function descriptions()
+    {
+        $data         = [];
+        $descriptions = $this->offre->getElementsByTagName('descriptions');
+        foreach ($descriptions as $description) {
+            $t = [];
+            foreach ($description->childNodes as $child) {
+                if ($child->nodeType == XML_ELEMENT_NODE) {
+                    $tagName = $child->tagName;
+                    $dat     = $child->getAttributeNode('dat')->nodeValue;
+                    $lot     = $child->getAttributeNode('lot')->nodeValue;
+                    $typ     = $child->getAttributeNode('typ')->nodeValue;
+                    foreach ($child->childNodes as $cat) {
+                        if ($cat->nodeType == XML_ELEMENT_NODE) {
+                            $lg = $cat->getAttribute('lg');
+                            if ($lg == 'fr') {
+                                $t[$cat->nodeName] = $cat->nodeValue;
+                            }
+                        }
+                    }
+                }
+            }
+            $data[] = $t;
+        }
+
+        return $data;
+    }
 
     public function categories()
     {
@@ -121,4 +175,30 @@ class Parser
         return $data;
     }
 
+    private function extractCommunications($communication): array
+    {
+        $data = [];
+        foreach ($communication->childNodes as $childNode) {
+            $t = [];
+            if ($childNode->nodeType == XML_ELEMENT_NODE) {
+                $type      = $childNode->getAttribute('typ');
+                $t['type'] = $type;
+                foreach ($childNode->childNodes as $node) {
+                    if ($node->nodeType == XML_ELEMENT_NODE) {
+                        $lg = $node->getAttribute('lg');
+                        if ($lg == 'fr') {
+                            $t['name'] = $node->nodeValue;
+                        }
+                        if ($node->nodeName == 'val') {
+                            $t['value'] = $node->nodeValue;
+                        }
+                    }
+                }
+            }
+            if (count($t) > 0) {
+                $data[] = $t;
+            }
+        }
+        return $data;
+    }
 }
