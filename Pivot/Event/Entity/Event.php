@@ -82,6 +82,7 @@ class Event
         $event->categories   = $parser->categories();
         $event->selections   = $parser->selections();
         $event->url          = Router::getUrlEvent($event);
+        $event->dates        = self::getDates($event);
 
         if (EventUtils::isEventObsolete($event)) {
             return null;
@@ -101,6 +102,24 @@ class Event
         }
 
         return null;
+    }
+
+    /**
+     * Raccourcis util a react
+     * @param Event $event
+     *
+     * @return array
+     */
+    private static function getDates(Event $event)
+    {
+        $dates = [];
+        foreach ($event->horaires as $horaire) {
+            foreach ($horaire->horlines as $horline) {
+                $dates[] = (array)$horline;
+            }
+        }
+
+        return $dates;
     }
 
 
