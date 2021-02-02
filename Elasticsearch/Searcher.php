@@ -30,7 +30,7 @@ class Searcher
      * @return ResultSet
      * @throws  InvalidException
      */
-    public function search(string $keywords): ResultSet
+    public function search2(string $keywords): ResultSet
     {
         $query               = new BoolQuery();
         $matchName           = new Match('name', $keywords);
@@ -49,12 +49,12 @@ class Searcher
         return $result;
     }
 
-    public function search2(string $keywords): ResultSet
+    public function search(string $keywords): ResultSet
     {
         $query = new MultiMatch();
         $query->setFields(
             [
-                'name^5',
+                'name^2',
                 'title.autocomplete',
                 'content',
                 'excerpt',
