@@ -66,9 +66,6 @@ class EventUtils
                 {
                     $horlineA = $eventA->firstHorline();
                     $horlineB = $eventB->firstHorline();
-                    if ($horlineA == null) {
-                        dump($horlineA, $eventA);
-                    }
 
                     $debut1 = $horlineA->year.'-'.$horlineA->month.'-'.$horlineA->day;
                     $debut2 = $horlineB->year.'-'.$horlineB->month.'-'.$horlineB->day;
