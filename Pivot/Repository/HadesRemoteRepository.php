@@ -25,20 +25,31 @@ class HadesRemoteRepository
         $this->cache = Cache::instance();
     }
 
-    public function getOffres(string $categorie = '', string $tbl = 'xmlcomplet')
+    /**
+     * http://w3.ftlb.be/wiki/index.php/Flux
+     * @param array $args
+     * @param string $tbl
+     *
+     * @return string
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getOffres(array $args, string $tbl = 'xmlcomplet')
     {
+        $args['tbl']    = $tbl;
+        $args['com_id'] = Hades::COMMUNE;
+        //  'reg_id' => Hades::PAYS,
+        // 'cat_id' => $categorie,
+        //   'from_datetime'=>'2020-06-26%2012:27:00'
+
         try {
             $request = $this->httpClient->request(
                 'GET',
                 $this->url,
                 [
-                    'query' => [
-                        'tbl'    => $tbl,
-                        //  'reg_id' => Hades::PAYS,
-                        'com_id' => Hades::COMMUNE,
-                        'cat_id' => $categorie,
-                        //   'from_datetime'=>'2020-06-26%2012:27:00'
-                    ],
+                    'query' => $args,
                 ]
             );
 
@@ -60,10 +71,30 @@ class HadesRemoteRepository
         $t = $this->cache->get(
             'events_hades_remote'.time(),
             function () {
-                return $this->getOffres(join(',', Hades::EVENEMENTS));
+                return $this->getOffres(['cat_id' => join(',', Hades::EVENEMENTS)]);
             }
         );
-     //   echo($t);
+
+        //   echo($t);
+        return $t;
+    }
+
+    /**
+     * http://w3.ftlb.be/webservice/h2o.php?tbl=xmlcomplet&off_id=84670
+     * @return string
+     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws \Exception
+     */
+    public function getEvent(string $id): string
+    {
+        $t = $this->cache->get(
+            'events_hades_remote'.time(),
+            function () use ($id) {
+                return $this->getOffres(['off_id' => $id]);
+            }
+        );
+
+        //   echo($t);
         return $t;
     }
 }

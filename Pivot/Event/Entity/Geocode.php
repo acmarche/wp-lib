@@ -21,11 +21,11 @@ class Geocode
 
     public function latitude()
     {
-        return $this->x;
+        return $this->y;
     }
 
     public function longitude()
     {
-        return $this->y;
+        return $this->x;
     }
 }

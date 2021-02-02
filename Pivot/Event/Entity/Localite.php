@@ -38,4 +38,18 @@ class Localite
      * @var string
      */
     public $y;
+
+    public function localite() {
+        return $this->l_nom;
+    }
+
+    public function latitude()
+    {
+        return $this->y;
+    }
+
+    public function longitude()
+    {
+        return $this->x;
+    }
 }

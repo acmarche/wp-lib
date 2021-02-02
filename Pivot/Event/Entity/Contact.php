@@ -53,4 +53,8 @@ class Contact
      * @var Communication[]
      */
     public $communications;
+
+    public function localite() {
+        return $this->l_nom;
+    }
 }

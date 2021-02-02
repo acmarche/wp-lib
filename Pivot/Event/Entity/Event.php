@@ -55,7 +55,7 @@ class Event
      */
     public $categories;
 
-    public static function createFromStd(\DOMElement $offre): ?Event
+    public static function createFromDom(\DOMElement $offre): ?Event
     {
         self::$today         = new \DateTime();
         $parser              = new Parser($offre);

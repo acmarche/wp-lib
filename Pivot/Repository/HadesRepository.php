@@ -41,7 +41,7 @@ class HadesRepository
                 $events = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $event = Event::createFromStd($offre);
+                        $event = Event::createFromDom($offre);
                         // if (count($event['dates']) > 0) {
                         $events[] = $event;
                     }
@@ -71,10 +71,30 @@ class HadesRepository
         }
     }
 
-    public function getEvent($codeCgt): ?array
+    public function getEvent(string $id): ?Event
+    {
+        return $this->cache->get(
+            'event_hades-'.$id.time(),
+            function () use ($id) {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getEvent($id));
+                $data   = $domdoc->getElementsByTagName('offres');
+                $offres = $data->item(0);
+                foreach ($offres->childNodes as $offre) {
+                    if ($offre->nodeType == XML_ELEMENT_NODE) {
+                        return Event::createFromDom($offre);
+                    }
+                }
+
+                return null;
+            }
+        );
+
+    }
+
+    public function getEvent2($codeCgt): ?array
     {
         $events = $this->getEvents();
-        $event = null;
+        $event  = null;
         foreach ($events as $element) {
             if ($codeCgt == $element->reference) {
                 $event = $element;
