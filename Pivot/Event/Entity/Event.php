@@ -3,14 +3,12 @@
 
 namespace AcMarche\Pivot\Event\Entity;
 
+use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Parser\EventParser;
 use AcMarche\Theme\Inc\Router;
-use DateTime;
-use stdClass;
 
 class Event
 {
-    private static $today = null;
     /**
      * @var string
      */
@@ -70,7 +68,6 @@ class Event
 
     public static function createFromDom(\DOMElement $offre): ?Event
     {
-        self::$today         = new DateTime();
         $parser              = new EventParser($offre);
         $event               = new self();
         $event->id           = $parser->offreId();
@@ -86,49 +83,25 @@ class Event
         $event->selections   = $parser->selections();
         $event->url          = Router::getUrlEvent($event);
 
+        if (EventUtils::isEventObsolete($event)) {
+            return null;
+        }
+
+        EventUtils::sortDates($event);
+
         return $event;
     }
 
-    private static function getDatesEvent(Event $event): array
+    public function firstHorline(): ?Horline
     {
-        foreach ($event->horaires as $horaire) {
-            $horline = $horaire->horline;
-            list($day, $month, $year) = explode("/", $horline->date_fin);
-            if (self::isObsolete($year, $month, $day)) {
-                continue;
+        if (count($this->horaires) > 0) {
+            if (count($this->horaires[0]->horlines)) {
+                return $this->horaires[0]->horlines[0];
             }
         }
 
-        usort(
-            $dates,
-            function ($a, $b) {
-                {
-                    $debut1 = $a['year'].'-'.$a['month'].'-'.$a['day'];
-                    $debut2 = $b['year'].'-'.$b['month'].'-'.$b['day'];
-                    if ($debut1 == $debut2) {
-                        return 0;
-                    }
-
-                    return ($debut1 < $debut2) ? -1 : 1;
-                }
-            }
-        );
-
-        return $dates;
+        return null;
     }
 
-    private static function sortEvents()
-    {
 
-    }
-
-    private static function isObsolete(string $year, string $month, string $day): bool
-    {
-        $dateEnd = $year.'-'.$month.'-'.$day;
-        if ($dateEnd < self::$today->format('Y-m-d')) {
-            return true;
-        }
-
-        return false;
-    }
 }

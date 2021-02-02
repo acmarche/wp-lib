@@ -6,6 +6,7 @@ namespace AcMarche\Pivot\Repository;
 use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
 use AcMarche\Pivot\Event\Entity\Event;
+use AcMarche\Pivot\Event\EventUtils;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -42,11 +43,12 @@ class HadesRepository
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
                         $event = Event::createFromDom($offre);
-                        if (count($event->horaires) > 0) {
+                        if ($event) {
                             $events[] = $event;
                         }
                     }
                 }
+                $events = EventUtils::sortEvents($events);
 
                 return $events;
             }

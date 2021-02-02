@@ -167,7 +167,7 @@ class EventParser
     {
         $data     = [];
         $horaires = $this->offre->getElementsByTagName('horaires');
-        if ( ! $horaires ) {
+        if ( ! $horaires) {
             return [];
         }
 
@@ -176,13 +176,12 @@ class EventParser
             $t->year = $horaire->getAttributeNode('an');
             foreach ($horaire->childNodes as $child) {
                 if ($child->nodeType == XML_ELEMENT_NODE) {
-                    $catId = $child->getAttributeNode('id');
                     foreach ($child->childNodes as $cat) {
                         if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            $lg = $cat->getAttribute('lg');
                             if ($cat->nodeName == 'horline') {
                                 $t->horlines[] = $this->extractHoraires($cat);
                             } else {
+                                $lg = $cat->getAttribute('lg');
                                 if ($lg == 'fr') {
                                     $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
                                 }
