@@ -6,7 +6,6 @@ namespace AcMarche\Pivot\Event\Entity;
 
 class Categorie
 {
-
     /**
      * @var string
      */

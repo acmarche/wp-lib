@@ -42,8 +42,9 @@ class HadesRepository
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
                         $event = Event::createFromDom($offre);
-                        // if (count($event['dates']) > 0) {
-                        $events[] = $event;
+                        if (count($event->horaires) > 0) {
+                            $events[] = $event;
+                        }
                     }
                 }
 

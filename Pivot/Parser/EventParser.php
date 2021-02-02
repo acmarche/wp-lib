@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event;
+namespace AcMarche\Pivot\Parser;
 
 use AcMarche\Pivot\Event\Entity\Categorie;
 use AcMarche\Pivot\Event\Entity\Communication;
@@ -17,7 +17,7 @@ use DOMDocument;
 use DOMElement;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-class Parser
+class EventParser
 {
     /**
      * @var DOMElement
@@ -63,6 +63,9 @@ class Parser
         $coordinates = new Geocode();
         $geocodes    = $this->offre->getElementsByTagName('geocodes');
         $geocode     = $geocodes->item(0);
+        if ( ! $geocode instanceof DOMElement) {
+            return [];
+        }
 
         foreach ($geocode->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
@@ -82,6 +85,9 @@ class Parser
         $data          = new Localite();
         $localisations = $this->offre->getElementsByTagName('localisation');
         $localisation  = $localisations->item(0);
+        if ( ! $localisation instanceof DOMElement) {
+            return [];
+        }
 
         foreach ($localisation->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
@@ -100,26 +106,29 @@ class Parser
 
     public function contacts()
     {
-        $data         = [];
-        $descriptions = $this->offre->getElementsByTagName('contacts');
-        foreach ($descriptions as $description) {
-            $t = new Contact();
-            // dump($description->tagName);//
-            foreach ($description->childNodes as $child) {
-                if ($child->nodeType == XML_ELEMENT_NODE) {
-                    // dump($child->tagName);
-                    foreach ($child->childNodes as $cat) {
-                        if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            if ($cat->nodeName == 'communications') {
-                                $t->communications = $this->extractCommunications($cat);
-                            } else {
-                                $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
-                            }
+        $data     = [];
+        $contacts = $this->offre->getElementsByTagName('contacts');
+        $contacts = $contacts->item(0);//pour par prendre elements parents
+        if ( ! $contacts instanceof DOMElement) {
+            return [];
+        }
+
+        // dump($description->tagName);//
+        foreach ($contacts->childNodes as $child) {
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                $t = new Contact();
+                // dump($child->tagName);
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        if ($cat->nodeName == 'communications') {
+                            $t->communications = $this->extractCommunications($cat);
+                        } else {
+                            $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
                         }
                     }
                 }
+                $data[] = $t;
             }
-            $data[] = $t;
         }
 
         return $data;
@@ -129,25 +138,26 @@ class Parser
     {
         $data         = [];
         $descriptions = $this->offre->getElementsByTagName('descriptions');
-        foreach ($descriptions as $description) {
+        $descriptions = $descriptions->item(0);//pour par prendre elements parents
+        if ( ! $descriptions instanceof DOMElement) {
+            return [];
+        }
+        foreach ($descriptions->childNodes as $child) {
             $t = new Description();
-            foreach ($description->childNodes as $child) {
-                if ($child->nodeType == XML_ELEMENT_NODE) {
-                    $tagName = $child->tagName;
-                    $t->dat  = $child->getAttributeNode('dat')->nodeValue;
-                    $t->lot  = $child->getAttributeNode('lot')->nodeValue;
-                    $t->typ  = $child->getAttributeNode('typ')->nodeValue;
-                    foreach ($child->childNodes as $cat) {
-                        if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            $lg = $cat->getAttribute('lg');
-                            if ($lg == 'fr') {
-                                $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
-                            }
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                $t->dat = $child->getAttributeNode('dat')->nodeValue;
+                $t->lot = $child->getAttributeNode('lot')->nodeValue;
+                $t->typ = $child->getAttributeNode('typ')->nodeValue;
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        $lg = $cat->getAttribute('lg');
+                        if ($lg == 'fr') {
+                            $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
                         }
                     }
                 }
+                $data[] = $t;
             }
-            $data[] = $t;
         }
 
         return $data;
@@ -157,6 +167,9 @@ class Parser
     {
         $data     = [];
         $horaires = $this->offre->getElementsByTagName('horaires');
+        if ( ! $horaires ) {
+            return [];
+        }
 
         foreach ($horaires as $horaire) {
             $t       = new Horaire();
@@ -168,7 +181,7 @@ class Parser
                         if ($cat->nodeType == XML_ELEMENT_NODE) {
                             $lg = $cat->getAttribute('lg');
                             if ($cat->nodeName == 'horline') {
-                                $t->horline = $this->extractHoraires($cat);
+                                $t->horlines[] = $this->extractHoraires($cat);
                             } else {
                                 if ($lg == 'fr') {
                                     $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
@@ -188,8 +201,11 @@ class Parser
     {
         $data   = [];
         $object = $this->offre->getElementsByTagName('medias');
-        $medias = $object->item(0);
-        $t      = new Media();
+        $medias = $object->item(0);//pour par prendre elements parents
+        if ( ! $medias instanceof DOMElement) {
+            return [];
+        }
+        $t = new Media();
         foreach ($medias->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 $t->ext = $child->getAttributeNode('ext')->nodeValue;
@@ -213,7 +229,10 @@ class Parser
     {
         $data       = [];
         $object     = $this->offre->getElementsByTagName('selections');
-        $selections = $object->item(0);
+        $selections = $object->item(0);//pour par prendre elements parents
+        if ( ! $selections instanceof DOMElement) {
+            return [];
+        }
 
         foreach ($selections->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
@@ -236,8 +255,11 @@ class Parser
     {
         $data       = [];
         $categories = $this->offre->getElementsByTagName('categories');
-        $category   = $categories->item(0);
-        $t          = new Categorie();
+        $category   = $categories->item(0);//pour par prendre elements parents
+        if ( ! $category instanceof DOMElement) {
+            return [];
+        }
+        $t = new Categorie();
         foreach ($category->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 $catId = $child->getAttributeNode('id');

@@ -3,8 +3,9 @@
 
 namespace AcMarche\Pivot\Event\Entity;
 
-use AcMarche\Pivot\Event\Parser;
+use AcMarche\Pivot\Parser\EventParser;
 use AcMarche\Theme\Inc\Router;
+use DateTime;
 use stdClass;
 
 class Event
@@ -54,11 +55,23 @@ class Event
      * @var Categorie[]
      */
     public $categories;
+    /**
+     * @var Selection[]
+     */
+    public $selections;
+
+    public function __construct()
+    {
+        $this->categories = [];
+        $this->medias     = [];
+        $this->horaires   = [];
+        $this->contacts   = [];
+    }
 
     public static function createFromDom(\DOMElement $offre): ?Event
     {
-        self::$today         = new \DateTime();
-        $parser              = new Parser($offre);
+        self::$today         = new DateTime();
+        $parser              = new EventParser($offre);
         $event               = new self();
         $event->id           = $parser->offreId();
         $event->titre        = $parser->getAttributs('titre');
@@ -70,37 +83,20 @@ class Event
         $event->contacts     = $parser->contacts();
         $event->medias       = $parser->medias();
         $event->categories   = $parser->categories();
+        $event->selections   = $parser->selections();
         $event->url          = Router::getUrlEvent($event);
 
         return $event;
     }
 
-    private static function getDatesEvent(stdClass $offre): array
+    private static function getDatesEvent(Event $event): array
     {
-        $dates    = [];
-        $horaires = $offre->horaires->horaire;
-        if (is_array($horaires->horline)) {
-            foreach ($horaires->horline as $horaire) {
-                $date                   = [];
-                $date['date_fin']       = $horaire->date_fin;
-                $date['date_deb']       = $horaire->date_deb;
-                $date['date_affichage'] = $horaire->date_deb;
-                list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
-                if (self::isObsolete($date['year'], $date['month'], $date['day'])) {
-                    continue;
-                }
-                $dates[] = $date;
+        foreach ($event->horaires as $horaire) {
+            $horline = $horaire->horline;
+            list($day, $month, $year) = explode("/", $horline->date_fin);
+            if (self::isObsolete($year, $month, $day)) {
+                continue;
             }
-        } else {
-            $date                   = [];
-            $date['date_fin']       = $horaires->horline->date_fin;
-            $date['date_deb']       = $horaires->horline->date_deb;
-            $date['date_affichage'] = $horaires->texte[0];
-            list($date['day'], $date['month'], $date['year']) = explode("/", $date['date_deb']);
-            if (self::isObsolete($date['year'], $date['month'], $date['day'])) {
-                return [];
-            }
-            $dates[] = $date;
         }
 
         usort(
@@ -119,6 +115,11 @@ class Event
         );
 
         return $dates;
+    }
+
+    private static function sortEvents()
+    {
+
     }
 
     private static function isObsolete(string $year, string $month, string $day): bool

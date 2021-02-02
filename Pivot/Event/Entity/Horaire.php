@@ -19,7 +19,7 @@ class Horaire
      */
     public $texte;
     /**
-     * @var Horline
+     * @var Horline[]
      */
-    public $horline;
+    public $horlines = [];
 }
