@@ -45,11 +45,30 @@ class BottinRepository
         foreach ($classements as $classement) {
             $category = $this->getCategory($classement['category_id']);
             if ($category) {
-                $categories[] = $category;
+                $category->principal = $classement['principal'];
+                $categories[]        = $category;
             }
         }
 
         return $categories;
+    }
+
+    public function getCategoriePrincipale(object $fiche): ?object
+    {
+        $categories          = $this->getCategoriesOfFiche($fiche->id);
+        $classementPrincipal = array_filter(
+            $categories,
+            function ($category) {
+                if ($category->principal) {
+                    return $category;
+                }
+
+                return null;
+            }
+        );
+        $classementPrincipal = count($classementPrincipal) > 0 ? $classementPrincipal[0] : $categories[0];
+
+        return $classementPrincipal;
     }
 
     /**
