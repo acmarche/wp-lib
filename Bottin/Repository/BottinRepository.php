@@ -168,9 +168,23 @@ class BottinRepository
      * @return object|null
      * @throws Exception
      */
-    public function getCategory(int $id): ?object
+    public function getCategory(?int $id): ?object
     {
+        if ( ! $id) {
+            return null;
+        }
         $sql = 'SELECT * FROM category WHERE `id` = '.$id;
+        $sth = $this->execQuery($sql);
+        if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
+            return null;
+        }
+
+        return $data;
+    }
+
+    public function getParentxxx(int $parentId): ?object
+    {
+        $sql = 'SELECT * FROM category WHERE `parent_id` = '.$id;
         $sth = $this->execQuery($sql);
         if ( ! $data = $sth->fetch(PDO::FETCH_OBJ)) {
             return null;
@@ -236,7 +250,10 @@ class BottinRepository
             $fiches[] = $this->getFichesByCategory($id);
         }
 
-        return array_merge(...$fiches);
+        $fiches = array_merge(...$fiches);
+        $fiches = $this->sort($fiches);
+
+        return $fiches;
     }
 
     public function getFichesByCategory(int $id): array
@@ -258,6 +275,7 @@ class BottinRepository
         );
 
         $fiches = array_unique($fiches, SORT_REGULAR);
+        $fiches = $this->sort($fiches);
 
         return $fiches;
     }
@@ -326,4 +344,23 @@ class BottinRepository
 
         return $recommandations;
     }
+
+    private function sort(array $fiches): array
+    {
+        usort(
+            $fiches,
+            function ($a, $b) {
+                {
+                    if ($a->societe == $b->societe) {
+                        return 0;
+                    }
+
+                    return ($a->societe < $b->societe) ? -1 : 1;
+                }
+            }
+        );
+
+        return $fiches;
+    }
+
 }

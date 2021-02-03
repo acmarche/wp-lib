@@ -89,14 +89,15 @@ class WpRepository
         return $news;
     }
 
-    public static function getRelations(int $postId, array $tags): array
+    public static function getRelations(int $postId): array
     {
+        $categories = get_the_category($postId);
         $args            = array(
             'category__in' => array_map(
                 function ($category) {
                     return $category->cat_ID;
                 },
-                $tags
+                $categories
             ),
             'post__not_in' => [$postId],
             'orderby'      => 'title',
@@ -126,5 +127,17 @@ class WpRepository
     public static function getCategoryBySlug(string $slug)
     {
         return get_category_by_slug($slug);
+    }
+
+    public static function getTags(int $postId): array
+    {
+        $tags = [];
+        foreach (get_the_category($postId) as $category) {
+            $tags[] = [
+                'name' => $category->name,
+                'url'  => get_category_link($category),
+            ];
+        }
+        return $tags;
     }
 }

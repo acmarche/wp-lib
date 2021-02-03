@@ -47,8 +47,6 @@ class EventUtils
                     }
                 }
             );
-
-            // $horaire->horlines = $horlines;
         }
 
     }
