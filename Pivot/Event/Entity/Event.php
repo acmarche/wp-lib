@@ -93,6 +93,10 @@ class Event
         return $event;
     }
 
+    /**
+     * Utilise dans @see EventUtils
+     * @return Horline|null
+     */
     public function firstHorline(): ?Horline
     {
         if (count($this->horaires) > 0) {
