@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CommonCommand extends Command
 {
-    protected static $defaultName = 'marche:doit';
+    protected static $defaultName = 'marche:xxx';
 
     /**
      * @var SymfonyStyle
@@ -22,7 +22,7 @@ class CommonCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Effectuer une recherche')
+            ->setDescription('Sert a rien')
             ->addArgument('query', InputArgument::REQUIRED, 'mot clef pour la description');
     }
 
