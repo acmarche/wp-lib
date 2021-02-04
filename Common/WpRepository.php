@@ -10,6 +10,7 @@ class WpRepository
 {
     public static function getPageAlert(): ?WP_Post
     {
+        switch_to_blog(1);
         $query = new WP_Query(array("page_id" => Theme::PAGE_ALERT, "post_status" => 'publish', 'post_type' => 'page'));
         $post  = $query->get_posts();
         if (count($post) > 0) {
@@ -91,7 +92,7 @@ class WpRepository
 
     public static function getRelations(int $postId): array
     {
-        $categories = get_the_category($postId);
+        $categories      = get_the_category($postId);
         $args            = array(
             'category__in' => array_map(
                 function ($category) {
@@ -138,6 +139,7 @@ class WpRepository
                 'url'  => get_category_link($category),
             ];
         }
+
         return $tags;
     }
 }
