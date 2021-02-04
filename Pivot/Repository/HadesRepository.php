@@ -91,20 +91,35 @@ class HadesRepository
                 return null;
             }
         );
-
     }
 
-    public function getEvent2($codeCgt): ?array
+    public function getEventRelations(Event $event): ?array
     {
-        $events = $this->getEvents();
-        $event  = null;
-        foreach ($events as $element) {
-            if ($codeCgt == $element->reference) {
-                $event = $element;
-                break;
+        $events          = $this->getEvents();
+        $recommandations = [];
+
+        foreach ($event->categories as $category) {
+
+            foreach ($events as $element) {
+                foreach ($element->categories as $category2) {
+                    if ($category->lib == $category2->lib) {
+
+                        $image  = null;
+                        $images = $element->medias;
+                        if (count($images) > 0) {
+                            $image = $images[0]->url;
+                        }
+
+                        $recommandations[] = [
+                            'title' => $element->titre,
+                            'url'   => $element->url,
+                            'image' => $image,
+                        ];
+                    }
+                }
             }
         }
 
-        return $event;
+        return $recommandations;
     }
 }
