@@ -142,4 +142,40 @@ class WpRepository
 
         return $tags;
     }
+
+    public function getChildrenOfCategory(int $cat_ID): array
+    {
+        $args     = ['parent' => $cat_ID, 'hide_empty' => false];
+        $children = get_categories($args);
+        array_map(
+            function ($category) {
+                $category->permalink = get_category_link($category->term_id);
+                $category->id        = $category->term_id;
+            },
+            $children
+        );
+
+        return $children;
+    }
+
+    /**
+     * @param int $cat_ID
+     *
+     * @return array|object|\WP_Error|null
+     */
+    public function getParentCategory(int $cat_ID)
+    {
+        $category = get_category($cat_ID);
+
+        if ($category) {
+            if ($category->parent < 1) {
+                return null;
+            }
+
+            return get_category($category->parent);
+        }
+
+        return null;
+
+    }
 }
