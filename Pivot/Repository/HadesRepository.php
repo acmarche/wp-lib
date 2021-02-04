@@ -102,7 +102,7 @@ class HadesRepository
 
             foreach ($events as $element) {
                 foreach ($element->categories as $category2) {
-                    if ($category->lib == $category2->lib) {
+                    if ($category->lib == $category2->lib && $event->id != $element->id) {
 
                         $image  = null;
                         $images = $element->medias;
