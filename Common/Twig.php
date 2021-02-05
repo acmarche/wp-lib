@@ -3,6 +3,7 @@
 
 namespace AcMarche\Common;
 
+use AcMarche\Theme\Inc\Router;
 use AcMarche\Theme\Inc\Theme;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -124,12 +125,12 @@ class Twig
      * For sharing pages
      * @return TwigFunction
      */
-    protected static function currentUrl(): TwigFunction
+    public static function currentUrl(): TwigFunction
     {
         return new TwigFunction(
             'currentUrl',
             function (): string {
-                return get_site_url().esc_url_raw(add_query_arg([]));
+                return Router::getCurrentUrl();
             }
         );
     }
