@@ -68,7 +68,7 @@ class Twig
                     'relations' => [],
                 ]
             );
-            Mailer::sendError("Error homepage", $e->getMessage());
+            Mailer::sendError("Error page".$templatePath, $e->getMessage());
         }
 
     }
