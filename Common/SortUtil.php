@@ -12,11 +12,13 @@ class SortUtil
             $posts,
             function ($postA, $postB) {
                 {
-                    if ($postA->post_title == $postB->post_title) {
+                    $titleA = is_array($postA) ? $postA['post_title'] : $postA->post_title;
+                    $titleB = is_array($postB) ? $postB['post_title'] : $postB->post_title;
+                    if ($titleA == $titleB) {
                         return 0;
                     }
 
-                    return ($postA->post_title < $postB->post_title) ? -1 : 1;
+                    return ($titleA < $titleB) ? -1 : 1;
                 }
             }
         );
