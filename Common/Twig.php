@@ -43,6 +43,7 @@ class Twig
         $environment->addFilter(self::categoryLink());
         $environment->addFunction(self::showTemplate());
         $environment->addFunction(self::currentUrl());
+        $environment->addFunction(self::wwwUrl());
         $environment->addFunction(self::isExternalUrl());
 
         return $environment;
@@ -131,6 +132,20 @@ class Twig
             'currentUrl',
             function (): string {
                 return Router::getCurrentUrl();
+            }
+        );
+    }
+
+    /**
+     * For sharing pages
+     * @return TwigFunction
+     */
+    public static function wwwUrl(): TwigFunction
+    {
+        return new TwigFunction(
+            'wwwUrl',
+            function (): string {
+                return Router::getUrlWww();
             }
         );
     }
