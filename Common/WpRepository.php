@@ -185,39 +185,43 @@ class WpRepository
 
     public function getPostsAndFiches(int $catId): array
     {
-        /**
-         * @var \WP_Query $wp_query
-         */
-        global $wp_query;
+        $args = array(
+            'cat'         => $catId,
+            'numberposts' => 5000,
+            'orderby'     => 'post_title',
+            'order'       => 'ASC',
+            'post_status' => 'publish',
+        );
 
-        $bottinRepository = new BottinRepository();
-        $posts    = $wp_query->get_posts();
+        $querynews = new WP_Query($args);
+        $posts     = [];
+        while ($querynews->have_posts()) {
+            $post            = $querynews->next_post();
+            $post->excerpt   = $post->post_excerpt;
+            $post->permalink = get_permalink($post->ID);
+            $posts[]         = $post;
+        }
 
         $fiches           = [];
         $categoryBottinId = get_term_meta($catId, BottinCategoryMetaBox::KEY_NAME, true);
-        if ($categoryBottinId) {
-            $fiches = $bottinRepository->getFichesByCategory($categoryBottinId);
+        if ($categoryBottinId) {dump($categoryBottinId);
+            $bottinRepository = new BottinRepository();
+            $fiches           = $bottinRepository->getFichesByCategory($categoryBottinId);
         }
 
-        $all = array_merge($posts, $fiches);
-
         array_map(
-            function ($post) {
-                if ($post instanceof WP_Post) {
-                    $post->excerpt   = $post->post_excerpt;
-                    $post->permalink = get_permalink($post->ID);
-                } else {
-                    $post->fiche      = true;
-                    $post->excerpt    = Bottin::getExcerpt($post);
-                    $post->permalink  = Router::getUrlFicheBottin($post);
-                    $post->post_title = $post->societe;
-                }
+            function ($fiche) {
+                $fiche->fiche      = true;
+                $fiche->excerpt    = Bottin::getExcerpt($fiche);
+                $fiche->permalink  = Router::getUrlFicheBottin($fiche);
+                $fiche->post_title = $fiche->societe;
             },
-            $all
+            $fiches
         );
 
-        return
-            $all;
+        $all = array_merge($posts, $fiches);
+        $all = SortUtil::sortPosts($all);
 
+        return            $all;
     }
 }
