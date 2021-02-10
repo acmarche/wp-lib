@@ -15,11 +15,9 @@ class EventUtils
     {
         self::$today = new DateTime();
         $horlines    = [];
-        foreach ($event->horaires as $horaire) {
-            foreach ($horaire->horlines as $horline) {
-                if ( ! self::isObsolete($horline->year, $horline->month, $horline->day)) {
-                    $horlines[] = $horline;
-                }
+        foreach ($event->dates() as $horline) {
+            if ( ! self::isObsolete($horline->year, $horline->month, $horline->day)) {
+                $horlines[] = $horline;
             }
         }
         if (count($horlines) == 0) {
@@ -31,24 +29,21 @@ class EventUtils
 
     public static function sortDates(Event $event): void
     {
-        foreach ($event->horaires as $horaire) {
-
-            usort(
-                $horaire->horlines,
-                function ($a, $b) {
-                    {
-                        $debut1 = $a->year.'-'.$a->month.'-'.$a->day;
-                        $debut2 = $b->year.'-'.$b->month.'-'.$b->day;
-                        if ($debut1 == $debut2) {
-                            return 0;
-                        }
-
-                        return ($debut1 < $debut2) ? 1 : -1;
+        $dates = $event->dates();
+        usort(
+            $dates,
+            function ($a, $b) {
+                {
+                    $debut1 = $a->year.'-'.$a->month.'-'.$a->day;
+                    $debut2 = $b->year.'-'.$b->month.'-'.$b->day;
+                    if ($debut1 == $debut2) {
+                        return 0;
                     }
-                }
-            );
-        }
 
+                    return ($debut1 < $debut2) ? 1 : -1;
+                }
+            }
+        );
     }
 
     /**

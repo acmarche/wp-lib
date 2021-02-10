@@ -45,6 +45,11 @@ class HadesRepository
                         $event = Event::createFromDom($offre);
                         if ($event) {
                             $events[] = $event;
+                           // dump($event->titre);
+
+                            foreach ($event->dates() as $date) {
+                            //    dump($date);
+                            }
                         }
                     }
                 }

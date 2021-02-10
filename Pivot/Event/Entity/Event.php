@@ -82,7 +82,7 @@ class Event
         $event->categories   = $parser->categories();
         $event->selections   = $parser->selections();
         $event->url          = Router::getUrlEvent($event);
-        $event->dates        = self::getDates($event);
+        $event->datesR       = $event->dates();
 
         if (EventUtils::isEventObsolete($event)) {
             return null;
@@ -94,8 +94,8 @@ class Event
     }
 
     /**
-     * Utilise dans @see EventUtils
-     * @return Horline|null
+     * Utilise dans @return Horline|null
+     * @see EventUtils
      */
     public function firstHorline(): ?Horline
     {
@@ -110,16 +110,17 @@ class Event
 
     /**
      * Raccourcis util a react
+     *
      * @param Event $event
      *
-     * @return array
+     * @return Horline[]
      */
-    private static function getDates(Event $event)
+    public function dates(): array
     {
         $dates = [];
-        foreach ($event->horaires as $horaire) {
+        foreach ($this->horaires as $horaire) {
             foreach ($horaire->horlines as $horline) {
-                $dates[] = (array)$horline;
+                $dates[] = $horline;
             }
         }
 
