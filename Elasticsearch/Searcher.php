@@ -50,6 +50,11 @@ class Searcher
         return $result;
     }
 
+    /**
+     * @param string $keywords
+     *
+     * @return ResultSet
+     */
     public function search(string $keywords): ResultSet
     {
         $query = new MultiMatch();
