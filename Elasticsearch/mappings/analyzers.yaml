@@ -1,3 +1,11 @@
+tokenizer:
+  edge_ngram_tokenizer:
+    type: 'edge_ngram'
+    min_gram: 2
+    max_gram: 5
+    token_chars: [
+        letter
+    ]
 filter:
   app_french_stemmer:
     type: stemmer
@@ -39,3 +47,19 @@ analyzer:
     type: 'custom'
     tokenizer: 'standard'
     filter: [ 'lowercase', 'asciifolding', 'elision', 'app_autocomplete_filter' ]
+  keyword_analyzer:
+    filter: [
+        lowercase,
+        asciifolding,
+        trim
+    ]
+    char_filter: [ ]
+    type: custom
+    tokenizer: keyword
+  edge_ngram_analyzer:
+    filter: [
+        lowercase
+    ]
+    tokenizer: edge_ngram_tokenizer
+  edge_ngram_search_analyzer:
+    tokenizer: lowercase

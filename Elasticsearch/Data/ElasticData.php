@@ -181,6 +181,7 @@ class ElasticData
         $data['post_type'] = 'post';
 
         $data['name']              = $post_title;
+        $data['name2']             = $post_title;
         $data['post_suggest']      = Cleaner::cleandata($post_title);
         $data['post_autocomplete'] = Cleaner::cleandata($post_title);
 
@@ -230,6 +231,7 @@ class ElasticData
         $fiches = $this->bottinRepository->getFiches();
         foreach ($fiches as $fiche) {
             $fiche->name    = $fiche->societe;
+            $fiche->name2   = $fiche->societe;
             $fiche->excerpt = Bottin::getExcerpt($fiche);
             $fiche->url     = Router::getUrlFicheBottin($fiche);
             $fiche->content = $this->bottinData->getContentFiche($fiche);
@@ -243,6 +245,7 @@ class ElasticData
     {
         $categories = $this->bottinRepository->getAllCategories();
         foreach ($categories as $category) {
+            $category->name2   = $category->name;
             $category->url     = Router::getUrlCategoryBottin($category);
             $category->url_cap = $this->bottinData->generateUrlCapCategorie($category);
             $category->excerpt = $category->description;

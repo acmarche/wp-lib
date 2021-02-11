@@ -8,8 +8,9 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
 use Elastica\Query\MultiMatch;
 use Elastica\Query\SimpleQueryString;
-use Elastica\QueryBuilder\DSL\Suggest;
+use Elastica\Suggest as SuggestElastica;
 use Elastica\ResultSet;
+use Elastica\Suggest\Term as TermElastica;
 
 /**
  * https://github.com/ruflin/Elastica/tree/master/tests
@@ -76,32 +77,36 @@ class Searcher
         return $result;
     }
 
-    public function suggest(string $keyword): ResultSet
+    /**
+     * @param string $keyword
+     *
+     * @return array|callable|ResultSet
+     * {
+     * "suggest": {
+     * "movie-suggest-fuzzy": {
+     * "prefix": "conseil",
+     * "completion": {
+     * "field": "name2.completion",
+     * "fuzzy": {
+     * "fuzziness": 1
+     * }
+     * }
+     * }
+     * }
+     * }
+     */
+    public function suggest(string $keyword)
     {
-        $suggest = new Suggest(
+        $suggest = new SuggestElastica();
+        $suggest1 = new SuggestElastica\Completion('suggest1', 'name2.completion');
+        $suggest->addSuggestion($suggest1->setPrefix($keyword));
 
-        );
-        $suggest->term($keyword, 'societe');
+        $suggest2 = new TermElastica('suggest2', 'name2.completion');
+        $suggest->addSuggestion($suggest2->setText($keyword));
 
-        $this->search->addSuggest($suggest);
+        $results = $this->index->search($suggest);
 
-        $query = new MultiMatch();
-        $query->setFields(
-            [
-                'name^2',
-                'title.autocomplete',
-                'content',
-                'excerpt',
-                'categories.cat_name',
-                'categories.cat_description',
-            ]
-        );
-        $query->setQuery($keywords);
-        $query->setType(MultiMatch::TYPE_MOST_FIELDS);
-
-        $result = $this->index->search($query);
-
-        return $result;
+        return $results;
     }
 
     /**

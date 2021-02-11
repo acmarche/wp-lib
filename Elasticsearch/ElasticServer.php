@@ -29,6 +29,7 @@ class ElasticServer
             $maps     = Yaml::parse(file_get_contents(__DIR__.'/mappings/mapping.yaml'));
         } catch (ParseException $e) {
             printf('Unable to parse the YAML string: %s', $e->getMessage());
+            return;
         }
 
         $maps['settings']['analysis'] = $analyser;
