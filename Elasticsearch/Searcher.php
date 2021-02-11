@@ -8,6 +8,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
 use Elastica\Query\MultiMatch;
 use Elastica\Query\SimpleQueryString;
+use Elastica\QueryBuilder\DSL\Suggest;
 use Elastica\ResultSet;
 
 /**
@@ -51,6 +52,34 @@ class Searcher
 
     public function search(string $keywords): ResultSet
     {
+        $query = new MultiMatch();
+        $query->setFields(
+            [
+                'name^2',
+                'title.autocomplete',
+                'content',
+                'excerpt',
+                'categories.cat_name',
+                'categories.cat_description',
+            ]
+        );
+        $query->setQuery($keywords);
+        $query->setType(MultiMatch::TYPE_MOST_FIELDS);
+
+        $result = $this->index->search($query);
+
+        return $result;
+    }
+
+    public function suggest(string $keyword): ResultSet
+    {
+        $suggest = new Suggest(
+
+        );
+        $suggest->term($keyword, 'societe');
+
+        $this->search->addSuggest($suggest);
+
         $query = new MultiMatch();
         $query->setFields(
             [
