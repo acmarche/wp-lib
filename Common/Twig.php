@@ -62,14 +62,15 @@ class Twig
                 'errors/500.html.twig',
                 [
                     'message'   => $e->getMessage(),
-                    'title'     => 'Error 500',
+                    'title'     => "La page n'a pas pu être chargée",
                     'tags'      => [],
                     'color'     => Theme::getColorBlog(1),
                     'blogName'  => Theme::getTitleBlog(1),
                     'relations' => [],
                 ]
             );
-            Mailer::sendError("Error page".$templatePath, $e->getMessage());
+            $url = Router::getCurrentUrl();
+            Mailer::sendError("Error page: ".$templatePath, $url.' \n '.$e->getMessage());
         }
 
     }
