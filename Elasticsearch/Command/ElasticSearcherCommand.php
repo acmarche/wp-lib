@@ -37,9 +37,24 @@ class ElasticSearcherCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->search($query);
+        //$this->search($query);
+        $this->suggest($query);
 
         return Command::SUCCESS;
+    }
+
+    protected function suggest(string $query)
+    {
+        $searcher = new Searcher();
+        $result   = $searcher->suggest($query);
+
+        $this->io->writeln("Found: ".$result->count());
+
+        foreach ($result->getResults() as $result) {
+            $hit    = $result->getHit();
+            $source = $hit['_source'];
+            $this->io->writeln($source['name']);
+        }
     }
 
     protected function search(string $query)
