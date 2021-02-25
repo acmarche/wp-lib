@@ -92,11 +92,6 @@ class Twig
             function (): string {
                 if (true === WP_DEBUG) {
                     global $template;
-                    /***
-                     * @var \WP_Admin_Bar $wp_admin_bar
-                     */
-                    global $wp_admin_bar;
-
                     return 'template: '.$template;
                 }
 
