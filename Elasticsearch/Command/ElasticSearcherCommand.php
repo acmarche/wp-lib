@@ -37,7 +37,7 @@ class ElasticSearcherCommand extends Command
             return Command::FAILURE;
         }
 
-     //   $this->search($query);
+        //   $this->search($query);
         $this->suggest($query);
 
         return Command::SUCCESS;
@@ -51,19 +51,19 @@ class ElasticSearcherCommand extends Command
         var_dump($result->getQuery()->toArray());
         foreach ($result->getSuggests() as $suggest) {
 
-        foreach ($suggest as $suggest2) {
-          //  var_dump($suggest2);
-            foreach ($suggest2['options'] as $option) {
-                var_dump($option['text']);
+            foreach ($suggest as $suggest2) {
+                //  var_dump($suggest2);
+                foreach ($suggest2['options'] as $option) {
+                    $this->io->writeln($option['text']);
+                }
             }
         }
-    }
 
-     /*   foreach ($result->getResults() as $result) {
-            $hit    = $result->getHit();
-            $source = $hit['_source'];
-            $this->io->writeln($source['name']);
-        }*/
+        /*   foreach ($result->getResults() as $result) {
+               $hit    = $result->getHit();
+               $source = $hit['_source'];
+               $this->io->writeln($source['name']);
+           }*/
     }
 
     protected function search(string $query)

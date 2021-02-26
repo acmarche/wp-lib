@@ -4,6 +4,7 @@ namespace AcMarche\Common;
 
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
+use AcMarche\Bottin\RouterBottin;
 use AcMarche\Theme\Inc\Router;
 use AcMarche\Theme\Inc\Theme;
 use BottinCategoryMetaBox;
@@ -213,7 +214,7 @@ class WpRepository
             function ($fiche) {
                 $fiche->fiche      = true;
                 $fiche->excerpt    = Bottin::getExcerpt($fiche);
-                $fiche->permalink  = Router::getUrlFicheBottin($fiche);
+                $fiche->permalink  = RouterBottin::getUrlFicheBottin($fiche);
                 $fiche->post_title = $fiche->societe;
             },
             $fiches

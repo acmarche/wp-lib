@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-use AcMarche\Theme\Inc\Router;
 use AcMarche\Theme\Inc\Theme;
 use Twig\Environment;
 use Twig\Error\LoaderError;

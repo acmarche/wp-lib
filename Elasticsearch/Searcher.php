@@ -98,11 +98,18 @@ class Searcher
     public function suggest(string $keyword)
     {
         $suggest = new SuggestElastica();
+
         $suggest1 = new SuggestElastica\Completion('suggest1', 'name2.completion');
         $suggest->addSuggestion($suggest1->setPrefix($keyword));
 
         $suggest2 = new TermElastica('suggest2', 'name2.completion');
         $suggest->addSuggestion($suggest2->setText($keyword));
+
+        $suggest3 = new SuggestElastica\Phrase('suggest3', 'name2.edgengram');
+        $suggest->addSuggestion($suggest3->setPrefix($keyword));
+
+        $suggest4 = new SuggestElastica\Completion('suggest4', 'post_suggest');
+        $suggest->addSuggestion($suggest4->setPrefix($keyword));
 
         $results = $this->index->search($suggest);
 

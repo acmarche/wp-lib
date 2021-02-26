@@ -4,6 +4,7 @@ namespace AcMarche\Elasticsearch\Data;
 
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
+use AcMarche\Bottin\RouterBottin;
 use AcMarche\Common\MarcheConst;
 use AcMarche\Common\WpRepository;
 use AcMarche\Theme\Inc\Router;
@@ -233,7 +234,7 @@ class ElasticData
             $fiche->name    = $fiche->societe;
             $fiche->name2   = $fiche->societe;
             $fiche->excerpt = Bottin::getExcerpt($fiche);
-            $fiche->url     = Router::getUrlFicheBottin($fiche);
+            $fiche->url     = RouterBottin::getUrlFicheBottin($fiche);
             $fiche->content = $this->bottinData->getContentFiche($fiche);
             $fiche->url_cap = $this->bottinData->generateUrlCapFiche($fiche);
         }
@@ -246,7 +247,7 @@ class ElasticData
         $categories = $this->bottinRepository->getAllCategories();
         foreach ($categories as $category) {
             $category->name2   = $category->name;
-            $category->url     = Router::getUrlCategoryBottin($category);
+            $category->url     = RouterBottin::getUrlCategoryBottin($category);
             $category->url_cap = $this->bottinData->generateUrlCapCategorie($category);
             $category->excerpt = $category->description;
             $fiches            = $this->bottinRepository->getFichesByCategory($category->id);

@@ -5,7 +5,7 @@ namespace AcMarche\Pivot\Event\Entity;
 
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Parser\EventParser;
-use AcMarche\Pivot\Router;
+use AcMarche\Pivot\RouterHades;
 
 class Event
 {
@@ -81,7 +81,7 @@ class Event
         $event->medias       = $parser->medias();
         $event->categories   = $parser->categories();
         $event->selections   = $parser->selections();
-        $event->url          = Router::getUrlEvent($event);
+        $event->url          = RouterHades::getUrlEvent($event);
         $event->datesR       = $event->dates();
 
         if (EventUtils::isEventObsolete($event)) {

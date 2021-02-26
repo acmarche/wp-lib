@@ -3,6 +3,7 @@
 namespace AcMarche\Bottin\Repository;
 
 use AcMarche\Bottin\Bottin;
+use AcMarche\Bottin\RouterBottin;
 use AcMarche\Common\Env;
 use AcMarche\Common\Mailer;
 use AcMarche\Theme\Inc\Router;
@@ -355,7 +356,7 @@ class BottinRepository
             if ($fiche->id != $ficheId) {
                 $recommandations[] = [
                     'title' => $fiche->societe,
-                    'url'   => Router::getUrlFicheBottin($fiche),
+                    'url'   => RouterBottin::getUrlFicheBottin($fiche),
                     'image' => $this->getLogo($fiche->id),
                 ];
             }

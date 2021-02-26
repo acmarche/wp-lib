@@ -4,7 +4,6 @@ settings:
   index.blocks.read_only_allow_delete: null
   refresh_interval: 60s
 
-  # Include analyzers.yaml here
 mappings:
   dynamic: false
   properties:

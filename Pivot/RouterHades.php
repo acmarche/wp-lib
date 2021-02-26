@@ -3,11 +3,18 @@
 
 namespace AcMarche\Pivot;
 
-
+use AcMarche\Common\Router;
 use AcMarche\Pivot\Event\Entity\Categorie;
 use AcMarche\Pivot\Event\Entity\Event;
 
-class Router
+/**
+ * Ajouts des routes pour les articles virtuels du bottin et de l'agenda
+ * https://roots.io/routing-wp-requests/
+ * https://developer.wordpress.org/reference/functions/add_rewrite_rule/#user-contributed-notes
+ * Class Router
+ * @package AcMarche\Theme\Inc
+ */
+class RouterHades  extends Router
 {
     const PARAM_EVENT = 'codecgt';
     const EVENT_URL = 'manifestation/';
@@ -18,35 +25,14 @@ class Router
         //   $this->flushRoutes();
     }
 
-    /**
-     * Retourne la base du blog (/economie/, /sante/, /culture/...
-     *
-     * @param int|null $blodId
-     *
-     * @return string
-     */
-    public static function getBaseUrlSite(?int $blodId = null): string
-    {
-        if (is_multisite()) {
-            if ( ! $blodId) {
-                $blodId = get_current_blog_id();
-            }
-
-            return get_blog_details($blodId)->path;
-        } else {
-            return '/';
-        }
-
-    }
-
     public static function getUrlEvent(Event $event): string
     {
-        return self::getBaseUrlSite().\AcMarche\Theme\Inc\Router::EVENT_URL.$event->id;
+        return self::getBaseUrlSite().self::EVENT_URL.$event->id;
     }
 
     public static function getUrlEventCategory(Categorie $categorie): string
     {
-        return self::getBaseUrlSite().Router::EVENT_URL.$categorie->id;
+        return self::getBaseUrlSite().self::EVENT_URL.$categorie->id;
     }
 
     public function addRouteEvent()
