@@ -3,7 +3,6 @@
 
 namespace AcMarche\Common;
 
-use AcMarche\Theme\Inc\Theme;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -63,8 +62,8 @@ class Twig
                     'message'   => $e->getMessage(),
                     'title'     => "La page n'a pas pu être chargée",
                     'tags'      => [],
-                    'color'     => Theme::getColorBlog(1),
-                    'blogName'  => Theme::getTitleBlog(1),
+                    'color'     => MarcheConst::COLORS[1],
+                    'blogName'  => MarcheConst::COLORS[1],
                     'relations' => [],
                 ]
             );
