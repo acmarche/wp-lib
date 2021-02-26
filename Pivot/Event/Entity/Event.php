@@ -5,7 +5,7 @@ namespace AcMarche\Pivot\Event\Entity;
 
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Parser\EventParser;
-use AcMarche\Theme\Inc\Router;
+use AcMarche\Pivot\Router;
 
 class Event
 {
