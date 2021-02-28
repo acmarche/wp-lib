@@ -3,86 +3,41 @@
 
 namespace AcMarche\Pivot\Event\Entity;
 
+use AcMarche\Pivot\Entities\BaseEntity;
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Parser\EventParser;
 use AcMarche\Pivot\RouterHades;
 
-class Event
+class Event extends BaseEntity
 {
-    /**
-     * @var string
-     */
-    public $id;
-    /**
-     * @var string
-     */
-    public $titre;
-    /**
-     * @var string
-     */
-    public $reference;
-    /**
-     * @var Geocode
-     */
-    public $geocode;
-    /**
-     * @var Localite
-     */
-    public $localisation;
-    /**
-     * @var string
-     */
-    public $url;
-    /**
-     * @var Contact[]
-     */
-    public $contacts;
     /**
      * @var Horaire[]
      */
     public $horaires;
-    /**
-     * @var Description[]
-     */
-    public $descriptions;
-    /**
-     * @var Media[]
-     */
-    public $medias;
-    /**
-     * @var Categorie[]
-     */
-    public $categories;
-    /**
-     * @var Selection[]
-     */
-    public $selections;
 
     public function __construct()
     {
-        $this->categories = [];
-        $this->medias     = [];
-        $this->horaires   = [];
-        $this->contacts   = [];
+        parent::__construct();
+        $this->horaires = [];
     }
 
     public static function createFromDom(\DOMElement $offre): ?Event
     {
-        $parser              = new EventParser($offre);
-        $event               = new self();
-        $event->id           = $parser->offreId();
-        $event->titre        = $parser->getAttributs('titre');
-        $event->reference    = $parser->getAttributs('off_id_ref');
-        $event->geocode      = $parser->geocodes();
+        $parser = new EventParser($offre);
+        $event = new self();
+        $event->id = $parser->offreId();
+        $event->titre = $parser->getAttributs('titre');
+        $event->reference = $parser->getAttributs('off_id_ref');
+        $event->geocode = $parser->geocodes();
         $event->localisation = $parser->localisation();
-        $event->horaires     = $parser->horaires();
+        $event->horaires = $parser->horaires();
         $event->descriptions = $parser->descriptions();
-        $event->contacts     = $parser->contacts();
-        $event->medias       = $parser->medias();
-        $event->categories   = $parser->categories();
-        $event->selections   = $parser->selections();
-        $event->url          = RouterHades::getUrlEvent($event);
-        $event->datesR       = $event->dates();
+        $event->contacts = $parser->contacts();
+        $event->medias = $parser->medias();
+        $event->categories = $parser->categories();
+        $event->selections = $parser->selections();
+        $event->url = RouterHades::getUrlEvent($event);
+        $event->datesR = $event->dates();
 
         if (EventUtils::isEventObsolete($event)) {
             return null;

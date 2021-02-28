@@ -7,6 +7,7 @@ use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
 use AcMarche\Pivot\Event\Entity\Event;
 use AcMarche\Pivot\Event\EventUtils;
+use AcMarche\Pivot\Logement\Entity\Hotel;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -24,7 +25,7 @@ class HadesRepository
     public function __construct()
     {
         $this->hadesRemoteRepository = new HadesRemoteRepository();
-        $this->cache                 = Cache::instance();
+        $this->cache = Cache::instance();
     }
 
     /**
@@ -37,7 +38,7 @@ class HadesRepository
             'events_hades'.time(),
             function () {
                 $domdoc = $this->loadXml($this->hadesRemoteRepository->getEvents());
-                $data   = $domdoc->getElementsByTagName('offres');
+                $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 $events = [];
                 foreach ($offres->childNodes as $offre) {
@@ -45,10 +46,10 @@ class HadesRepository
                         $event = Event::createFromDom($offre);
                         if ($event) {
                             $events[] = $event;
-                           // dump($event->titre);
+                            // dump($event->titre);
 
                             foreach ($event->dates() as $date) {
-                            //    dump($date);
+                                //    dump($date);
                             }
                         }
                     }
@@ -56,6 +57,27 @@ class HadesRepository
                 $events = EventUtils::sortEvents($events);
 
                 return $events;
+            }
+        );
+    }
+
+    public function getHotels(): array
+    {
+        return $this->cache->get(
+            'events_hades'.time(),
+            function () {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getHebergements(['hotel']));
+                $data = $domdoc->getElementsByTagName('offres');
+                $offres = $data->item(0);
+                $hebergements = [];
+                foreach ($offres->childNodes as $offre) {
+                    if ($offre->nodeType == XML_ELEMENT_NODE) {
+                        $hotel = Hotel::createFromDom($offre);
+                        dump($hotel);
+                    }
+                }
+
+                return $hebergements;
             }
         );
     }
@@ -84,8 +106,8 @@ class HadesRepository
         return $this->cache->get(
             'event_hades-'.$id.time(),
             function () use ($id) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getEvent($id));
-                $data   = $domdoc->getElementsByTagName('offres');
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffreById($id));
+                $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
@@ -100,7 +122,7 @@ class HadesRepository
 
     public function getEventRelations(Event $event): ?array
     {
-        $events          = $this->getEvents();
+        $events = $this->getEvents();
         $recommandations = [];
 
         foreach ($event->categories as $category) {
@@ -109,7 +131,7 @@ class HadesRepository
                 foreach ($element->categories as $category2) {
                     if ($category->lib == $category2->lib && $event->id != $element->id) {
 
-                        $image  = null;
+                        $image = null;
                         $images = $element->medias;
                         if (count($images) > 0) {
                             $image = $images[0]->url;
@@ -117,7 +139,7 @@ class HadesRepository
 
                         $recommandations[] = [
                             'title' => $element->titre,
-                            'url'   => $element->url,
+                            'url' => $element->url,
                             'image' => $image,
                         ];
                     }
