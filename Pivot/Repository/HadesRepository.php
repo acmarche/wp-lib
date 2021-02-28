@@ -64,7 +64,7 @@ class HadesRepository
     public function getHotels(): array
     {
         return $this->cache->get(
-            'events_hades'.time(),
+            'hebergement_hades'.time(),
             function () {
                 $domdoc = $this->loadXml($this->hadesRemoteRepository->getHebergements(['hotel']));
                 $data = $domdoc->getElementsByTagName('offres');
@@ -73,7 +73,8 @@ class HadesRepository
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
                         $hotel = Hotel::createFromDom($offre);
-                        dump($hotel);
+                        // dump($hotel);
+                        $hebergements[] = $hotel;
                     }
                 }
 
