@@ -8,6 +8,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
+use Twig\Extra\String\StringExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -35,6 +36,7 @@ class Twig
         // wp_get_environment_type();
         if (WP_DEBUG) {
             $environment->addExtension(new DebugExtension());
+            $environment->addExtension(new StringExtension());
         }
 
         $environment->addGlobal('template_directory', get_template_directory_uri());
