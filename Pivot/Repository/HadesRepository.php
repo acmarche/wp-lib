@@ -7,6 +7,7 @@ use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
 use AcMarche\Pivot\Event\Entity\Event;
 use AcMarche\Pivot\Event\EventUtils;
+use AcMarche\Pivot\Hades;
 use AcMarche\Pivot\Logement\Entity\Hotel;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -32,12 +33,14 @@ class HadesRepository
      * @return array|Event[]
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getEvents(): array
+    public function getEvents(array $types = []): array
     {
+        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+
         return $this->cache->get(
             'events_hades'.time(),
-            function () {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getEvents());
+            function () use ($types) {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 $events = [];
@@ -63,10 +66,36 @@ class HadesRepository
 
     public function getHebergements(array $types = []): array
     {
+        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+
         return $this->cache->get(
             'hebergement_hades'.time(),
             function () use ($types) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getHebergements($types));
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
+                $data = $domdoc->getElementsByTagName('offres');
+                $offres = $data->item(0);
+                $hebergements = [];
+                foreach ($offres->childNodes as $offre) {
+                    if ($offre->nodeType == XML_ELEMENT_NODE) {
+                        $hotel = Hotel::createFromDom($offre);
+                        // dump($hotel);
+                        $hebergements[] = $hotel;
+                    }
+                }
+
+                return $hebergements;
+            }
+        );
+    }
+
+    public function getRestaurations(array $types = []): array
+    {
+        $types = count($types) === 0 ? array_keys(Hades::RESTAURATION) : $types;
+
+        return $this->cache->get(
+            'hebergement_hades'.time(),
+            function () use ($types) {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 $hebergements = [];

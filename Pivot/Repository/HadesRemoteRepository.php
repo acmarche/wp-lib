@@ -36,7 +36,7 @@ class HadesRemoteRepository
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function getOffres(array $args, string $tbl = 'xmlcomplet')
+    public function loadOffres(array $args, string $tbl = 'xmlcomplet')
     {
         $args['tbl'] = $tbl;
         $args['com_id'] = Hades::COMMUNE;
@@ -66,33 +66,16 @@ class HadesRemoteRepository
      * @throws \Psr\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function getEvents(): string
+    public function getOffres(array $types = []): string
     {
-        $t = $this->cache->get(
-            'events_hades_remote'.time(),
-            function () {
-                return $this->getOffres(['cat_id' => join(',', array_keys(Hades::EVENEMENTS))]);
-            }
-        );
-
-        //   echo($t);
-        return $t;
-    }
-
-    /**
-     * http://w3.ftlb.be/webservice/h2o.php?com_id=263&tbl=xmlcomplet&cat_id=evt_sport,cine_club,conference,exposition,festival,fete_festiv,anim_jeux,livre_conte,manifestatio,foire_brocan,evt_promenad,spectacle,stage_ateli,evt_vis_guid
-     * @return string
-     * @throws \Psr\Cache\InvalidArgumentException
-     * @throws \Exception
-     */
-    public function getHebergements(array $types = []): string
-    {
-        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+        if (count($types) === 0) {
+            return '';
+        }
 
         $t = $this->cache->get(
             'hebergements_hades_remote'.time(),
             function () use ($types) {
-                return $this->getOffres(['cat_id' => join(',', $types)]);
+                return $this->loadOffres(['cat_id' => join(',', $types)]);
             }
         );
 
@@ -111,7 +94,7 @@ class HadesRemoteRepository
         $t = $this->cache->get(
             'events_hades_remote_'.$id.time(),
             function () use ($id) {
-                return $this->getOffres(['off_id' => $id]);
+                return $this->loadOffres(['off_id' => $id]);
             }
         );
 
