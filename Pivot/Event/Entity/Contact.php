@@ -40,6 +40,10 @@ class Contact
     /**
      * @var string
      */
+    public $boite;
+    /**
+     * @var string
+     */
     public $postal;
     /**
      * @var string

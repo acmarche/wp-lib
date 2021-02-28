@@ -61,12 +61,12 @@ class HadesRepository
         );
     }
 
-    public function getHotels(): array
+    public function getHebergements(array $types = []): array
     {
         return $this->cache->get(
             'hebergement_hades'.time(),
-            function () {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getHebergements(['hotel']));
+            function () use ($types) {
+                $domdoc = $this->loadXml($this->hadesRemoteRepository->getHebergements($types));
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 $hebergements = [];

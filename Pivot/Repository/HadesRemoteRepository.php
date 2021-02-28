@@ -71,7 +71,7 @@ class HadesRemoteRepository
         $t = $this->cache->get(
             'events_hades_remote'.time(),
             function () {
-                return $this->getOffres(['cat_id' => join(',', Hades::EVENEMENTS)]);
+                return $this->getOffres(['cat_id' => join(',', array_keys(Hades::EVENEMENTS))]);
             }
         );
 
@@ -85,8 +85,10 @@ class HadesRemoteRepository
      * @throws \Psr\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function getHebergements(array $types): string
+    public function getHebergements(array $types = []): string
     {
+        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+
         $t = $this->cache->get(
             'hebergements_hades_remote'.time(),
             function () use ($types) {
