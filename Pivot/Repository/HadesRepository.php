@@ -5,10 +5,11 @@ namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
+use AcMarche\Pivot\Entities\Logement;
+use AcMarche\Pivot\Entities\Restauration;
 use AcMarche\Pivot\Event\Entity\Event;
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
-use AcMarche\Pivot\Logement\Entity\Hotel;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -35,7 +36,7 @@ class HadesRepository
      */
     public function getEvents(array $types = []): array
     {
-        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+        $types = count($types) === 0 ? array_keys(Hades::EVENEMENTS) : $types;
 
         return $this->cache->get(
             'events_hades'.time(),
@@ -50,10 +51,9 @@ class HadesRepository
                         if ($event) {
                             $events[] = $event;
                             // dump($event->titre);
-
-                            foreach ($event->dates() as $date) {
-                                //    dump($date);
-                            }
+                            //  foreach ($event->dates() as $date) {
+                            //    dump($date);
+                            // }
                         }
                     }
                 }
@@ -77,7 +77,7 @@ class HadesRepository
                 $hebergements = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $hotel = Hotel::createFromDom($offre);
+                        $hotel = Logement::createFromDom($offre);
                         // dump($hotel);
                         $hebergements[] = $hotel;
                     }
@@ -93,21 +93,21 @@ class HadesRepository
         $types = count($types) === 0 ? array_keys(Hades::RESTAURATION) : $types;
 
         return $this->cache->get(
-            'hebergement_hades'.time(),
+            'restau_hades'.time(),
             function () use ($types) {
                 $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
-                $hebergements = [];
+                $restaurations = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $hotel = Hotel::createFromDom($offre);
+                        $resto = Restauration::createFromDom($offre);
                         // dump($hotel);
-                        $hebergements[] = $hotel;
+                        $restaurations[] = $resto;
                     }
                 }
 
-                return $hebergements;
+                return $restaurations;
             }
         );
     }

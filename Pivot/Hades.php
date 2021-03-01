@@ -22,7 +22,6 @@ class Hades
         'fete_festiv' => 'Fêtes & Festivités',
         'anim_jeux' => 'Jeux',
         'livre_conte' => 'Livres & contes',
-        'Manifestations (inclassables)' => 'manifestatio',
         'manifestatio' => 'Manifestations',
         'foire_brocan' => 'Marchés, brocantes & Foires',
         'evt_promenad' => 'Promenades',
