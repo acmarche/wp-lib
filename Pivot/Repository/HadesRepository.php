@@ -66,7 +66,7 @@ class HadesRepository
 
     public function getHebergements(array $types = []): array
     {
-        $types = count($types) === 0 ? array_keys(Hades::LOGEMENTS) : $types;
+        $types = count($types) === 0 ? array_keys(Hades::HEBERGEMENTS) : $types;
 
         return $this->cache->get(
             'hebergement_hades'.time(),
@@ -90,7 +90,7 @@ class HadesRepository
 
     public function getRestaurations(array $types = []): array
     {
-        $types = count($types) === 0 ? array_keys(Hades::RESTAURATION) : $types;
+        $types = count($types) === 0 ? array_keys(Hades::RESTAURATIONS) : $types;
 
         return $this->cache->get(
             'restau_hades'.time(),

@@ -7,11 +7,9 @@ class Hades
     const COMMUNE = 263;
     const MARCHE = 134;
     const PAYS = 9;
-    const CATEGORY_HOTELS = 649;
-    const CATEGORY_CHMABRE = 651;
-    const CATEGORY_GITE = 650;
-    const CATEGORY_CAMPING = 652;
-    const CATEGORY_EVENTS = 652;
+    const HEBERGEMENTS_KEY = 'hebergements';
+    const RESTAURATIONS_KEY = 'resaurations';
+    const EVENEMENTS_KEY = 'evenements';
 
     const EVENEMENTS = [
         'evt_sport' => 'Activités sportives',
@@ -30,7 +28,7 @@ class Hades
         'evt_vis_guid' => 'Visites guidées',
     ];
 
-    const RESTAURATION = [
+    const RESTAURATIONS = [
         'barbecue' => 'Barbecue',
         'bar_vin' => 'Bars à vins',
         'brass_bistr' => 'Brasseries & bistrots',
@@ -43,7 +41,7 @@ class Hades
         'traiteur' => 'Traiteur',
     ];
 
-    const LOGEMENTS = [
+    const HEBERGEMENTS = [
         //Hébergements de vacances
         'aire_motorho' => 'Aires pour motorhomes',
         'camping' => 'Campings',
@@ -63,6 +61,15 @@ class Hades
         'mbl_vac' => 'Meublés de vacances',
         'hotel' => 'Hôtels',
     ];
+
+    public static function allCategories(): array
+    {
+        return [
+            self::HEBERGEMENTS_KEY => self::HEBERGEMENTS,
+            self::RESTAURATIONS_KEY => self::RESTAURATIONS,
+            self::EVENEMENTS_KEY => self::EVENEMENTS,
+        ];
+    }
 
 
 }
