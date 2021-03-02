@@ -6,6 +6,7 @@ namespace AcMarche\Pivot\Repository;
 use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
 use AcMarche\Pivot\Entities\Logement;
+use AcMarche\Pivot\Entities\OffreInterface;
 use AcMarche\Pivot\Entities\Restauration;
 use AcMarche\Pivot\Event\Entity\Event;
 use AcMarche\Pivot\Event\EventUtils;
@@ -131,17 +132,17 @@ class HadesRepository
         }
     }
 
-    public function getEvent(string $id): ?Event
+    public function getOffre(string $id): ?OffreInterface
     {
         return $this->cache->get(
-            'event_hades-'.$id.time(),
+            'offre_hades-'.$id.time(),
             function () use ($id) {
                 $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffreById($id));
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        return Event::createFromDom($offre);
+                        return Logement::createFromDom($offre);
                     }
                 }
 

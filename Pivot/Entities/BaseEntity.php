@@ -11,7 +11,7 @@ use AcMarche\Pivot\Event\Entity\Media;
 use AcMarche\Pivot\Event\Entity\Selection;
 
 
-abstract class BaseEntity
+abstract class BaseEntity implements OffreInterface
 {
     /**
      * @var string

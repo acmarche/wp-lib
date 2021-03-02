@@ -10,6 +10,7 @@ class Hades
     const HEBERGEMENTS_KEY = 'hebergements';
     const RESTAURATIONS_KEY = 'resaurations';
     const EVENEMENTS_KEY = 'evenements';
+    const BOUGER_KEY = 'evenements';
 
     const EVENEMENTS = [
         'evt_sport' => 'Activités sportives',

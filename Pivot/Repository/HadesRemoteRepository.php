@@ -98,7 +98,6 @@ class HadesRemoteRepository
             }
         );
 
-        //  echo($t);
         return $t;
     }
 }
