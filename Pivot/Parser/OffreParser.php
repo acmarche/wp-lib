@@ -112,6 +112,7 @@ class OffreParser
     {
         $data = [];
         $contacts = $this->offre->getElementsByTagName('contacts');
+
         $contacts = $contacts->item(0);//pour par prendre elements parents
         if (!$contacts instanceof DOMElement) {
             return [];
@@ -120,18 +121,26 @@ class OffreParser
         // dump($description->tagName);//
         foreach ($contacts->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                $t = new Contact();
-                // dump($child->tagName);
+                $contact = new Contact();
+                $lgs = [];
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         if ($cat->nodeName == 'communications') {
-                            $t->communications = $this->extractCommunications($cat);
+                            $contact->communications = $this->extractCommunications($cat);
                         } else {
-                            $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
+                            if ($cat->nodeName === 'lib') {
+                                if ($lg = $cat->getAttributeNode('lg')) {
+                                    $lgs[$cat->getAttributeNode('lg')->nodeValue] = $cat->nodeValue;
+                                } else {
+                                    $lgs['main'] = $cat->nodeValue;
+                                }
+                            }
+                            $this->propertyAccessor->setValue($contact, $cat->nodeName, $cat->nodeValue);
                         }
                     }
                 }
-                $data[] = $t;
+                $contact->lgs = $lgs;
+                $data[] = $contact;
             }
         }
 

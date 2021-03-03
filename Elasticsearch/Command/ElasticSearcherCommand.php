@@ -48,7 +48,7 @@ class ElasticSearcherCommand extends Command
         $searcher = new Searcher();
         $result   = $searcher->suggest($query);
 
-        var_dump($result->getQuery()->toArray());
+     //   var_dump($result->getQuery()->toArray());
         foreach ($result->getSuggests() as $suggest) {
 
             foreach ($suggest as $suggest2) {

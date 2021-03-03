@@ -65,4 +65,34 @@ abstract class BaseEntity implements OffreInterface
         $this->contacts = [];
     }
 
+    public function contactPrincipal(): ?Contact
+    {
+        $contacts = array_filter(
+            $this->contacts,
+            function ($contact) {
+                if (isset($contact->lgs['main']) && $contact->lgs['main'] == 'ap') {
+                    return $contact;
+                }
+
+                return [];
+            }
+        );
+
+        return count($contacts) > 0 ? $contacts[0] : null;
+    }
+
+    public function communciationPrincipal(): array
+    {
+        $coms = [];
+        $contact = $this->contactPrincipal();
+        if ($contact) {
+            foreach ($contact->communications as $communication) {
+                dump($communication);
+                $coms[$communication->type] = [$communication->name => $communication->value];
+            }
+        }
+
+        return $coms;
+    }
+
 }

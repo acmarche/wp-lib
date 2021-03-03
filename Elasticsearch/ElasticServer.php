@@ -47,6 +47,6 @@ class ElasticServer
 
         $mapping  = new Mapping($properties);
         $response = $this->index->setMapping($mapping);
-        dump($response);
+        //dump($response);
     }
 }

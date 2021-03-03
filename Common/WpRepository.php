@@ -205,7 +205,7 @@ class WpRepository
 
         $fiches           = [];
         $categoryBottinId = get_term_meta($catId, BottinCategoryMetaBox::KEY_NAME, true);
-        if ($categoryBottinId) {dump($categoryBottinId);
+        if ($categoryBottinId) {
             $bottinRepository = new BottinRepository();
             $fiches           = $bottinRepository->getFichesByCategory($categoryBottinId);
         }

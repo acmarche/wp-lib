@@ -97,7 +97,6 @@ class HadesRemoteRepository
                 return $this->loadOffres(['off_id' => $id]);
             }
         );
-
         return $t;
     }
 }

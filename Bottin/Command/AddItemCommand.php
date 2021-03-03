@@ -65,7 +65,7 @@ class AddItemCommand extends Command
                 'menu-item-status'  => 'publish',
             )
         );
-        var_dump($url);
+
         // then update the menu_check option to make sure this code only runs once
         update_option('menu_check', true);
 

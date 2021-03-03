@@ -58,6 +58,11 @@ class Contact
      */
     public $communications;
 
+    /**
+     * @var array
+     */
+    public $lgs;
+
     public function localite() {
         return $this->l_nom;
     }

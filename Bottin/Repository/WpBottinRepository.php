@@ -158,7 +158,7 @@ class WpBottinRepository
         global $wpdb;
         $table = $this->set_table_meta();
         $key = self::DATA_KEY;
-        var_dump($table);
+
         $results = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT * FROM $table WHERE `$key` = '%d'",

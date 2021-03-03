@@ -111,7 +111,7 @@ class PivotRemoteRepository
 
         try {
             $httpLogs = $request->getInfo('debug');
-            var_dump($httpLogs);
+
 
             return $content = $request->getContent();
         } catch (ClientExceptionInterface $e) {
@@ -171,7 +171,6 @@ class PivotRemoteRepository
 
         try {
             $httpLogs = $request->getInfo('debug');
-            var_dump($httpLogs);
 
             return $content = $request->getContent();
         } catch (ClientExceptionInterface $e) {
