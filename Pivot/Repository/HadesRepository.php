@@ -60,7 +60,7 @@ class HadesRepository
                 $offres = $this->getOffres($types);
                 foreach ($offres as $offre) {
                     EventUtils::sortDates($offre);
-                    if (!EventUtils::isEventObsolete($offre)) {
+                    if (EventUtils::isEventObsolete($offre)) {
                         continue;
                     }
                     $events[] = $offre;
