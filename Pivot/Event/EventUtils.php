@@ -4,14 +4,14 @@
 namespace AcMarche\Pivot\Event;
 
 
-use AcMarche\Pivot\Event\Entity\Event;
+use AcMarche\Pivot\Entities\OffreInterface;
 use DateTime;
 
 class EventUtils
 {
     private static $today = null;
 
-    public static function isEventObsolete(Event $event)
+    public static function isEventObsolete(OffreInterface $event)
     {
         self::$today = new DateTime();
         $horlines    = [];
@@ -27,7 +27,7 @@ class EventUtils
         return false;
     }
 
-    public static function sortDates(Event $event): void
+    public static function sortDates(OffreInterface $event): void
     {
         $dates = $event->dates();
         usort(
@@ -49,7 +49,7 @@ class EventUtils
     /**
      * @param array $events
      *
-     * @return Event[]
+     * @return OffreInterface[]
      */
     public static function sortEvents(array $events): array
     {

@@ -5,7 +5,8 @@ namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
 use AcMarche\Pivot\ConnectionTrait;
-use AcMarche\Pivot\Entity\Event;
+use AcMarche\Pivot\Entities\Offre;
+use AcMarche\Pivot\Entities\OffreInterface;
 use AcMarche\Pivot\Pivot;
 use AcMarche\Pivot\PivotType;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -126,7 +127,7 @@ class PivotRemoteRepository
     }
 
     /**
-     * @return Event[]
+     * @return OffreInterface[]
      */
     public function getAllEvents(): array
     {
@@ -142,8 +143,7 @@ class PivotRemoteRepository
                     if ($offer instanceof \stdClass) {
                         $type = $offer->typeOffre;
                         if ($type->idTypeOffre === PivotType::TYPE_EVENEMENT) {
-                            $event    = new Event();
-                            $events[] = $event->createFromStd($offer);
+                            $events[] = Offre::createFromDom($offer);
                         }
                     }
                 }

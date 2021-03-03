@@ -5,10 +5,8 @@ namespace AcMarche\Pivot\Repository;
 
 use AcMarche\Common\Cache;
 use AcMarche\Common\Mailer;
-use AcMarche\Pivot\Entities\Logement;
+use AcMarche\Pivot\Entities\Offre;
 use AcMarche\Pivot\Entities\OffreInterface;
-use AcMarche\Pivot\Entities\Restauration;
-use AcMarche\Pivot\Event\Entity\Event;
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
 use DOMDocument;
@@ -32,7 +30,7 @@ class HadesRepository
     }
 
     /**
-     * @return array|Event[]
+     * @return array|OffreInterface[]
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getEvents(array $types = []): array
@@ -48,14 +46,16 @@ class HadesRepository
                 $events = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $event = Event::createFromDom($offre);
-                        if ($event) {
-                            $events[] = $event;
-                            // dump($event->titre);
-                            //  foreach ($event->dates() as $date) {
-                            //    dump($date);
-                            // }
+                        $event = Offre::createFromDom($offre);
+                        EventUtils::sortDates($event);
+                        if (!EventUtils::isEventObsolete($event)) {
+                            continue;
                         }
+                        $events[] = $event;
+                        // dump($event->titre);
+                        //  foreach ($event->dates() as $date) {
+                        //    dump($date);
+                        // }
                     }
                 }
                 $events = EventUtils::sortEvents($events);
@@ -78,7 +78,7 @@ class HadesRepository
                 $hebergements = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $hotel = Logement::createFromDom($offre);
+                        $hotel = Offre::createFromDom($offre);
                         // dump($hotel);
                         $hebergements[] = $hotel;
                     }
@@ -102,7 +102,7 @@ class HadesRepository
                 $restaurations = [];
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $resto = Restauration::createFromDom($offre);
+                        $resto = Offre::createFromDom($offre);
                         // dump($hotel);
                         $restaurations[] = $resto;
                     }
@@ -142,7 +142,7 @@ class HadesRepository
                 $offres = $data->item(0);
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        return Logement::createFromDom($offre);
+                        return Offre::createFromDom($offre);
                     }
                 }
 
@@ -151,16 +151,16 @@ class HadesRepository
         );
     }
 
-    public function getEventRelations(Event $event): ?array
+    public function getEventRelations(OffreInterface $offre): ?array
     {
         $events = $this->getEvents();
         $recommandations = [];
 
-        foreach ($event->categories as $category) {
+        foreach ($offre->categories as $category) {
 
             foreach ($events as $element) {
                 foreach ($element->categories as $category2) {
-                    if ($category->lib == $category2->lib && $event->id != $element->id) {
+                    if ($category->lib == $category2->lib && $offre->id != $element->id) {
 
                         $image = null;
                         $images = $element->medias;

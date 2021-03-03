@@ -1,15 +1,19 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event\Entity;
+namespace AcMarche\Pivot\Entities;
 
 
-class Categorie
+class Selection
 {
     /**
      * @var string
      */
     public $id;
+    /**
+     * @var string
+     */
+    public $cl;
     /**
      * @var string
      */

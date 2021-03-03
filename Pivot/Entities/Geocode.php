@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event\Entity;
+namespace AcMarche\Pivot\Entities;
 
 
 class Geocode

@@ -1,19 +1,19 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event\Entity;
+namespace AcMarche\Pivot\Entities;
 
 
-class Communication
+class Categorie
 {
     /**
      * @var string
      */
-    public $type;
+    public $id;
     /**
      * @var string
      */
-    public $name;
+    public $lib;
     /**
      * @var string
      */

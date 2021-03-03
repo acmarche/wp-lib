@@ -2,13 +2,14 @@
 
 namespace AcMarche\Pivot\Entities;
 
-use AcMarche\Pivot\Event\Entity\Categorie;
-use AcMarche\Pivot\Event\Entity\Contact;
-use AcMarche\Pivot\Event\Entity\Description;
-use AcMarche\Pivot\Event\Entity\Geocode;
-use AcMarche\Pivot\Event\Entity\Localite;
-use AcMarche\Pivot\Event\Entity\Media;
-use AcMarche\Pivot\Event\Entity\Selection;
+use AcMarche\Pivot\Entities\Categorie;
+use AcMarche\Pivot\Entities\Contact;
+use AcMarche\Pivot\Entities\Description;
+use AcMarche\Pivot\Entities\Geocode;
+use AcMarche\Pivot\Entities\Horaire;
+use AcMarche\Pivot\Entities\Localite;
+use AcMarche\Pivot\Entities\Media;
+use AcMarche\Pivot\Entities\Selection;
 
 
 abstract class BaseEntity implements OffreInterface
@@ -57,12 +58,17 @@ abstract class BaseEntity implements OffreInterface
      * @var Selection[]
      */
     public $selections;
+    /**
+     * @var Horaire[]
+     */
+    public $horaires;
 
     public function __construct()
     {
         $this->categories = [];
         $this->medias = [];
         $this->contacts = [];
+        $this->horaires = [];
     }
 
     public function contactPrincipal(): ?Contact

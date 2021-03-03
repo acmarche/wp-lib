@@ -1,10 +1,9 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event\Entity;
+namespace AcMarche\Pivot\Entities;
 
-
-class Horline
+class Contact
 {
     /**
      * @var string
@@ -13,53 +12,58 @@ class Horline
     /**
      * @var string
      */
-    public $hor_id;
+    public $lib;
     /**
      * @var string
      */
-    public $libelle;
+    public $civilite;
     /**
      * @var string
      */
-    public $ouvert;
+    public $noms;
     /**
      * @var string
      */
-    public $date_deb;
+    public $prenoms;
     /**
      * @var string
      */
-    public $date_fin;
+    public $societe;
     /**
      * @var string
      */
-    public $jours;
+    public $adresse;
     /**
      * @var string
      */
-    public $heure_deb;
+    public $numero;
     /**
      * @var string
      */
-    public $heure_fin;
+    public $boite;
     /**
      * @var string
      */
-    public $fk_off_id;
+    public $postal;
     /**
      * @var string
      */
-    public $jour_;
+    public $pays;
     /**
      * @var string
      */
-    public $year;
+    public $l_nom;
     /**
-     * @var string
+     * @var Communication[]
      */
-    public $month;
+    public $communications;
+
     /**
-     * @var string
+     * @var array
      */
-    public $day;
+    public $lgs;
+
+    public function localite() {
+        return $this->l_nom;
+    }
 }

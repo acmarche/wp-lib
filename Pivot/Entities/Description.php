@@ -1,19 +1,23 @@
 <?php
 
 
-namespace AcMarche\Pivot\Event\Entity;
+namespace AcMarche\Pivot\Entities;
 
 
-class Selection
+class Description
 {
     /**
      * @var string
      */
-    public $id;
+    public $dat;
     /**
      * @var string
      */
-    public $cl;
+    public $lot;
+    /**
+     * @var string
+     */
+    public $typ;
     /**
      * @var string
      */
@@ -21,5 +25,5 @@ class Selection
     /**
      * @var string
      */
-    public $value;
+    public $texte;
 }
