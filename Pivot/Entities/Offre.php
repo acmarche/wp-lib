@@ -27,6 +27,7 @@ class Offre extends BaseEntity
         $offre->categories = $parser->categories();
         $offre->selections = $parser->selections();
         $offre->datesR = $offre->dates();
+        $offre->image = $offre->firstImage();
 
         return $offre;
     }
@@ -60,6 +61,11 @@ class Offre extends BaseEntity
         }
 
         return $dates;
+    }
+
+    private function firstImage(): ?string
+    {
+       return count($this->medias) > 0 ? $this->medias[0]->url : null;
     }
 
 }

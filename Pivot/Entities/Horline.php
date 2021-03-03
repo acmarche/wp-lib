@@ -62,4 +62,32 @@ class Horline
      * @var string
      */
     public $day;
+    /**
+     * @var string
+     */
+    public $jour_lu;
+    /**
+     * @var string
+     */
+    public $jour_ma;
+    /**
+     * @var string
+     */
+    public $jour_me;
+    /**
+     * @var string
+     */
+    public $jour_je;
+    /**
+     * @var string
+     */
+    public $jour_ve;
+    /**
+     * @var string
+     */
+    public $jour_sa;
+    /**
+     * @var string
+     */
+    public $jour_di;
 }

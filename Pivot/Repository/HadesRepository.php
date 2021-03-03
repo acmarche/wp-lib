@@ -29,8 +29,24 @@ class HadesRepository
         $this->cache = Cache::instance();
     }
 
+    public function getOffres(array $types = []): array
+    {
+        $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
+        $data = $domdoc->getElementsByTagName('offres');
+        $offresXml = $data->item(0);
+        $offres = [];
+        foreach ($offresXml->childNodes as $offre) {
+            if ($offre->nodeType == XML_ELEMENT_NODE) {
+                $offres[] = Offre::createFromDom($offre);
+            }
+        }
+
+        return $offres;
+    }
+
     /**
-     * @return array|OffreInterface[]
+     * @param array $types
+     * @return array
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getEvents(array $types = []): array
@@ -40,23 +56,14 @@ class HadesRepository
         return $this->cache->get(
             'events_hades'.time(),
             function () use ($types) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
-                $data = $domdoc->getElementsByTagName('offres');
-                $offres = $data->item(0);
                 $events = [];
-                foreach ($offres->childNodes as $offre) {
-                    if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $event = Offre::createFromDom($offre);
-                        EventUtils::sortDates($event);
-                        if (!EventUtils::isEventObsolete($event)) {
-                            continue;
-                        }
-                        $events[] = $event;
-                        // dump($event->titre);
-                        //  foreach ($event->dates() as $date) {
-                        //    dump($date);
-                        // }
+                $offres = $this->getOffres($types);
+                foreach ($offres as $offre) {
+                    EventUtils::sortDates($offre);
+                    if (!EventUtils::isEventObsolete($offre)) {
+                        continue;
                     }
+                    $events[] = $offre;
                 }
                 $events = EventUtils::sortEvents($events);
 
@@ -72,19 +79,7 @@ class HadesRepository
         return $this->cache->get(
             'hebergement_hades'.time(),
             function () use ($types) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
-                $data = $domdoc->getElementsByTagName('offres');
-                $offres = $data->item(0);
-                $hebergements = [];
-                foreach ($offres->childNodes as $offre) {
-                    if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $hotel = Offre::createFromDom($offre);
-                        // dump($hotel);
-                        $hebergements[] = $hotel;
-                    }
-                }
-
-                return $hebergements;
+                return $this->getOffres($types);
             }
         );
     }
@@ -94,21 +89,9 @@ class HadesRepository
         $types = count($types) === 0 ? array_keys(Hades::RESTAURATIONS) : $types;
 
         return $this->cache->get(
-            'restau_hades'.time(),
+            'resto_hades'.time(),
             function () use ($types) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
-                $data = $domdoc->getElementsByTagName('offres');
-                $offres = $data->item(0);
-                $restaurations = [];
-                foreach ($offres->childNodes as $offre) {
-                    if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        $resto = Offre::createFromDom($offre);
-                        // dump($hotel);
-                        $restaurations[] = $resto;
-                    }
-                }
-
-                return $restaurations;
+                return $this->getOffres($types);
             }
         );
     }
