@@ -54,10 +54,13 @@ class Contact
      */
     public $l_nom;
     /**
+     * @var string
+     */
+    public $remarque;
+    /**
      * @var Communication[]
      */
     public $communications;
-
     /**
      * @var array
      */

@@ -148,20 +148,26 @@ class OffreParser
             return [];
         }
         foreach ($descriptions->childNodes as $child) {
-            $t = new Description();
+            $description = new Description();
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                $t->dat = $child->getAttributeNode('dat')->nodeValue;
-                $t->lot = $child->getAttributeNode('lot')->nodeValue;
-                $t->typ = $child->getAttributeNode('typ')->nodeValue;
+                if ($child->getAttributeNode('dat')) {
+                    $description->dat = $child->getAttributeNode('dat')->nodeValue;
+                }
+                if ($child->getAttributeNode('lot')) {
+                    $description->lot = $child->getAttributeNode('lot')->nodeValue;
+                }
+                if ($child->getAttributeNode('typ')) {
+                    $description->typ = $child->getAttributeNode('typ')->nodeValue;
+                }
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         $lg = $cat->getAttribute('lg');
                         if ($lg == 'fr') {
-                            $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
+                            $this->propertyAccessor->setValue($description, $cat->nodeName, $cat->nodeValue);
                         }
                     }
                 }
-                $data[] = $t;
+                $data[] = $description;
             }
         }
 
