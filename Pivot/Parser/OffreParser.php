@@ -277,51 +277,62 @@ class OffreParser
 
         return $data;
     }
+
     public function horaires(): array
     {
         $data = [];
         $horaires = $this->offre->getElementsByTagName('horaires');
-        if (!$horaires) {
+        $horaires = $horaires->item(0);//pour par prendre elements parents
+
+        if (!$horaires instanceof DOMElement) {
             return [];
         }
 
-        foreach ($horaires as $horaire) {
-            $t = new Horaire();
-            $t->year = $horaire->getAttributeNode('an');
-            foreach ($horaire->childNodes as $child) {
-                if ($child->nodeType == XML_ELEMENT_NODE) {
-                    foreach ($child->childNodes as $cat) {
-                        if ($cat->nodeType == XML_ELEMENT_NODE) {
-                            if ($cat->nodeName == 'horline') {
-                                $t->horlines[] = $this->extractHoraires($cat);
-                            } else {
-                                $lg = $cat->getAttribute('lg');
-                                if ($lg == 'fr') {
-                                    $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
-                                }
+        $year = $horaires->getAttributeNode('an')->value;
+        foreach ($horaires->childNodes as $child) {
+            $horaire = new Horaire();
+            $libs = [];
+            $textes = [];
+            $horaire->year = $year;
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                foreach ($child->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        if ($cat->nodeName == 'lib') {
+                            $libs[$cat->getAttribute('lg')] = $cat->nodeValue;
+                        }
+                        if ($cat->nodeName == 'texte') {
+                            $textes[$cat->getAttribute('lg')] = $cat->nodeValue;
+                        }
+                        if ($cat->nodeName == 'horline') {
+                            $horaire->horlines[] = $this->extractHoraires($cat);
+                        } else {
+                            $lg = $cat->getAttribute('lg');
+                            if ($lg == 'fr') {
+                                $this->propertyAccessor->setValue($horaire, $cat->nodeName, $cat->nodeValue);
                             }
                         }
                     }
                 }
+                $data[] = $horaire;
             }
-            $data[] = $t;
         }
 
         return $data;
     }
 
-    private function extractHoraires(DOMElement $horline): Horline
+    private function extractHoraires(DOMElement $domElement): Horline
     {
-        $data = new Horline();
-        $data->id = $horline->getAttribute('id');
-        foreach ($horline->childNodes as $node) {
+        $horline = new Horline();
+        $horline->id = $domElement->getAttribute('id');
+
+        foreach ($domElement->childNodes as $node) {
             if ($node->nodeType == XML_ELEMENT_NODE) {
-                $this->propertyAccessor->setValue($data, $node->nodeName, $node->nodeValue);
+                $this->propertyAccessor->setValue($horline, $node->nodeName, $node->nodeValue);
             }
         }
-        list($data->day, $data->month, $data->year) = explode("/", $data->date_deb);
+        list($horline->day, $horline->month, $horline->year) = explode("/", $horline->date_deb);
 
-        return $data;
+        return $horline;
     }
 
 }
