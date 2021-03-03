@@ -81,18 +81,48 @@ abstract class BaseEntity implements OffreInterface
         return count($contacts) > 0 ? $contacts[0] : null;
     }
 
-    public function communciationPrincipal(): array
+    public function communcationPrincipal(): array
     {
         $coms = [];
         $contact = $this->contactPrincipal();
         if ($contact) {
             foreach ($contact->communications as $communication) {
-                dump($communication);
-                $coms[$communication->type] = [$communication->name => $communication->value];
+                $coms[$communication->type][$communication->name] = $communication->value;
             }
         }
 
         return $coms;
+    }
+
+    public function emailPrincipal(): ?string
+    {
+        $emails = isset($this->communcationPrincipal()['mail']) ? $this->communcationPrincipal()['mail'] : [];
+
+        return isset($emails['E-mail']) ? $emails['E-mail'] : null;
+    }
+
+    public function telPrincipal()
+    {
+        $telephones = isset($this->communcationPrincipal()['mail']) ? $this->communcationPrincipal()['mail'] : [];
+
+        return isset($telephones['E-mail']) ? $telephones['E-mail'] : null;
+    }
+
+    public function sitePrincipal()
+    {
+        $sites = isset($this->communcationPrincipal()['url']) ? $this->communcationPrincipal()['url'] : [];
+
+        $site = isset($sites['Web']) ? $sites['Web'] : null;
+        if ($site) {
+            return $site;
+        }
+
+        $site = isset($sites['FaceBook']) ? $sites['FaceBook'] : null;
+        if ($site) {
+            return $site;
+        }
+
+        return null;
     }
 
 }

@@ -184,22 +184,22 @@ class OffreParser
         if (!$medias instanceof DOMElement) {
             return [];
         }
-        $t = new Media();
         foreach ($medias->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                $t->ext = $child->getAttributeNode('ext')->nodeValue;
+                $media = new Media();
+                $media->ext = $child->getAttributeNode('ext')->nodeValue;
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
+                        $this->propertyAccessor->setValue($media, $cat->nodeName, $cat->nodeValue);
                         $lg = $cat->getAttribute('lg');
                         if ($lg == 'fr') {
 
                         }
                     }
                 }
+                $data[] = $media;
             }
         }
-        $data[] = $t;
 
         return $data;
     }
