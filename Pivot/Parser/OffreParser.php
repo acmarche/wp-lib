@@ -13,7 +13,6 @@ use AcMarche\Pivot\Entities\Horline;
 use AcMarche\Pivot\Entities\Localite;
 use AcMarche\Pivot\Entities\Media;
 use AcMarche\Pivot\Entities\Selection;
-use DOMDocument;
 use DOMElement;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -38,7 +37,8 @@ class OffreParser
     {
         //$this->offre->attributes->item(0);//donne attribut id
         // $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
-        return $this->offre->getAttribute('id');
+        return $this->getAttribute($this->offre, 'id');
+        //return $this->offre->getAttribute('id');
     }
 
     public function getAttributs(string $name): ?string
@@ -161,7 +161,7 @@ class OffreParser
                 }
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $cat->getAttribute('lg');
+                        $lg = $this->getAttribute($cat, 'lg');
                         if ($lg == 'fr') {
                             $this->propertyAccessor->setValue($description, $cat->nodeName, $cat->nodeValue);
                         }
@@ -189,7 +189,7 @@ class OffreParser
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         $this->propertyAccessor->setValue($media, $cat->nodeName, $cat->nodeValue);
-                        $lg = $cat->getAttribute('lg');
+                        $lg = $this->getAttribute($cat, 'lg');
                         if ($lg == 'fr') {
 
                         }
@@ -198,6 +198,12 @@ class OffreParser
                 $data[] = $media;
             }
         }
+        array_map(
+            function ($media) {
+                $media->url = preg_replace("#http:#", "https:", $media->url);
+            },
+            $data
+        );
 
         return $data;
     }
@@ -242,7 +248,7 @@ class OffreParser
                 $catId = $child->getAttributeNode('id');
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $cat->getAttribute('lg');
+                        $lg = $this->getAttribute($cat, 'lg');
                         if ($lg == 'fr') {
                             $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
                             //   $t[$catId->nodeValue] = $cat->nodeValue;
@@ -262,11 +268,11 @@ class OffreParser
         foreach ($communication->childNodes as $childNode) {
             $t = new Communication();
             if ($childNode->nodeType == XML_ELEMENT_NODE) {
-                $type = $childNode->getAttribute('typ');
+                $type = $this->getAttribute($childNode, 'typ');
                 $t->type = $type;
                 foreach ($childNode->childNodes as $node) {
                     if ($node->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $node->getAttribute('lg');
+                        $lg = $this->getAttribute($node, 'lg');
                         if ($lg == 'fr') {
                             $t->name = $node->nodeValue;
                         }
@@ -304,15 +310,15 @@ class OffreParser
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         if ($cat->nodeName == 'lib') {
-                            $libs[$cat->getAttribute('lg')] = $cat->nodeValue;
+                            $libs[$this->getAttribute($cat, 'lg')] = $cat->nodeValue;
                         }
                         if ($cat->nodeName == 'texte') {
-                            $textes[$cat->getAttribute('lg')] = $cat->nodeValue;
+                            $textes[$this->getAttribute($cat, 'lg')] = $cat->nodeValue;
                         }
                         if ($cat->nodeName == 'horline') {
                             $horaire->horlines[] = $this->extractHoraires($cat);
                         } else {
-                            $lg = $cat->getAttribute('lg');
+                            $lg = $this->getAttribute($cat, 'lg');
                             if ($lg == 'fr') {
                                 $this->propertyAccessor->setValue($horaire, $cat->nodeName, $cat->nodeValue);
                             }
@@ -329,7 +335,7 @@ class OffreParser
     private function extractHoraires(DOMElement $domElement): Horline
     {
         $horline = new Horline();
-        $horline->id = $domElement->getAttribute('id');
+        $horline->id = $this->getAttribute($domElement, 'id');
 
         foreach ($domElement->childNodes as $node) {
             if ($node->nodeType == XML_ELEMENT_NODE) {
@@ -339,6 +345,15 @@ class OffreParser
         list($horline->day, $horline->month, $horline->year) = explode("/", $horline->date_deb);
 
         return $horline;
+    }
+
+    private function getAttribute(?DOMElement $element, string $name): string
+    {
+        if ($element) {
+            return $element->getAttribute($name);
+        }
+
+        return '';
     }
 
 }
