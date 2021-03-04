@@ -66,6 +66,11 @@ class Contact
      */
     public $lgs;
 
+    public function __construct()
+    {
+        $this->communications = [];
+    }
+
     public function localite() {
         return $this->l_nom;
     }

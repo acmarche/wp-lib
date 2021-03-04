@@ -11,6 +11,7 @@ use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
+use \XMLReader;
 
 class HadesRepository
 {
@@ -31,7 +32,11 @@ class HadesRepository
 
     public function getOffres(array $types = []): array
     {
-        $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffres($types));
+        $xmlString = $this->hadesRemoteRepository->getOffres($types);
+        $domdoc = $this->loadXml($xmlString);
+        if ($domdoc === null) {
+            return [];
+        }
         $data = $domdoc->getElementsByTagName('offres');
         $offresXml = $data->item(0);
         $offres = [];
@@ -99,19 +104,28 @@ class HadesRepository
     /**
      * @param string $xmlString
      *
-     * @return array|\Exception
+     * @return DOMDocument|null
      */
-    private function loadXml(string $xmlString): DOMDocument
+    private function loadXml(string $xmlString): ?DOMDocument
     {
         try {
+            libxml_use_internal_errors(true);
             $domdoc = new DOMDocument();
             $domdoc->loadXML($xmlString);
+            $errors = libxml_get_errors();
+
+            libxml_clear_errors();
+            if (count($errors) > 0) {
+                Mailer::sendError('xml error', 'contenu: '.$xmlString);
+
+                return null;
+            }
 
             return $domdoc;
         } catch (\Exception $exception) {
-            Mailer::sendError('Erreur avec le xml hades event', $exception->getMessage());
+            Mailer::sendError('Erreur avec le xml hades', $exception->getMessage());
 
-            return new \Exception('Erreur avec le xml');
+            return null;
         }
     }
 
@@ -120,7 +134,11 @@ class HadesRepository
         return $this->cache->get(
             'offre_hades-'.$id.time(),
             function () use ($id) {
-                $domdoc = $this->loadXml($this->hadesRemoteRepository->getOffreById($id));
+                $xmlString = $this->hadesRemoteRepository->getOffreById($id);
+                $domdoc = $this->loadXml($xmlString);
+                if ($domdoc === null) {
+                    return null;
+                }
                 $data = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 foreach ($offres->childNodes as $offre) {
