@@ -178,7 +178,7 @@ class Offre implements OffreInterface
         return $dates;
     }
 
-    private function firstImage(): ?string
+     function firstImage(): ?string
     {
        return count($this->medias) > 0 ? $this->medias[0]->url : null;
     }

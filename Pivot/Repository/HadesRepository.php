@@ -11,6 +11,7 @@ use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
+use VisitMarche\Theme\Inc\RouterHades;
 
 class HadesRepository
 {
@@ -151,9 +152,15 @@ class HadesRepository
         );
     }
 
-    public function getEventRelations(OffreInterface $offre): ?array
+    public function getEventRelations(OffreInterface $offre, int $catId): ?array
     {
         $events = $this->getEvents();
+        array_map(
+            function ($event) use ($catId) {
+                $event->url = RouterHades::getUrlOffre($event, $catId);
+            },
+            $events
+        );
         $recommandations = [];
 
         foreach ($offre->categories as $category) {
@@ -172,6 +179,7 @@ class HadesRepository
                             'title' => $element->titre,
                             'url' => $element->url,
                             'image' => $image,
+                            'categories' => $element->categories,
                         ];
                     }
                 }
