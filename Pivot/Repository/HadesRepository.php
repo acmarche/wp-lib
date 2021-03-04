@@ -11,7 +11,6 @@ use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
-use \XMLReader;
 
 class HadesRepository
 {
