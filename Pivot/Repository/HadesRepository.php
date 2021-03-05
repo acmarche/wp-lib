@@ -33,6 +33,9 @@ class HadesRepository
     public function getOffres(array $types = []): array
     {
         $xmlString = $this->hadesRemoteRepository->getOffres($types);
+        if ($xmlString == null) {
+            return [];
+        }
         $domdoc = $this->loadXml($xmlString);
         if ($domdoc === null) {
             return [];
@@ -40,6 +43,7 @@ class HadesRepository
         $data = $domdoc->getElementsByTagName('offres');
         $offresXml = $data->item(0);
         $offres = [];
+
         foreach ($offresXml->childNodes as $offre) {
             if ($offre->nodeType == XML_ELEMENT_NODE) {
                 $offres[] = Offre::createFromDom($offre);
@@ -54,7 +58,7 @@ class HadesRepository
      * @return array
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getEvents(int $categoryAgenda,array $types = []): array
+    public function getEvents(int $categoryAgenda, array $types = []): array
     {
         $types = count($types) === 0 ? array_keys(Hades::EVENEMENTS) : $types;
 

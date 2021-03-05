@@ -62,14 +62,14 @@ class HadesRemoteRepository
 
     /**
      * http://w3.ftlb.be/webservice/h2o.php?com_id=263&tbl=xmlcomplet&cat_id=evt_sport,cine_club,conference,exposition,festival,fete_festiv,anim_jeux,livre_conte,manifestatio,foire_brocan,evt_promenad,spectacle,stage_ateli,evt_vis_guid
+     * @param array $types
      * @return string
      * @throws \Psr\Cache\InvalidArgumentException
-     * @throws \Exception
      */
-    public function getOffres(array $types = []): string
+    public function getOffres(array $types = []): ?string
     {
         if (count($types) === 0) {
-            return '';
+            return null;
         }
 
         $t = $this->cache->get(
