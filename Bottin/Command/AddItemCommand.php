@@ -3,7 +3,7 @@
 
 namespace AcMarche\Bottin\Command;
 
-use AcMarche\Common\MarcheConst;
+use AcMarche\Theme\Lib\MarcheConst;
 use AcMarche\Common\Menu;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

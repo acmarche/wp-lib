@@ -5,7 +5,7 @@ namespace AcMarche\Bottin\Category;
 
 use AcMarche\Bottin\Repository\WpBottinRepository;
 use AcMarche\Bottin\Repository\BottinRepository;
-use AcMarche\Common\MarcheConst;
+use AcMarche\Theme\Lib\MarcheConst;
 
 class CategorySynchronizer
 {

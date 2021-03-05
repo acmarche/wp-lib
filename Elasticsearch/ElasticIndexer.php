@@ -3,7 +3,7 @@
 namespace AcMarche\Elasticsearch;
 
 use AcMarche\Common\AcSerializer;
-use AcMarche\Common\MarcheConst;
+use AcMarche\Theme\Lib\MarcheConst;
 use AcMarche\Elasticsearch\Data\ElasticData;
 use Elastica\Document;
 use Symfony\Component\Console\Style\SymfonyStyle;

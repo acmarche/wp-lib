@@ -5,9 +5,8 @@ namespace AcMarche\Elasticsearch\Data;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Bottin\RouterBottin;
-use AcMarche\Common\MarcheConst;
-use AcMarche\Common\WpRepository;
-use AcMarche\Theme\Inc\Router;
+use AcMarche\Theme\Lib\MarcheConst;
+use AcMarche\Theme\Lib\WpRepository;
 
 class ElasticData
 {
