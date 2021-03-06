@@ -165,18 +165,18 @@ class HadesRepository
 
     public function getOffresSameCategories(OffreInterface $offre, int $catId): ?array
     {
-        $events = $this->getOffres();
+        $offres = $this->getOffres();
         array_map(
-            function ($event) use ($catId) {
-                $event->url = RouterHades::getUrlOffre($event, $catId);
+            function ($offre) use ($catId) {
+                $offre->url = RouterHades::getUrlOffre($offre, $catId);
             },
-            $events
+            $offres
         );
         $recommandations = [];
 
         foreach ($offre->categories as $category) {
 
-            foreach ($events as $element) {
+            foreach ($offres as $element) {
                 foreach ($element->categories as $category2) {
                     if ($category->lib == $category2->lib && $offre->id != $element->id) {
 

@@ -68,14 +68,15 @@ class HadesRemoteRepository
      */
     public function getOffres(array $types = []): ?string
     {
-        if (count($types) === 0) {
-            return null;
+        $args = [];
+        if (count($types) >= 0) {
+            $args = ['cat_id' => join(',', $types)];
         }
 
         $t = $this->cache->get(
             'hebergements_hades_remote'.time(),
-            function () use ($types) {
-                return $this->loadOffres(['cat_id' => join(',', $types)]);
+            function () use ($args) {
+                return $this->loadOffres($args);
             }
         );
 
@@ -89,14 +90,17 @@ class HadesRemoteRepository
      * @throws \Psr\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public function getOffreById(string $id): string
-    {
+    public
+    function getOffreById(
+        string $id
+    ): string {
         $t = $this->cache->get(
             'offre_hades_remote_'.$id.time(),
             function () use ($id) {
                 return $this->loadOffres(['off_id' => $id]);
             }
         );
+
         return $t;
     }
 }
