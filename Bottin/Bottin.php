@@ -4,7 +4,6 @@
 namespace AcMarche\Bottin;
 
 use AcMarche\Common\Env;
-use AcMarche\Common\Twig;
 use stdClass;
 
 class Bottin
