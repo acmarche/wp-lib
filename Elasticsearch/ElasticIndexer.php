@@ -3,8 +3,8 @@
 namespace AcMarche\Elasticsearch;
 
 use AcMarche\Common\AcSerializer;
-use AcMarche\Theme\Lib\MarcheConst;
 use AcMarche\Elasticsearch\Data\ElasticData;
+use AcMarche\Theme\Inc\Theme;
 use Elastica\Document;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -37,7 +37,7 @@ class ElasticIndexer
     public function indexAllPosts(array $sites = array())
     {
         if (count($sites) === 0) {
-            $sites = MarcheConst::SITES;
+            $sites = Theme::SITES;
         }
 
         foreach ($sites as $siteId => $nom) {
@@ -61,7 +61,7 @@ class ElasticIndexer
     public function indexAllCategories(array $sites = array())
     {
         if (count($sites) === 0) {
-            $sites = MarcheConst::SITES;
+            $sites = Theme::SITES;
         }
 
         foreach ($sites as $siteId => $nom) {

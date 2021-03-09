@@ -36,7 +36,7 @@ class ElasticServerCommand extends Command
 
         $elastic = new ElasticServer();
         $elastic->createIndex();
-        $elastic->setProperties();
+        $elastic->setMapping();
 
         $this->io->success('Index vidé');
 
