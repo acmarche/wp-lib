@@ -2,6 +2,7 @@
 
 namespace AcMarche\Elasticsearch;
 
+use AcMarche\Common\Env;
 use Elastica\Client;
 use Elastica\Index;
 
@@ -19,12 +20,17 @@ trait ElasticClientTrait
 
     public function connect(string $host = 'localhost', int $port = 9200)
     {
+        Env::loadEnv();
+        $username = $_ENV['ELASTIC_USER'];
+        $password = $_ENV['ELASTIC_PASSWORD'];
+        $ds= $username.':'.$password.'@'.$host;
         $this->client = new Client(
             [
-                'host' => $host,
+                'host' => $ds,
                 'port' => $port,
             ]
         );
+        //$this->client->setLogger(); todo
         $this->setIndex(ElasticServer::INDEX_NAME_MARCHE_BE);
     }
 
