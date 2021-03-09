@@ -9,7 +9,6 @@ use AcMarche\Pivot\Entities\Offre;
 use AcMarche\Pivot\Entities\OffreInterface;
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
-use AcMarche\Pivot\RouterHades;
 use DOMDocument;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -58,13 +57,13 @@ class HadesRepository
      * @return array
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getEvents(int $categoryAgenda, array $types = []): array
+    public function getEvents(array $types = []): array
     {
         $types = count($types) === 0 ? array_keys(Hades::EVENEMENTS) : $types;
 
         return $this->cache->get(
             'events_hades'.time(),
-            function () use ($types, $categoryAgenda) {
+            function () use ($types) {
                 $events = [];
                 $offres = $this->getOffres($types);
                 foreach ($offres as $offre) {
@@ -75,13 +74,6 @@ class HadesRepository
                     $events[] = $offre;
                 }
                 $events = EventUtils::sortEvents($events);
-                array_map(
-                    function ($event) use ($categoryAgenda) {
-
-                        $event->url = RouterHades::getUrlEvent($event, $categoryAgenda);
-                    },
-                    $events
-                );
 
                 return $events;
             }
@@ -166,12 +158,12 @@ class HadesRepository
     public function getOffresSameCategories(OffreInterface $offre, int $catId): ?array
     {
         $offres = $this->getOffres();
-        array_map(
+        /*array_map(
             function ($offre) use ($catId) {
                 $offre->url = RouterHades::getUrlOffre($offre, $catId);
             },
             $offres
-        );
+        );*/
         $recommandations = [];
 
         foreach ($offre->categories as $category) {
