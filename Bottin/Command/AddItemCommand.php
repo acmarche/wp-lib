@@ -3,8 +3,8 @@
 
 namespace AcMarche\Bottin\Command;
 
-use AcMarche\Theme\Lib\MarcheConst;
-use AcMarche\Common\Menu;
+use AcMarche\Theme\Inc\Theme;
+use AcMarche\Theme\Lib\Menu;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,7 +29,7 @@ class AddItemCommand extends Command
     {
         $this->io = new SymfonyStyle($input, $output);
         $menu     = new Menu();
-        foreach (MarcheConst::SITES as $siteId => $slug) {
+        foreach (Theme::SITES as $siteId => $slug) {
             switch_to_blog($siteId);
             $items = $menu->getItems($siteId);
             $found = false;
@@ -40,8 +40,9 @@ class AddItemCommand extends Command
             }
             if ($found === false) {
                 $menuSite = wp_get_nav_menu_object(Menu::MENU_NAME);
-                $this->addItem($siteId, $slug, $menuSite);
+             //   $this->addItem($siteId, $slug, $menuSite);
             }
+            flush_rewrite_rules();
         }
 
         return Command::SUCCESS;
