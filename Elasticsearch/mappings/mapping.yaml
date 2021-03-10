@@ -15,6 +15,15 @@ mappings:
           type: text
           analyzer: app_autocomplete
           search_analyzer: standard
+        keywordstring:
+          type: text
+          analyzer: keyword_analyzer
+        edgengram:
+          type: text
+          analyzer: edge_ngram_analyzer
+          search_analyzer: edge_ngram_search_analyzer
+        completion:
+          type: completion
     excerpt:
       type: text
       analyzer: app_french_light
@@ -32,8 +41,8 @@ mappings:
     tags:
       type: text
     date:
-        type: date
-        format: strict_date_optional_time||epoch_millis
+      type: date
+      format: strict_date_optional_time||epoch_millis
     url:
       type: text
       index: false

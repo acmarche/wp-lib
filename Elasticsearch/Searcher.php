@@ -101,16 +101,16 @@ class Searcher
     {
         $suggest = new SuggestElastica();
 
-        $suggest1 = new SuggestElastica\Completion('suggest1', 'name2.completion');
+        $suggest1 = new SuggestElastica\Completion('suggest1', 'name.completion');
         $suggest->addSuggestion($suggest1->setPrefix($keyword));
 
-        $suggest2 = new TermElastica('suggest2', 'name2.completion');
+        $suggest2 = new TermElastica('suggest2', 'name.completion');
         $suggest->addSuggestion($suggest2->setText($keyword));
 
-        $suggest3 = new SuggestElastica\Phrase('suggest3', 'name2.edgengram');
+        $suggest3 = new SuggestElastica\Phrase('suggest3', 'name.edgengram');
         $suggest->addSuggestion($suggest3->setPrefix($keyword));
 
-        $suggest4 = new SuggestElastica\Completion('suggest4', 'post_suggest');
+        $suggest4 = new SuggestElastica\Completion('suggest4', 'suggest');
         $suggest->addSuggestion($suggest4->setPrefix($keyword));
 
         $results = $this->index->search($suggest);
@@ -137,29 +137,5 @@ class Searcher
         $fullTextQuery->setDefaultOperator(SimpleQueryString::OPERATOR_AND);
         $fullTextQuery->setParam("analyze_wildcard", true);
         $query->addMust($fullTextQuery);
-    }
-
-    protected function createQuery(string $motclef)
-    {
-        $query = [
-            "multi_match" => [
-                "query"  => $motclef,
-                "fields" => [
-                    'post_title',
-                    'name',
-                    'content',
-                    'description',
-                    'post_title.stemmed',//trouve pluriels
-                    'post_content',
-                    'post_content.stemmed',//trouve pluriels
-                    'post_excerpt',
-                    'post_excerpt.stemmed',//trouve pluriels
-                    'categories.cat_name',
-                    'categories.cat_description',
-                ],
-            ],
-        ];
-
-        return $query;
     }
 }
