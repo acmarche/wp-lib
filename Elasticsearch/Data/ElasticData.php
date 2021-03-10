@@ -187,15 +187,17 @@ class ElasticData
             $categories[] = $category->cat_name;
         }
 
+        $content = get_the_content(null, null, $post);
+        $content = apply_filters('the_content', $content);
+
         $document          = new DocumentElastic();
         $document->id      = $post->ID;
         $document->name    = Cleaner::cleandata($post->post_title);
         $document->excerpt = Cleaner::cleandata($post->post_excerpt);
-        $document->content = Cleaner::cleandata($post->post_content);
+        $document->content = Cleaner::cleandata($content);
         $document->tags    = $categories;
         $document->date    = $date;
         $document->url     = get_permalink($post->ID);
-
 
         return $document;
     }
@@ -232,8 +234,8 @@ class ElasticData
             $document->content = $this->bottinData->getContentFiche($fiche);
             $document->tags    = $categories;
             list($date, $heure) = explode(' ', $fiche->created_at);
-            $document->date    = $date;
-            $document->url     = RouterBottin::getUrlFicheBottin($fiche);
+            $document->date = $date;
+            $document->url  = RouterBottin::getUrlFicheBottin($fiche);
             //  $document->url     = $this->bottinData->generateUrlCapFiche($fiche);
             $documents[] = $document;
         }
