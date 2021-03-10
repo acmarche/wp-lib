@@ -3,6 +3,7 @@
 namespace AcMarche\Elasticsearch;
 
 use AcMarche\Common\AcSerializer;
+use AcMarche\Elasticsearch\Data\DocumentElastic;
 use AcMarche\Elasticsearch\Data\ElasticData;
 use AcMarche\Theme\Inc\Theme;
 use Elastica\Document;
@@ -44,16 +45,16 @@ class ElasticIndexer
             $this->outPut->section($nom);
             $posts = $this->elasticData->getPosts($siteId);
             foreach ($posts as $post) {
-                $this->addPost($post);
-                $this->outPut->writeln($post['name']);
+                $this->addPost($post, $siteId);
+                $this->outPut->writeln($post->name);
             }
         }
     }
 
-    private function addPost(array $post)
+    private function addPost(DocumentElastic $documentElastic, int $blogId)
     {
-        $content = $this->serializer->serialize($post, 'json');
-        $id      = 'post_'.$post['blog'].'_'.$post['id'];
+        $content = $this->serializer->serialize($documentElastic, 'json');
+        $id      = 'post_'.$blogId.'_'.$documentElastic->id;
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
     }
@@ -67,17 +68,17 @@ class ElasticIndexer
         foreach ($sites as $siteId => $nom) {
             $this->outPut->section($nom);
             $categories = $this->elasticData->getCategoriesBySite($siteId);
-            foreach ($categories as $category) {
-                $this->addCategory($category);
-                $this->outPut->writeln($category['name']);
+            foreach ($categories as $documentElastic) {
+                $this->addCategory($documentElastic, $siteId);
+                $this->outPut->writeln($documentElastic->name);
             }
         }
     }
 
-    private function addCategory(array $category)
+    private function addCategory(DocumentElastic $documentElastic, int $blodId)
     {
-        $content = $this->serializer->serialize($category, 'json');
-        $id      = 'category_'.$category['blog'].'_'.$category['id'];
+        $content = $this->serializer->serialize($documentElastic, 'json');
+        $id      = 'category_'.$blodId.'_'.$documentElastic->id;
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
     }
@@ -91,24 +92,24 @@ class ElasticIndexer
     public function indexCategoriesBottin()
     {
         $categories = $this->elasticData->getAllCategoriesBottin();
-        foreach ($categories as $category) {
-            $content = $this->serializer->serialize($category, 'json');
-            $id      = 'fiche_'.$category->id;
+        foreach ($categories as $documentElastic) {
+            $content = $this->serializer->serialize($documentElastic, 'json');
+            $id      = 'fiche_'.$documentElastic->id;
             $doc     = new Document($id, $content);
             $this->index->addDocument($doc);
-            $this->outPut->writeln($category->name);
+            $this->outPut->writeln($documentElastic->name);
         }
     }
 
     public function indexFiches()
     {
         $fiches = $this->elasticData->getAllfiches();
-        foreach ($fiches as $fiche) {
-            $content = $this->serializer->serialize($fiche, 'json');
-            $id      = 'fiche_'.$fiche->id;
+        foreach ($fiches as $documentElastic) {
+            $content = $this->serializer->serialize($documentElastic, 'json');
+            $id      = 'fiche_'.$documentElastic->id;
             $doc     = new Document($id, $content);
             $this->index->addDocument($doc);
-            $this->outPut->writeln($fiche->societe);
+            $this->outPut->writeln($documentElastic->name);
         }
     }
 }

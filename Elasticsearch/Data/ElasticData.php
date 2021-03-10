@@ -5,8 +5,9 @@ namespace AcMarche\Elasticsearch\Data;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Bottin\RouterBottin;
-use AcMarche\Theme\Lib\MarcheConst;
+use AcMarche\Theme\Inc\Theme;
 use AcMarche\Theme\Lib\WpRepository;
+use BottinCategoryMetaBox;
 
 class ElasticData
 {
@@ -30,7 +31,12 @@ class ElasticData
         $this->bottinData       = new ElasticBottinData();
     }
 
-    public function getCategoriesBySite(int $siteId)
+    /**
+     * @param int $siteId
+     *
+     * @return DocumentElastic[]
+     */
+    public function getCategoriesBySite(int $siteId): array
     {
         switch_to_blog($siteId);
 
@@ -54,58 +60,55 @@ class ElasticData
         $today      = new \DateTime();
 
         foreach ($categories as $category) {
-            $data = [];
-
-            $name                      = Cleaner::cleandata($category->name);
-            $data['name']              = $name;
-            $data['post_autocomplete'] = $name;
 
             $description = '';
             if ($category->description) {
                 $description = Cleaner::cleandata($category->description);
             }
 
+            $date    = $today->format('Y-m-d');
             $content = $description;
 
-            $cat_ID     = $category->cat_ID;
-            $data['id'] = $cat_ID;
-
-            foreach ($this->getPosts($siteId, $cat_ID) as $post) {
-                $content .= $post['name'];
-                $content .= $post['excerpt'];
-                $content .= $post['content'];
+            foreach ($this->getPosts($siteId, $category->cat_ID) as $post) {
+                $content .= $post->name;
+                $content .= $post->excerpt;
+                $content .= $post->content;
             }
 
-            $content .= $this->getFiches($data);
+            $content .= $this->getContentFiches($category);
 
-            $data['content'] = $content;
+            $children = $this->wpRepository->getChildrenOfCategory($category->cat_ID);
+            $tags     = [];
+            foreach ($children as $child) {
+                $tags[] = $child->name;
+            }
+            $parent = $this->wpRepository->getParentCategory($category->cat_ID);
+            if ($parent) {
+                $tags[] = $parent->name;
+            }
 
-            $category_nicename = $category->category_nicename;
-            $data['post_name'] = $category_nicename;
+            $document          = new DocumentElastic();
+            $document->id      = $category->cat_ID;
+            $document->name    = Cleaner::cleandata($category->name);
+            $document->excerpt = $description;
+            $document->content = $content;
+            $document->tags    = $tags;
+            $document->date    = $date;
+            $document->url     = get_category_link($category->cat_ID);
 
-            $url         = get_category_link($cat_ID);
-            $data['url'] = $url;
-
-            $date              = $today->format('Y-m-d');
-            $data['post_date'] = $date;
-            $data['date']      = $date;
-
-            $guid = "cat-".$siteId.'-'.$cat_ID;
-
-            $data['blog'] = $siteId;
-
-            $data['excerpt'] = '';
-            $data['guid']    = $guid;
-
-            $data['type'] = "category"; //force
-
-            $datas[] = $data;
+            $datas[] = $document;
         }
 
         return $datas;
     }
 
-    public function getPosts($blogId, int $categoryId = null)
+    /**
+     * @param $blogId
+     * @param int|null $categoryId
+     *
+     * @return DocumentElastic[]
+     */
+    public function getPosts($blogId, int $categoryId = null): array
     {
         switch_to_blog($blogId);
 
@@ -132,18 +135,21 @@ class ElasticData
         $datas = [];
 
         foreach ($posts as $post) {
-            $datas[] = $this->extractData($post, $blogId);
+            $datas[] = $this->createDocumentElastic($post);
         }
 
-        if ($blogId == MarcheConst::ADMINISTRATION) {
-            $pages = $this->getPages($blogId);
+        if ($blogId == Theme::ADMINISTRATION) {
+            $pages = $this->getPages();
             $datas = array_merge($datas, $pages);
         }
 
         return $datas;
     }
 
-    private function getPages(int $blogId)
+    /**
+     * @return DocumentElastic[]
+     */
+    private function getPages(): array
     {
         $args  = array(
             'sort_order'   => 'asc',
@@ -167,56 +173,37 @@ class ElasticData
         $datas = [];
 
         foreach ($pages as $post) {
-            $datas[] = $this->extractData($post, $blogId);
+            $datas[] = $this->createDocumentElastic($post);
         }
 
         return $datas;
     }
 
-    private function extractData(\WP_Post $post, int $blogId)
+    private function createDocumentElastic(\WP_Post $post): DocumentElastic
     {
-        $data              = [];
-        $data['id']        = $post->ID;
-        $post_title        = Cleaner::cleandata($post->post_title);
-        $data['post_type'] = 'post';
-
-        $data['name']              = $post_title;
-        $data['name2']             = $post_title;
-        $data['post_suggest']      = Cleaner::cleandata($post_title);
-        $data['post_autocomplete'] = Cleaner::cleandata($post_title);
-
-        $data['excerpt'] = Cleaner::cleandata($post->post_excerpt);
-
-        $data['content'] = Cleaner::cleandata($post->post_content);
-
-        $data['post_mime_type'] = $post->post_mime_type;
-        $data['guid']           = $post->guid;
-
-        $data['post_name']   = $post->post_name;
-        $data['post_status'] = $post->post_status;
-
-        $data['url'] = get_permalink($post->ID);
-
+        list($date, $time) = explode(" ", $post->post_date);
         $categories = array();
-        $i          = 0;
         foreach (get_the_category($post->ID) as $category) {
-            $categories[$i]['cat_name']              = $category->cat_name;
-            $categories[$i]['cat_name_autocomplete'] = $category->cat_name;
-            $categories[$i]['cat_description']       = $category->cat_description;
-            $i++;
+            $categories[] = $category->cat_name;
         }
 
-        $data['categories'] = $categories;
-        $data['blog']       = $blogId;
-        list($date, $time) = explode(" ", $post->post_date);
-        $data['post_date'] = $date;
+        $document          = new DocumentElastic();
+        $document->id      = $post->ID;
+        $document->name    = Cleaner::cleandata($post->post_title);
+        $document->excerpt = Cleaner::cleandata($post->post_excerpt);
+        $document->content = Cleaner::cleandata($post->post_content);
+        $document->tags    = $categories;
+        $document->date    = $date;
+        $document->url     = get_permalink($post->ID);
 
-        return $data;
+
+        return $document;
     }
 
-    public function getFiches(array $category): string
+    public function getContentFiches(object $category): string
     {
-        $categoryBottinId = get_term_meta($category['id'], \BottinCategoryMetaBox::KEY_NAME, true);
+        $categoryBottinId = get_term_meta($category->cat_ID, BottinCategoryMetaBox::KEY_NAME, true);
+
         if ($categoryBottinId) {
             $fiches = $this->bottinRepository->getFichesByCategory($categoryBottinId);
 
@@ -226,31 +213,53 @@ class ElasticData
         return '';
     }
 
+    /**
+     * @return DocumentElastic[]
+     * @throws \Exception
+     */
     public function getAllfiches(): array
     {
-        $fiches = $this->bottinRepository->getFiches();
+        $fiches    = $this->bottinRepository->getFiches();
+        $documents = [];
         foreach ($fiches as $fiche) {
-            $fiche->name    = $fiche->societe;
-            $fiche->name2   = $fiche->societe;
-            $fiche->excerpt = Bottin::getExcerpt($fiche);
-            $fiche->url     = RouterBottin::getUrlFicheBottin($fiche);
-            $fiche->content = $this->bottinData->getContentFiche($fiche);
-            $fiche->url_cap = $this->bottinData->generateUrlCapFiche($fiche);
+
+            $categories = $this->bottinData->getCategoriesFiche($fiche);
+
+            $document          = new DocumentElastic();
+            $document->id      = $fiche->id;
+            $document->name    = $fiche->societe;
+            $document->excerpt = Bottin::getExcerpt($fiche);
+            $document->content = $this->bottinData->getContentFiche($fiche);
+            $document->tags    = $categories;
+            list($date, $heure) = explode(' ', $fiche->created_at);
+            $document->date    = $date;
+            $document->url     = RouterBottin::getUrlFicheBottin($fiche);
+            //  $document->url     = $this->bottinData->generateUrlCapFiche($fiche);
+            $documents[] = $document;
         }
 
-        return $fiches;
+        return $documents;
     }
 
-    public function getAllCategoriesBottin()
+    /**
+     * @return DocumentElastic[]
+     *
+     * @throws \Exception
+     */
+    public function getAllCategoriesBottin(): array
     {
         $categories = $this->bottinRepository->getAllCategories();
         foreach ($categories as $category) {
-            $category->name2   = $category->name;
-            $category->url     = RouterBottin::getUrlCategoryBottin($category);
-            $category->url_cap = $this->bottinData->generateUrlCapCategorie($category);
-            $category->excerpt = $category->description;
+            $document          = new DocumentElastic();
+            $document->id      = $category->id;
+            $document->name    = $category->name;
+            $document->excerpt = $category->description;
+            $document->tags    = [];//todo
+            $document->date    = $category->created_at;
+            $document->url     = RouterBottin::getUrlCategoryBottin($category);
+            //$category->url = $this->bottinData->generateUrlCapCategorie($category);
             $fiches            = $this->bottinRepository->getFichesByCategory($category->id);
-            $category->content = $this->bottinData->getContentForCategory($fiches);
+            $document->content = $this->bottinData->getContentForCategory($fiches);
         }
 
         return $categories;

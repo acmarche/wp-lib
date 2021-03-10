@@ -11,7 +11,7 @@ class ElasticBottinData
         $this->bottinRepository = new BottinRepository();
     }
 
-    public function generateUrlCapCategorie(object $category): string
+    public function generateUrlCapCategorie(object $category): ?string
     {
         if ($category->parent_id) {
             $parent  = $this->bottinRepository->getCategory($category->parent_id);
@@ -24,7 +24,7 @@ class ElasticBottinData
         return $urlBase.$category->slug;
     }
 
-    public function generateUrlCapFiche(\stdClass $fiche): string
+    public function generateUrlCapFiche(\stdClass $fiche): ?string
     {
         $urlBase     = "https://cap.marche.be/commerces-et-entreprises/";
         $classements = $this->bottinRepository->getClassementsFiche($fiche->id);
@@ -45,7 +45,7 @@ class ElasticBottinData
         return ' '.$fiche->societe.' '.$fiche->email.' '.$fiche->website.''.$fiche->twitter.' '.$fiche->facebook.' '.$fiche->nom.' '.$fiche->prenom.' '.$fiche->comment1.''.$fiche->comment2.' '.$fiche->comment3;
     }
 
-    public function getContentForCategory(array$fiches): string
+    public function getContentForCategory(array $fiches): string
     {
         $content = '';
 
@@ -54,5 +54,21 @@ class ElasticBottinData
         }
 
         return $content;
+    }
+
+    /**
+     * @param $fiche
+     *
+     * @return string[]
+     */
+    public function getCategoriesFiche($fiche): array
+    {
+        $data       = $this->bottinRepository->getCategoriesOfFiche($fiche->id);
+        $categories = [];
+        foreach ($data as $category) {
+            $categories[] = $category->name;
+        }
+
+        return $categories;
     }
 }
