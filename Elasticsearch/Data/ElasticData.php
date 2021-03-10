@@ -36,10 +36,8 @@ class ElasticData
      *
      * @return DocumentElastic[]
      */
-    public function getCategoriesBySite(int $siteId): array
+    public function getCategoriesBySite(): array
     {
-        switch_to_blog($siteId);
-
         $args = array(
             'type'         => 'post',
             'child_of'     => 0,
@@ -69,7 +67,7 @@ class ElasticData
             $date    = $today->format('Y-m-d');
             $content = $description;
 
-            foreach ($this->getPosts($siteId, $category->cat_ID) as $post) {
+            foreach ($this->getPosts( $category->cat_ID) as $post) {
                 $content .= $post->name;
                 $content .= $post->excerpt;
                 $content .= $post->content;
@@ -103,15 +101,12 @@ class ElasticData
     }
 
     /**
-     * @param $blogId
      * @param int|null $categoryId
      *
      * @return DocumentElastic[]
      */
-    public function getPosts($blogId, int $categoryId = null): array
+    public function getPosts(int $categoryId = null): array
     {
-        switch_to_blog($blogId);
-
         $args = array(
             'numberposts'      => 5000,
             'offset'           => 0,
@@ -138,12 +133,17 @@ class ElasticData
             $datas[] = $this->createDocumentElastic($post);
         }
 
-        if ($blogId == Theme::ADMINISTRATION) {
-            $pages = $this->getPages();
-            $datas = array_merge($datas, $pages);
-        }
-
         return $datas;
+    }
+
+    /**
+     * @return DocumentElastic[]
+     */
+    public function indexPagesSpecial(): array
+    {
+        switch_to_blog(Theme::ADMINISTRATION);
+
+        return $this->getPages();
     }
 
     /**

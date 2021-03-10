@@ -42,12 +42,22 @@ class ElasticIndexer
         }
 
         foreach ($sites as $siteId => $nom) {
+            switch_to_blog($siteId);
             $this->outPut->section($nom);
-            $posts = $this->elasticData->getPosts($siteId);
+            $posts = $this->elasticData->getPosts();
             foreach ($posts as $post) {
-                $this->addPost($post, $siteId);
                 $this->outPut->writeln($post->name);
+                $this->addPost($post, $siteId);
             }
+        }
+    }
+
+    public function indexPages()
+    {
+        $posts = $this->elasticData->indexPagesSpecial();
+        foreach ($posts as $post) {
+            $this->outPut->writeln($post->name);
+            $this->addPost($post, Theme::ADMINISTRATION);
         }
     }
 
@@ -66,8 +76,9 @@ class ElasticIndexer
         }
 
         foreach ($sites as $siteId => $nom) {
+            switch_to_blog($siteId);
             $this->outPut->section($nom);
-            $categories = $this->elasticData->getCategoriesBySite($siteId);
+            $categories = $this->elasticData->getCategoriesBySite();
             foreach ($categories as $documentElastic) {
                 $this->addCategory($documentElastic, $siteId);
                 $this->outPut->writeln($documentElastic->name);
