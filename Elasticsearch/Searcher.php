@@ -36,12 +36,16 @@ class Searcher
     {
         $query               = new BoolQuery();
         $matchName           = new Match('name', $keywords);
+        $matchNameStemmed    = new Match('name.stemmed', $keywords);
         $matchContent        = new Match('content', $keywords);
+        $matchContentStemmed = new Match('content.stemmed', $keywords);
         $matchExcerpt        = new Match('excerpt', $keywords);
         $matchCatName        = new Match('tags', $keywords);
-        $query->addShould($matchName)->setBoost(1.2);
+        $query->addShould($matchName);
+        $query->addShould($matchNameStemmed);
         $query->addShould($matchExcerpt);
         $query->addShould($matchContent);
+        $query->addShould($matchContentStemmed);
         $query->addShould($matchCatName);
 
         $result = $this->index->search($query);
@@ -59,9 +63,10 @@ class Searcher
         $query = new MultiMatch();
         $query->setFields(
             [
-                'name^2',
-                'title.autocomplete',
+                'name^1.3',
+                'name.stemmed',
                 'content',
+                'content.stemmed',
                 'excerpt',
                 'tags',
             ]
