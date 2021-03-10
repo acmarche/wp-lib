@@ -21,7 +21,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-an
 Il existe trois algorithmes pour le français, mais nous conserverons le light_french utilisé par défaut.
 
 **icu_tokenizer** :
-- normaliser nos textes pour s’assurer que toutes les variantes d’une lettre soient simplifiées ;
+- normaliser nos textes pour s’assurer que toutes les variantes d’une lettre soient simplifiées;
 - remplacer les lettres accentuées par leurs formes sans accents
 bœuf => boeuf et ç => c
 

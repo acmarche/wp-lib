@@ -68,17 +68,20 @@ class ElasticSearcherCommand extends Command
 
     protected function search(string $query)
     {
+        $this->io->section("Search2");
         $searcher = new Searcher();
         $result   = $searcher->search2($query);
         $this->io->writeln("Found: ".$result->count());
+        $this->io->writeln('-------------------');
         foreach ($result->getResults() as $result) {
             $hit    = $result->getHit();
             $source = $hit['_source'];
             $this->io->writeln($source['name']);
         }
-        $this->io->writeln('-------------------');
+        $this->io->section("Search");
         $result   = $searcher->search($query);
         $this->io->writeln("Found: ".$result->count());
+        $this->io->writeln('-------------------');
         foreach ($result->getResults() as $result) {
             $hit    = $result->getHit();
             $source = $hit['_source'];
