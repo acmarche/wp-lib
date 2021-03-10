@@ -4,6 +4,7 @@
 namespace AcMarche\Bottin;
 
 use AcMarche\Common\Router;
+use AcMarche\Theme\Inc\Theme;
 
 class RouterBottin extends Router
 {
@@ -21,12 +22,12 @@ class RouterBottin extends Router
 
     public static function getUrlCategoryBottin(\stdClass $category): string
     {
-        return self::getBaseUrlSite().self::BOTTIN_CATEGORY_URL.$category->slug;
+        return self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_CATEGORY_URL.$category->slug;
     }
 
     public static function getUrlFicheBottin(\stdClass $fiche): string
     {
-        return self::getBaseUrlSite().self::BOTTIN_FICHE_URL.$fiche->slug;
+        return self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_FICHE_URL.$fiche->slug;
     }
 
     public function addRouteBottin()

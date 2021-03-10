@@ -3,6 +3,8 @@
 
 namespace AcMarche\Common;
 
+use AcMarche\Theme\Inc\Theme;
+
 class Router
 {
     /**
@@ -16,7 +18,7 @@ class Router
     {
         if (is_multisite()) {
             if ( ! $blodId) {
-                $blodId = get_current_blog_id();
+                $blodId = Theme::CITOYEN;
             }
 
             return get_blog_details($blodId)->path;

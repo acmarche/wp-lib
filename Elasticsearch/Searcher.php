@@ -38,13 +38,11 @@ class Searcher
         $matchName           = new Match('name', $keywords);
         $matchContent        = new Match('content', $keywords);
         $matchExcerpt        = new Match('excerpt', $keywords);
-        $matchCatName        = new Match('categories.cat_name', $keywords);
-        $matchCatDescription = new Match('categories.cat_description', $keywords);
-        $query->addShould($matchName)->setBoost(3);
+        $matchCatName        = new Match('tags', $keywords);
+        $query->addShould($matchName)->setBoost(1.2);
         $query->addShould($matchExcerpt);
         $query->addShould($matchContent);
         $query->addShould($matchCatName);
-        $query->addShould($matchCatDescription);
 
         $result = $this->index->search($query);
 
@@ -65,8 +63,7 @@ class Searcher
                 'title.autocomplete',
                 'content',
                 'excerpt',
-                'categories.cat_name',
-                'categories.cat_description',
+                'tags',
             ]
         );
         $query->setQuery($keywords);

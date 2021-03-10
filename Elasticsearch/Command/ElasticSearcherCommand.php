@@ -37,8 +37,8 @@ class ElasticSearcherCommand extends Command
             return Command::FAILURE;
         }
 
-        //   $this->search($query);
-        $this->suggest($query);
+           $this->search($query);
+        //$this->suggest($query);
 
         return Command::SUCCESS;
     }
@@ -70,6 +70,14 @@ class ElasticSearcherCommand extends Command
     {
         $searcher = new Searcher();
         $result   = $searcher->search2($query);
+        $this->io->writeln("Found: ".$result->count());
+        foreach ($result->getResults() as $result) {
+            $hit    = $result->getHit();
+            $source = $hit['_source'];
+            $this->io->writeln($source['name']);
+        }
+        $this->io->writeln('-------------------');
+        $result   = $searcher->search($query);
         $this->io->writeln("Found: ".$result->count());
         foreach ($result->getResults() as $result) {
             $hit    = $result->getHit();
