@@ -52,7 +52,7 @@ class ElasticIndexer
         }
     }
 
-    public function indexPages()
+    public function indexPagesSpecial()
     {
         $posts = $this->elasticData->indexPagesSpecial();
         foreach ($posts as $post) {

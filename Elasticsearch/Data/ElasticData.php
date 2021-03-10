@@ -5,6 +5,7 @@ namespace AcMarche\Elasticsearch\Data;
 use AcMarche\Bottin\Bottin;
 use AcMarche\Bottin\Repository\BottinRepository;
 use AcMarche\Bottin\RouterBottin;
+use AcMarche\Common\Mailer;
 use AcMarche\Theme\Inc\Theme;
 use AcMarche\Theme\Lib\WpRepository;
 use BottinCategoryMetaBox;
@@ -67,7 +68,7 @@ class ElasticData
             $date    = $today->format('Y-m-d');
             $content = $description;
 
-            foreach ($this->getPosts( $category->cat_ID) as $post) {
+            foreach ($this->getPosts($category->cat_ID) as $post) {
                 $content .= $post->name;
                 $content .= $post->excerpt;
                 $content .= $post->content;
@@ -108,18 +109,10 @@ class ElasticData
     public function getPosts(int $categoryId = null): array
     {
         $args = array(
-            'numberposts'      => 5000,
-            'offset'           => 0,
-            'category'         => 0,
-            'orderby'          => 'post_title',
-            'order'            => 'ASC',
-            'include'          => array(),
-            'exclude'          => array(),
-            'meta_key'         => '',
-            'meta_value'       => '',
-            'post_type'        => array('post'),
-            'suppress_filters' => true,
-            'post_status'      => 'publish',
+            'numberposts' => 5000,
+            'orderby'     => 'post_title',
+            'order'       => 'ASC',
+            'post_status' => 'publish',
         );
 
         if ($categoryId) {
@@ -130,7 +123,12 @@ class ElasticData
         $datas = [];
 
         foreach ($posts as $post) {
-            $datas[] = $this->createDocumentElastic($post);
+            try {
+                $datas[] = $this->createDocumentElastic($post);
+            } catch (\Exception $exception) {
+                Mailer::sendError("update elastic", "create document ".$exception->getMessage());
+            }
+
         }
 
         return $datas;

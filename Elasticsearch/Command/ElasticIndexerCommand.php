@@ -35,6 +35,7 @@ class ElasticIndexerCommand extends Command
         switch ($action) {
             case 'posts':
                 $elastic->indexAllPosts();
+           //     $elastic->indexPagesSpecial();
                 break;
             case 'categories':
                 $elastic->indexAllCategories();
@@ -44,6 +45,7 @@ class ElasticIndexerCommand extends Command
                 break;
             case 'all':
                 $elastic->indexAllPosts();
+              //  $elastic->indexPagesSpecial();
                 $elastic->indexAllCategories();
                 $elastic->indexAllBottin();
         }
