@@ -128,7 +128,6 @@ class ElasticData
             } catch (\Exception $exception) {
                 Mailer::sendError("update elastic", "create document ".$exception->getMessage());
             }
-
         }
 
         return $datas;
