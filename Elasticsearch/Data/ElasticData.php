@@ -126,7 +126,7 @@ class ElasticData
             try {
                 $datas[] = $this->createDocumentElastic($post);
             } catch (\Exception $exception) {
-                Mailer::sendError("update elastic", "create document ".$exception->getMessage());
+                Mailer::sendError("update elastic", "create document ".$post->post_title.' => '.$exception->getMessage());
             }
         }
 
