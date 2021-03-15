@@ -247,8 +247,9 @@ class ElasticData
      */
     public function getAllCategoriesBottin(): array
     {
-        $categories = $this->bottinRepository->getAllCategories();
-        foreach ($categories as $category) {
+        $data = $this->bottinRepository->getAllCategories();
+        $categories = [];
+        foreach ($data as $category) {
             $document          = new DocumentElastic();
             $document->id      = $category->id;
             $document->name    = $category->name;
@@ -261,6 +262,6 @@ class ElasticData
             $document->content = $this->bottinData->getContentForCategory($fiches);
         }
 
-        return $categories;
+        return $data;
     }
 }
