@@ -262,6 +262,6 @@ class ElasticData
             $document->content = $this->bottinData->getContentForCategory($fiches);
         }
 
-        return $data;
+        return $categories;
     }
 }
