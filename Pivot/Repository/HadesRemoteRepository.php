@@ -74,7 +74,7 @@ class HadesRemoteRepository
         }
 
         $t = $this->cache->get(
-            'hebergements_hades_remote'.time(),
+            'hebergements_hades_remote',
             function () use ($args) {
                 return $this->loadOffres($args);
             }
@@ -95,7 +95,7 @@ class HadesRemoteRepository
         string $id
     ): string {
         $t = $this->cache->get(
-            'offre_hades_remote_'.$id.time(),
+            'offre_hades_remote_'.$id,
             function () use ($id) {
                 return $this->loadOffres(['off_id' => $id]);
             }
