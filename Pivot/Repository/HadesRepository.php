@@ -123,7 +123,9 @@ class HadesRepository
             if (count($errors) > 0) {
                 $stingError = '';
                 foreach ($errors as $error) {
-                    $stingError .= $error->message;
+                    if ($error->level != LIBXML_ERR_WARNING) {
+                        $stingError .= $error->message;
+                    }
                 }
                 Mailer::sendError('xml error hades', 'error: '.$stingError.'contenu: '.$xmlString);
 
