@@ -10,6 +10,7 @@ use AcMarche\Pivot\Entities\OffreInterface;
 use AcMarche\Pivot\Event\EventUtils;
 use AcMarche\Pivot\Hades;
 use DOMDocument;
+use Exception;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class HadesRepository
@@ -26,7 +27,7 @@ class HadesRepository
     public function __construct()
     {
         $this->hadesRemoteRepository = new HadesRemoteRepository();
-        $this->cache = Cache::instance();
+        $this->cache                 = Cache::instance();
     }
 
     public function getOffres(array $types = []): array
@@ -39,9 +40,9 @@ class HadesRepository
         if ($domdoc === null) {
             return [];
         }
-        $data = $domdoc->getElementsByTagName('offres');
+        $data      = $domdoc->getElementsByTagName('offres');
         $offresXml = $data->item(0);
-        $offres = [];
+        $offres    = [];
 
         foreach ($offresXml->childNodes as $offre) {
             if ($offre->nodeType == XML_ELEMENT_NODE) {
@@ -54,6 +55,7 @@ class HadesRepository
 
     /**
      * @param array $types
+     *
      * @return array
      * @throws \Psr\Cache\InvalidArgumentException
      */
@@ -119,13 +121,17 @@ class HadesRepository
 
             libxml_clear_errors();
             if (count($errors) > 0) {
-                Mailer::sendError('xml error', 'contenu: '.$xmlString);
+                $stingError = '';
+                foreach ($errors as $error) {
+                    $stingError .= $error->message;
+                }
+                Mailer::sendError('xml error hades', 'error: '.$stingError.'contenu: '.$xmlString);
 
                 return null;
             }
 
             return $domdoc;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             Mailer::sendError('Erreur avec le xml hades', $exception->getMessage());
 
             return null;
@@ -138,11 +144,11 @@ class HadesRepository
             'offre_hades-'.$id.time(),
             function () use ($id) {
                 $xmlString = $this->hadesRemoteRepository->getOffreById($id);
-                $domdoc = $this->loadXml($xmlString);
+                $domdoc    = $this->loadXml($xmlString);
                 if ($domdoc === null) {
                     return null;
                 }
-                $data = $domdoc->getElementsByTagName('offres');
+                $data   = $domdoc->getElementsByTagName('offres');
                 $offres = $data->item(0);
                 foreach ($offres->childNodes as $offre) {
                     if ($offre->nodeType == XML_ELEMENT_NODE) {
@@ -172,16 +178,16 @@ class HadesRepository
                 foreach ($element->categories as $category2) {
                     if ($category->lib == $category2->lib && $offre->id != $element->id) {
 
-                        $image = null;
+                        $image  = null;
                         $images = $element->medias;
                         if (count($images) > 0) {
                             $image = $images[0]->url;
                         }
 
                         $recommandations[] = [
-                            'title' => $element->titre,
-                            'url' => $element->url,
-                            'image' => $image,
+                            'title'      => $element->titre,
+                            'url'        => $element->url,
+                            'image'      => $image,
                             'categories' => $element->categories,
                         ];
                     }
