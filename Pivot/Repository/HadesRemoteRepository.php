@@ -73,8 +73,9 @@ class HadesRemoteRepository
             $args = ['cat_id' => join(',', $types)];
         }
 
+        $key = join('-', $args);
         $t = $this->cache->get(
-            'hebergements_hades_remote',
+            'hebergements_hades_remote'.$key,
             function () use ($args) {
                 return $this->loadOffres($args);
             }
