@@ -6,6 +6,7 @@ namespace AcMarche\Elasticsearch;
 use Elastica\Exception\InvalidException;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
+use Elastica\Query\MatchQuery;
 use Elastica\Query\MultiMatch;
 use Elastica\Query\SimpleQueryString;
 use Elastica\Suggest as SuggestElastica;
@@ -35,12 +36,12 @@ class Searcher
     public function search2(string $keywords): ResultSet
     {
         $query               = new BoolQuery();
-        $matchName           = new Match('name', $keywords);
-        $matchNameStemmed    = new Match('name.stemmed', $keywords);
-        $matchContent        = new Match('content', $keywords);
-        $matchContentStemmed = new Match('content.stemmed', $keywords);
-        $matchExcerpt        = new Match('excerpt', $keywords);
-        $matchCatName        = new Match('tags', $keywords);
+        $matchName           = new MatchQuery('name', $keywords);
+        $matchNameStemmed    = new MatchQuery('name.stemmed', $keywords);
+        $matchContent        = new MatchQuery('content', $keywords);
+        $matchContentStemmed = new MatchQuery('content.stemmed', $keywords);
+        $matchExcerpt        = new MatchQuery('excerpt', $keywords);
+        $matchCatName        = new MatchQuery('tags', $keywords);
         $query->addShould($matchName);
         $query->addShould($matchNameStemmed);
         $query->addShould($matchExcerpt);
@@ -63,7 +64,7 @@ class Searcher
         $query = new MultiMatch();
         $query->setFields(
             [
-                'name^1.3',
+                'name^1.2',
                 'name.stemmed',
                 'content',
                 'content.stemmed',
