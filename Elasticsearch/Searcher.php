@@ -56,12 +56,13 @@ class Searcher
 
     /**
      * @param string $keywords
+     * @param int $limit
      *
      * @return ResultSet
      */
-    public function search(string $keywords): ResultSet
+    public function search(string $keywords, int $limit = 50): ResultSet
     {
-        $options = ['limit' => 50];
+        $options = ['limit' => $limit];
         $query   = new MultiMatch();
         $query->setFields(
             [
@@ -76,7 +77,7 @@ class Searcher
         $query->setQuery($keywords);
         $query->setType(MultiMatch::TYPE_MOST_FIELDS);
 
-        $result = $this->index->search($query);
+        $result = $this->index->search($query, $options);
 
         return $result;
     }
