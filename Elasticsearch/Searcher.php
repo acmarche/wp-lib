@@ -61,7 +61,8 @@ class Searcher
      */
     public function search(string $keywords): ResultSet
     {
-        $query = new MultiMatch();
+        $options = ['limit' => 50];
+        $query   = new MultiMatch();
         $query->setFields(
             [
                 'name^1.2',
