@@ -42,7 +42,7 @@ interface OffreInterface
 
     function sitePrincipal();
 
-    static function createFromDom(\DOMDocument $offre): ?Offre;
+    static function createFromDom(\DOMElement $offre, \DOMDocument $document): ?Offre;
 
     /**
      * Utilise dans @return Horline|null

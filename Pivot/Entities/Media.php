@@ -22,4 +22,8 @@ class Media
      * @var string
      */
     public $ext;
+    /**
+     * @var Libelle
+     */
+    public $libelle;
 }

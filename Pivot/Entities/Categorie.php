@@ -22,4 +22,8 @@ class Categorie
      * @var Libelle
      */
     public $libelle;
+    /**
+     * @var string
+     */
+    public $tri;
 }

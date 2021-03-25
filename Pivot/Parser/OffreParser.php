@@ -32,20 +32,23 @@ class OffreParser
     /**
      * @var DOMDocument
      */
-    private $domdoc;
+    private $document;
+    /**
+     * @var DOMXPath
+     */
+    private $xpath;
 
-    public function __construct(\DOMNode $offre)
+    public function __construct(DOMDocument $document, DOMElement $offre)
     {
         $this->offre = $offre;
         $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $this->document = $document;
+        $this->xpath = new DOMXPath($document);
     }
 
     public function offreId()
     {
-        //$this->offre->attributes->item(0);//donne attribut id
-        // $idOffreValue = $this->offre->getAttributeNode('id')->nodeValue;
         return $this->getAttribute($this->offre, 'id');
-        //return $this->offre->getAttribute('id');
     }
 
     public function getAttributs(string $name): ?string
@@ -61,11 +64,10 @@ class OffreParser
         return null;
     }
 
-    public function getTitre(DOMDocument $document): Libelle
+    public function getTitre(DOMElement $offreDom): Libelle
     {
+        $titles = $this->xpath->query("titre", $offreDom);
         $libelle = new Libelle();
-        $xpath = new \DOMXPath($document);
-        $titles = $xpath->query("/root/offres/offre/titre");
         foreach ($titles as $title) {
             $language = $title->getAttributeNode('lg');
             $libelle->add($language->nodeValue, $title->nodeValue);
@@ -196,7 +198,38 @@ class OffreParser
         return $data;
     }
 
-    public function medias(): array
+    /**
+     * @param DOMElement $offreDom
+     * @return Media[]
+     */
+    public function medias(DOMElement $offreDom): array
+    {
+        $data = [];
+        $categories = $this->xpath->query("medias", $offreDom);
+        foreach ($categories->item(0)->childNodes as $categoryDom) {
+            if ($categoryDom instanceof \DOMElement) {
+                $media = new Media();
+                $media->ext = $categoryDom->getAttributeNode('ext')->nodeValue;
+                $media->libelle = $this->getTitre($categoryDom);
+                foreach ($categoryDom->childNodes as $cat) {
+                    if ($cat->nodeType == XML_ELEMENT_NODE) {
+                        $this->propertyAccessor->setValue($media, $cat->nodeName, $cat->nodeValue);
+                    }
+                }
+                $data[] = $media;
+            }
+        }
+        array_map(
+            function ($media) {
+                $media->url = preg_replace("#http:#", "https:", $media->url);
+            },
+            $data
+        );
+
+        return $data;
+    }
+
+    public function mediasOld(): array
     {
         $data = [];
         $object = $this->offre->getElementsByTagName('medias');
@@ -230,6 +263,22 @@ class OffreParser
         return $data;
     }
 
+    public function getLibelle($domElement): Libelle
+    {
+        $libelle = new Libelle();
+        $labels = $this->xpath->query("lib", $domElement);
+        foreach ($labels as $label) {
+            $language = $label->getAttributeNode('lg');
+            if ($language) {
+                $libelle->add($language->nodeValue, $label->nodeValue);
+            } else {
+                $libelle->add('default', $label->nodeValue);
+            }
+        }
+
+        return $libelle;
+    }
+
     public function selections(): array
     {
         $data = [];
@@ -256,7 +305,38 @@ class OffreParser
         return $data;
     }
 
-    public function categories(): array
+    /**
+     * @param DOMElement $offreDom
+     * @return Categorie[]
+     */
+    public function categories(DOMElement $offreDom): array
+    {
+        $data = [];
+        $categories = $this->xpath->query("categories", $offreDom);
+        foreach ($categories->item(0)->childNodes as $categoryDom) {
+            if ($categoryDom instanceof \DOMElement) {
+                $category = new Categorie();
+                $libelle = new Libelle();
+                $category->id = $categoryDom->getAttributeNode('id')->nodeValue;
+                $category->tri = $categoryDom->getAttributeNode('tri')->nodeValue;
+                $labels = $this->xpath->query("lib", $categoryDom);
+                foreach ($labels as $label) {
+                    $language = $label->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $label->nodeValue);
+                    } else {
+                        $libelle->add('default', $label->nodeValue);
+                    }
+                }
+                $category->libelle = $libelle;
+                $data[] = $category;
+            }
+        }
+
+        return $data;
+    }
+
+    public function categoriesOld(): array
     {
         $data = [];
         $categories = $this->offre->getElementsByTagName('categories');

@@ -46,7 +46,7 @@ class HadesRepository
 
         foreach ($offresXml->childNodes as $offre) {
             if ($offre->nodeType == XML_ELEMENT_NODE) {
-                $offres[] = Offre::createFromDom($domdoc);
+                $offres[] = Offre::createFromDom($offre,$domdoc);
             }
         }
 

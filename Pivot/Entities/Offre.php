@@ -133,19 +133,23 @@ class Offre implements OffreInterface
         return null;
     }
 
-    public static function createFromDom(\DOMDocument $document): ?Offre
+    public static function createFromDom(\DOMElement $offreDom, \DOMDocument $document): ?Offre
     {
         $xpath = new \DOMXPath($document);
         $offres = $xpath->query("/root/offres/offre");
-        $offreDom = $offres->item(0);
-        $parser = new OffreParser($offreDom);
+        $parser = new OffreParser($document, $offreDom);
         $offre = new self();
         $offre->id = $parser->offreId();
 
         $datas = $xpath->query("/root/offres/offre/modif_date");
-      //  dump($datas->item(0)->nodeValue);
+        //  dump($datas->item(0)->nodeValue);
 
-        $offre->libelle = $parser->getTitre($document);
+        $offre->libelle = $parser->getTitre($offreDom);
+        $offre->categories = $parser->categories($offreDom);
+        $offre->medias = $parser->medias($offreDom);
+        dump($offre);
+
+        return $offre;
         $offre->publiable = $parser->getAttributs('publiable');
         $offre->reference = $parser->getAttributs('off_id_ref');
         $offre->modif_date = $parser->getAttributs('modif_date');
@@ -155,7 +159,6 @@ class Offre implements OffreInterface
         $offre->descriptions = $parser->descriptions();
         $offre->contacts = $parser->contacts();
         $offre->medias = $parser->medias();
-        $offre->categories = $parser->categories();
         $offre->selections = $parser->selections();
         $offre->datesR = $offre->dates();
         $offre->image = $offre->firstImage();
