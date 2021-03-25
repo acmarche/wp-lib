@@ -168,7 +168,7 @@ class OffreParser
      * @param DOMElement $offreDom
      * @return Description[]
      */
-    public function descriptions(DOMElement $offreDom):array
+    public function descriptions(DOMElement $offreDom): array
     {
         $data = [];
         $descriptions = $this->xpath->query("descriptions", $offreDom);
@@ -324,7 +324,51 @@ class OffreParser
         return $data;
     }
 
-    public function horaires(): array
+    public function horaires(DOMElement $offreDom): array
+    {
+        $data = [];
+        $horaires = $this->xpath->query("horaires", $offreDom);
+        $horaires = $horaires->item(0);//pour par prendre elements parents
+        if (!$horaires instanceof DOMElement) {
+            return [];
+        }
+        $year = $horaires->getAttributeNode('an')->value;
+
+        foreach ($horaires->childNodes as $horaireDom) {
+            if ($horaireDom instanceof \DOMElement) {
+                $horaire = new Horaire();
+                $horaire->year = $year;
+                $labels = $this->xpath->query("lib", $horaireDom);
+                $libelle = new Libelle();
+                foreach ($labels as $label) {
+                    $language = $label->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $label->nodeValue);
+                    } else {
+                        $libelle->add('default', $label->nodeValue);
+                    }
+                }
+                $horaire->libelle = $libelle;
+                $textes = $this->xpath->query("texte", $horaireDom);
+                $libelle = new Libelle();
+                foreach ($textes as $texte) {
+                    $language = $texte->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $texte->nodeValue);
+                    } else {
+                        $libelle->add('default', $texte->nodeValue);
+                    }
+                }
+                $horaire->texte = $libelle;
+                $horaire->horlines = $this->extractHoraires($horaireDom);
+                $data[] = $horaire;
+            }
+        }
+
+        return $data;
+    }
+
+    public function horairesOld(): array
     {
         $data = [];
         $horaires = $this->offre->getElementsByTagName('horaires');
@@ -366,19 +410,27 @@ class OffreParser
         return $data;
     }
 
-    private function extractHoraires(DOMElement $domElement): Horline
+    /**
+     * @param DOMElement $horaireDom
+     * @return Horline[]
+     */
+    private function extractHoraires(DOMElement $horaireDom): array
     {
-        $horline = new Horline();
-        $horline->id = $this->getAttribute($domElement, 'id');
-
-        foreach ($domElement->childNodes as $node) {
-            if ($node->nodeType == XML_ELEMENT_NODE) {
-                $this->propertyAccessor->setValue($horline, $node->nodeName, $node->nodeValue);
+        $data = [];
+        $horlines = $this->xpath->query("horline", $horaireDom);
+        foreach ($horlines as $horlineDom) {
+            $horline = new Horline();
+            $horline->id = $this->getAttribute($horlineDom, 'id');
+            foreach ($horlineDom->childNodes as $node) {
+                if ($node->nodeType == XML_ELEMENT_NODE) {
+                    $this->propertyAccessor->setValue($horline, $node->nodeName, $node->nodeValue);
+                }
             }
+            list($horline->day, $horline->month, $horline->year) = explode("/", $horline->date_deb);
+            $data[] = $horline;
         }
-        list($horline->day, $horline->month, $horline->year) = explode("/", $horline->date_deb);
 
-        return $horline;
+        return $data;
     }
 
     private function getAttribute(?DOMElement $element, string $name): string
