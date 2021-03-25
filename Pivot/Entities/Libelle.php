@@ -32,6 +32,11 @@ class Libelle
         $this->languages[$language] = $value;
     }
 
+    public function get(string $language): ?string
+    {
+        return isset($this->languages[$language]) ? $this->languages[$language] : null;
+    }
+
     public function libelle(string $language)
     {
         return isset($languages[$language]) ? $this->languages[$language] : $this->languages[self::DEFAULT];

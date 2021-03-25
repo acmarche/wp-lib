@@ -12,10 +12,6 @@ class Offre implements OffreInterface
      */
     public $id;
     /**
-     * @var string
-     */
-    public $titre;
-    /**
      * @var Libelle
      */
     public $libelle;
@@ -68,9 +64,17 @@ class Offre implements OffreInterface
         $this->horaires = [];
     }
 
-    public function getTitre()
+    public function getTitre(?string $language = 'fr'): string
     {
-        return 123;
+        if ($this->libelle->get($language) && $this->libelle->get($language)) {
+            return $this->libelle->get($language);
+        }
+        //try in french
+        if ($titre = $this->getTitre()) {
+            return $titre;
+        }
+
+        return 'titre found';
     }
 
     public function contactPrincipal(): ?Contact
@@ -152,7 +156,8 @@ class Offre implements OffreInterface
         $offre->descriptions = $parser->descriptions($offreDom);
         $offre->horaires = $parser->horaires($offreDom);
         $offre->datesR = $offre->dates();
-        dump($offre);
+
+        //dump($offre);
 
         return $offre;
         $offre->publiable = $parser->getAttributs('publiable');
