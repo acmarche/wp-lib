@@ -147,13 +147,13 @@ class Offre implements OffreInterface
         $offre->libelle = $parser->getTitre($offreDom);
         $offre->categories = $parser->categories($offreDom);
         $offre->medias = $parser->medias($offreDom);
+        $offre->geocode = $parser->geocodes($offreDom);
         dump($offre);
 
         return $offre;
         $offre->publiable = $parser->getAttributs('publiable');
         $offre->reference = $parser->getAttributs('off_id_ref');
         $offre->modif_date = $parser->getAttributs('modif_date');
-        $offre->geocode = $parser->geocodes();
         $offre->localisation = $parser->localisation();
         $offre->horaires = $parser->horaires();
         $offre->descriptions = $parser->descriptions();

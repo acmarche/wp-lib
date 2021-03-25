@@ -76,15 +76,18 @@ class OffreParser
         return $libelle;
     }
 
-    public function geocodes()
+    /**
+     * @param DOMElement $offreDom
+     * @return Geocode
+     */
+    public function geocodes(DOMElement $offreDom): Geocode
     {
         $coordinates = new Geocode();
-        $geocodes = $this->offre->getElementsByTagName('geocodes');
+        $geocodes = $this->xpath->query("geocodes", $offreDom);
         $geocode = $geocodes->item(0);
         if (!$geocode instanceof DOMElement) {
-            return [];
+            return $coordinates;
         }
-
         foreach ($geocode->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 foreach ($child->childNodes as $cat) {
@@ -229,56 +232,6 @@ class OffreParser
         return $data;
     }
 
-    public function mediasOld(): array
-    {
-        $data = [];
-        $object = $this->offre->getElementsByTagName('medias');
-        $medias = $object->item(0);//pour par prendre elements parents
-        if (!$medias instanceof DOMElement) {
-            return [];
-        }
-        foreach ($medias->childNodes as $child) {
-            if ($child->nodeType == XML_ELEMENT_NODE) {
-                $media = new Media();
-                $media->ext = $child->getAttributeNode('ext')->nodeValue;
-                foreach ($child->childNodes as $cat) {
-                    if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $this->propertyAccessor->setValue($media, $cat->nodeName, $cat->nodeValue);
-                        $lg = $this->getAttribute($cat, 'lg');
-                        if ($lg == 'fr') {
-
-                        }
-                    }
-                }
-                $data[] = $media;
-            }
-        }
-        array_map(
-            function ($media) {
-                $media->url = preg_replace("#http:#", "https:", $media->url);
-            },
-            $data
-        );
-
-        return $data;
-    }
-
-    public function getLibelle($domElement): Libelle
-    {
-        $libelle = new Libelle();
-        $labels = $this->xpath->query("lib", $domElement);
-        foreach ($labels as $label) {
-            $language = $label->getAttributeNode('lg');
-            if ($language) {
-                $libelle->add($language->nodeValue, $label->nodeValue);
-            } else {
-                $libelle->add('default', $label->nodeValue);
-            }
-        }
-
-        return $libelle;
-    }
-
     public function selections(): array
     {
         $data = [];
@@ -332,34 +285,6 @@ class OffreParser
                 $data[] = $category;
             }
         }
-
-        return $data;
-    }
-
-    public function categoriesOld(): array
-    {
-        $data = [];
-        $categories = $this->offre->getElementsByTagName('categories');
-        $category = $categories->item(0);//pour par prendre elements parents
-        if (!$category instanceof DOMElement) {
-            return [];
-        }
-        $t = new Categorie();
-        foreach ($category->childNodes as $child) {
-            if ($child->nodeType == XML_ELEMENT_NODE) {
-                $catId = $child->getAttributeNode('id');
-                foreach ($child->childNodes as $cat) {
-                    if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $this->getAttribute($cat, 'lg');
-                        if ($lg == 'fr') {
-                            $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
-                            //   $t[$catId->nodeValue] = $cat->nodeValue;
-                        }
-                    }
-                }
-            }
-        }
-        $data[] = $t;
 
         return $data;
     }
