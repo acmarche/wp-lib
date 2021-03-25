@@ -101,18 +101,17 @@ class OffreParser
         return $coordinates;
     }
 
-    public function localisation()
+    public function localisation(DOMElement $offreDom): Localite
     {
         $data = new Localite();
-        $localisations = $this->offre->getElementsByTagName('localisation');
+        $localisations = $offreDom->getElementsByTagName('localisation');
         $localisation = $localisations->item(0);
         if (!$localisation instanceof DOMElement) {
-            return [];
+            return $data;
         }
 
         foreach ($localisation->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                //$catId      = $child->getAttributeNode('id');//134
                 $data->id = $child->getAttributeNode('id')->nodeValue;
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
@@ -165,35 +164,43 @@ class OffreParser
         return $data;
     }
 
-    public function descriptions()
+    /**
+     * @param DOMElement $offreDom
+     * @return Description[]
+     */
+    public function descriptions(DOMElement $offreDom):array
     {
         $data = [];
-        $descriptions = $this->offre->getElementsByTagName('descriptions');
-        $descriptions = $descriptions->item(0);//pour par prendre elements parents
-        if (!$descriptions instanceof DOMElement) {
-            return [];
-        }
-        foreach ($descriptions->childNodes as $child) {
-            $description = new Description();
-            $libelle = new Libelle();
-
-            if ($child->nodeType == XML_ELEMENT_NODE) {
-                if ($child->getAttributeNode('dat')) {
-                    $description->dat = $child->getAttributeNode('dat')->nodeValue;
-                }
-                if ($child->getAttributeNode('lot')) {
-                    $description->lot = $child->getAttributeNode('lot')->nodeValue;
-                }
-                if ($child->getAttributeNode('typ')) {
-                    $description->typ = $child->getAttributeNode('typ')->nodeValue;
-                }
-                foreach ($child->childNodes as $cat) {
-                    if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $this->getAttribute($cat, 'lg');
-                        $libelle->add($lg, $cat->nodeValue);
+        $descriptions = $this->xpath->query("descriptions", $offreDom);
+        foreach ($descriptions->item(0)->childNodes as $descriptionDom) {
+            if ($descriptionDom instanceof \DOMElement) {
+                $description = new Description();
+                $libelle = new Libelle();
+                $description->dat = $descriptionDom->getAttributeNode('dat')->nodeValue;
+                $description->lot = $descriptionDom->getAttributeNode('lot')->nodeValue;
+                $description->tri = $descriptionDom->getAttributeNode('tri')->nodeValue;
+                $description->typ = $descriptionDom->getAttributeNode('typ')->nodeValue;
+                $libs = $this->xpath->query("lib", $descriptionDom);
+                foreach ($libs as $lib) {
+                    $language = $lib->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $lib->nodeValue);
+                    } else {
+                        $libelle->add('default', $lib->nodeValue);
                     }
                 }
                 $description->libelle = $libelle;
+                $libelle = new Libelle();
+                $textes = $this->xpath->query("texte", $descriptionDom);
+                foreach ($textes as $texte) {
+                    $language = $texte->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $lib->nodeValue);
+                    } else {
+                        $libelle->add('default', $lib->nodeValue);
+                    }
+                }
+                $description->texte = $libelle;
                 $data[] = $description;
             }
         }

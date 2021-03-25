@@ -19,15 +19,15 @@ class Description
      */
     public $typ;
     /**
-     * @var string
-     */
-    public $lib;
-    /**
-     * @var string
+     * @var Libelle
      */
     public $texte;
     /**
      * @var Libelle
      */
     public $libelle;
+    /**
+     * @var string
+     */
+    public $tri;
 }
