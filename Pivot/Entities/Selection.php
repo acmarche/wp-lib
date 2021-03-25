@@ -19,6 +19,10 @@ class Selection
      */
     public $lib;
     /**
+     * @var Libelle
+     */
+    public $libelle;
+    /**
      * @var string
      */
     public $value;

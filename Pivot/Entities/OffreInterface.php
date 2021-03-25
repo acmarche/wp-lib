@@ -8,6 +8,8 @@ namespace AcMarche\Pivot\Entities;
  *
  * @property string $titre
  *
+ * @property Libelle $libelle
+ *
  * @property string $reference
  *
  * @property Geocode $geocode
@@ -40,7 +42,7 @@ interface OffreInterface
 
     function sitePrincipal();
 
-    static function createFromDom(\DOMElement $offre): ?Offre;
+    static function createFromDom(\DOMDocument $offre): ?Offre;
 
     /**
      * Utilise dans @return Horline|null

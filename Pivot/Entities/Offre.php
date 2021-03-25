@@ -16,6 +16,10 @@ class Offre implements OffreInterface
      */
     public $titre;
     /**
+     * @var Libelle
+     */
+    public $libelle;
+    /**
      * @var string
      */
     public $reference;
@@ -62,6 +66,11 @@ class Offre implements OffreInterface
         $this->medias = [];
         $this->contacts = [];
         $this->horaires = [];
+    }
+
+    public function getTitre()
+    {
+        return 123;
     }
 
     public function contactPrincipal(): ?Contact
@@ -124,14 +133,21 @@ class Offre implements OffreInterface
         return null;
     }
 
-    public static function createFromDom(\DOMElement $offre): ?Offre
+    public static function createFromDom(\DOMDocument $document): ?Offre
     {
-        $parser = new OffreParser($offre);
+        $xpath = new \DOMXPath($document);
+        $offres = $xpath->query("/root/offres/offre");
+        $offreDom = $offres->item(0);
+        $parser = new OffreParser($offreDom);
         $offre = new self();
         $offre->id = $parser->offreId();
-        $offre->titre = $parser->getAttributs('titre');
-        $offre->reference = $parser->getAttributs('off_id_ref');
+
+        $datas = $xpath->query("/root/offres/offre/modif_date");
+      //  dump($datas->item(0)->nodeValue);
+
+        $offre->libelle = $parser->getTitre($document);
         $offre->publiable = $parser->getAttributs('publiable');
+        $offre->reference = $parser->getAttributs('off_id_ref');
         $offre->modif_date = $parser->getAttributs('modif_date');
         $offre->geocode = $parser->geocodes();
         $offre->localisation = $parser->localisation();
@@ -146,6 +162,7 @@ class Offre implements OffreInterface
 
         return $offre;
     }
+
     /**
      * Utilise dans @return Horline|null
      * @see EventUtils
@@ -163,7 +180,7 @@ class Offre implements OffreInterface
 
     /**
      * Raccourcis util a react
-         *
+     *
      * @return Horline[]
      */
     public function dates(): array
@@ -178,9 +195,9 @@ class Offre implements OffreInterface
         return $dates;
     }
 
-     function firstImage(): ?string
+    function firstImage(): ?string
     {
-       return count($this->medias) > 0 ? $this->medias[0]->url : null;
+        return count($this->medias) > 0 ? $this->medias[0]->url : null;
     }
 
 }

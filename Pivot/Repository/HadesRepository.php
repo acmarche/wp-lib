@@ -27,7 +27,7 @@ class HadesRepository
     public function __construct()
     {
         $this->hadesRemoteRepository = new HadesRemoteRepository();
-        $this->cache                 = Cache::instance();
+        $this->cache = Cache::instance();
     }
 
     public function getOffres(array $types = []): array
@@ -40,13 +40,13 @@ class HadesRepository
         if ($domdoc === null) {
             return [];
         }
-        $data      = $domdoc->getElementsByTagName('offres');
+        $data = $domdoc->getElementsByTagName('offres');
         $offresXml = $data->item(0);
-        $offres    = [];
+        $offres = [];
 
         foreach ($offresXml->childNodes as $offre) {
             if ($offre->nodeType == XML_ELEMENT_NODE) {
-                $offres[] = Offre::createFromDom($offre);
+                $offres[] = Offre::createFromDom($domdoc);
             }
         }
 
@@ -111,7 +111,7 @@ class HadesRepository
      *
      * @return DOMDocument|null
      */
-    private function loadXml(string $xmlString): ?DOMDocument
+    public function loadXml(string $xmlString): ?DOMDocument
     {
         try {
             libxml_use_internal_errors(true);
@@ -146,19 +146,12 @@ class HadesRepository
             'offre_hades-'.$id.time(),
             function () use ($id) {
                 $xmlString = $this->hadesRemoteRepository->getOffreById($id);
-                $domdoc    = $this->loadXml($xmlString);
+                $domdoc = $this->loadXml($xmlString);
                 if ($domdoc === null) {
                     return null;
                 }
-                $data   = $domdoc->getElementsByTagName('offres');
-                $offres = $data->item(0);
-                foreach ($offres->childNodes as $offre) {
-                    if ($offre->nodeType == XML_ELEMENT_NODE) {
-                        return Offre::createFromDom($offre);
-                    }
-                }
 
-                return null;
+                return Offre::createFromDom($domdoc);
             }
         );
     }
@@ -175,21 +168,18 @@ class HadesRepository
         $recommandations = [];
 
         foreach ($offre->categories as $category) {
-
             foreach ($offres as $element) {
                 foreach ($element->categories as $category2) {
                     if ($category->lib == $category2->lib && $offre->id != $element->id) {
-
-                        $image  = null;
+                        $image = null;
                         $images = $element->medias;
                         if (count($images) > 0) {
                             $image = $images[0]->url;
                         }
-
                         $recommandations[] = [
-                            'title'      => $element->titre,
-                            'url'        => $element->url,
-                            'image'      => $image,
+                            'title' => $element->titre,
+                            'url' => $element->url,
+                            'image' => $image,
                             'categories' => $element->categories,
                         ];
                     }

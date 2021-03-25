@@ -15,6 +15,10 @@ class Horaire
      */
     public $lib;
     /**
+     * @var Libelle
+     */
+    public $libelle;
+    /**
      * @var string
      */
     public $texte;

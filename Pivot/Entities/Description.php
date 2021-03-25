@@ -26,4 +26,8 @@ class Description
      * @var string
      */
     public $texte;
+    /**
+     * @var Libelle
+     */
+    public $libelle;
 }

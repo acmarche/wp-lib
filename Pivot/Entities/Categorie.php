@@ -18,4 +18,8 @@ class Categorie
      * @var string
      */
     public $value;
+    /**
+     * @var Libelle
+     */
+    public $libelle;
 }

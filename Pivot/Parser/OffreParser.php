@@ -10,10 +10,13 @@ use AcMarche\Pivot\Entities\Description;
 use AcMarche\Pivot\Entities\Geocode;
 use AcMarche\Pivot\Entities\Horaire;
 use AcMarche\Pivot\Entities\Horline;
+use AcMarche\Pivot\Entities\Libelle;
 use AcMarche\Pivot\Entities\Localite;
 use AcMarche\Pivot\Entities\Media;
 use AcMarche\Pivot\Entities\Selection;
+use DOMDocument;
 use DOMElement;
+use DOMXPath;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class OffreParser
@@ -26,8 +29,12 @@ class OffreParser
      * @var \Symfony\Component\PropertyAccess\PropertyAccessor
      */
     public $propertyAccessor;
+    /**
+     * @var DOMDocument
+     */
+    private $domdoc;
 
-    public function __construct(DOMElement $offre)
+    public function __construct(\DOMNode $offre)
     {
         $this->offre = $offre;
         $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
@@ -52,6 +59,19 @@ class OffreParser
         }
 
         return null;
+    }
+
+    public function getTitre(DOMDocument $document): Libelle
+    {
+        $libelle = new Libelle();
+        $xpath = new \DOMXPath($document);
+        $titles = $xpath->query("/root/offres/offre/titre");
+        foreach ($titles as $title) {
+            $language = $title->getAttributeNode('lg');
+            $libelle->add($language->nodeValue, $title->nodeValue);
+        }
+
+        return $libelle;
     }
 
     public function geocodes()
@@ -114,6 +134,7 @@ class OffreParser
         foreach ($contacts->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 $contact = new Contact();
+                $libelle = new Libelle();
                 $lgs = [];
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
@@ -149,6 +170,8 @@ class OffreParser
         }
         foreach ($descriptions->childNodes as $child) {
             $description = new Description();
+            $libelle = new Libelle();
+
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 if ($child->getAttributeNode('dat')) {
                     $description->dat = $child->getAttributeNode('dat')->nodeValue;
@@ -162,11 +185,10 @@ class OffreParser
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
                         $lg = $this->getAttribute($cat, 'lg');
-                        if ($lg == 'fr') {
-                            $this->propertyAccessor->setValue($description, $cat->nodeName, $cat->nodeValue);
-                        }
+                        $libelle->add($lg, $cat->nodeValue);
                     }
                 }
+                $description->libelle = $libelle;
                 $data[] = $description;
             }
         }

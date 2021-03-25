@@ -91,10 +91,8 @@ class HadesRemoteRepository
      * @throws \Psr\Cache\InvalidArgumentException
      * @throws \Exception
      */
-    public
-    function getOffreById(
-        string $id
-    ): string {
+    public function getOffreById(string $id): string
+    {
         $t = $this->cache->get(
             'offre_hades_remote_'.$id,
             function () use ($id) {
