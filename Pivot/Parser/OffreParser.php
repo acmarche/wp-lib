@@ -189,7 +189,7 @@ class OffreParser
                         $libelle->add('default', $lib->nodeValue);
                     }
                 }
-                $description->libelle = $libelle;
+                $description->lib = $libelle;
                 $libelle = new Libelle();
                 $textes = $this->xpath->query("texte", $descriptionDom);
                 foreach ($textes as $texte) {
@@ -250,15 +250,15 @@ class OffreParser
 
         foreach ($selections->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
-                $t = new Selection();
-                $t->id = $child->getAttributeNode('id')->nodeValue;
-                $t->cl = $child->getAttributeNode('cl')->nodeValue;
+                $selection = new Selection();
+                $selection->id = $child->getAttributeNode('id')->nodeValue;
+                $selection->cl = $child->getAttributeNode('cl')->nodeValue;
                 foreach ($child->childNodes as $cat) {
                     if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        $this->propertyAccessor->setValue($t, $cat->nodeName, $cat->nodeValue);
+                        $this->propertyAccessor->setValue($selection, $cat->nodeName, $cat->nodeValue);
                     }
                 }
-                $data[] = $t;
+                $data[] = $selection;
             }
         }
 
@@ -296,28 +296,28 @@ class OffreParser
         return $data;
     }
 
-    private function extractCommunications(DOMElement $communication): array
+    private function extractCommunications(DOMElement $communicationDom): array
     {
         $data = [];
-        foreach ($communication->childNodes as $childNode) {
-            $t = new Communication();
+        foreach ($communicationDom->childNodes as $childNode) {
+            $communication = new Communication();
             if ($childNode->nodeType == XML_ELEMENT_NODE) {
                 $type = $this->getAttribute($childNode, 'typ');
-                $t->type = $type;
+                $communication->type = $type;
                 foreach ($childNode->childNodes as $node) {
                     if ($node->nodeType == XML_ELEMENT_NODE) {
                         $lg = $this->getAttribute($node, 'lg');
                         if ($lg == 'fr') {
-                            $t->name = $node->nodeValue;
+                            $communication->name = $node->nodeValue;
                         }
                         if ($node->nodeName == 'val') {
-                            $t->value = $node->nodeValue;
+                            $communication->value = $node->nodeValue;
                         }
                     }
                 }
             }
-            if ($t->value != '') {
-                $data[] = $t;
+            if ($communication->value != '') {
+                $data[] = $communication;
             }
         }
 
@@ -361,48 +361,6 @@ class OffreParser
                 }
                 $horaire->texte = $libelle;
                 $horaire->horlines = $this->extractHoraires($horaireDom);
-                $data[] = $horaire;
-            }
-        }
-
-        return $data;
-    }
-
-    public function horairesOld(): array
-    {
-        $data = [];
-        $horaires = $this->offre->getElementsByTagName('horaires');
-        $horaires = $horaires->item(0);//pour par prendre elements parents
-
-        if (!$horaires instanceof DOMElement) {
-            return [];
-        }
-
-        $year = $horaires->getAttributeNode('an')->value;
-        foreach ($horaires->childNodes as $child) {
-            $horaire = new Horaire();
-            $libs = [];
-            $textes = [];
-            $horaire->year = $year;
-            if ($child->nodeType == XML_ELEMENT_NODE) {
-                foreach ($child->childNodes as $cat) {
-                    if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        if ($cat->nodeName == 'lib') {
-                            $libs[$this->getAttribute($cat, 'lg')] = $cat->nodeValue;
-                        }
-                        if ($cat->nodeName == 'texte') {
-                            $textes[$this->getAttribute($cat, 'lg')] = $cat->nodeValue;
-                        }
-                        if ($cat->nodeName == 'horline') {
-                            $horaire->horlines[] = $this->extractHoraires($cat);
-                        } else {
-                            $lg = $this->getAttribute($cat, 'lg');
-                            if ($lg == 'fr') {
-                                $this->propertyAccessor->setValue($horaire, $cat->nodeName, $cat->nodeValue);
-                            }
-                        }
-                    }
-                }
                 $data[] = $horaire;
             }
         }
