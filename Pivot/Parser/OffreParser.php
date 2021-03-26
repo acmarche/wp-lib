@@ -132,6 +132,9 @@ class OffreParser
     {
         $data = [];
         $contacts = $this->xpath->query("contacts", $offreDom);
+        if ($contacts->length == 0) {
+            return [];
+        }
         foreach ($contacts->item(0)->childNodes as $contactDom) {
             if ($contactDom->nodeType == XML_ELEMENT_NODE) {
                 $contact = new Contact();
@@ -155,7 +158,6 @@ class OffreParser
                         }
                     }
                 }
-                dump($contact);
                 $data[] = $contact;
             }
 
@@ -175,7 +177,6 @@ class OffreParser
             return [];
         }
 
-        // dump($description->tagName);//
         foreach ($contacts->childNodes as $child) {
             if ($child->nodeType == XML_ELEMENT_NODE) {
                 $contact = new Contact();
