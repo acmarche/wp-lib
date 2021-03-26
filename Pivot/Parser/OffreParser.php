@@ -167,45 +167,6 @@ class OffreParser
 
     }
 
-    public function contactsd()
-    {
-        $data = [];
-        $contacts = $this->offre->getElementsByTagName('contacts');
-
-        $contacts = $contacts->item(0);//pour par prendre elements parents
-        if (!$contacts instanceof DOMElement) {
-            return [];
-        }
-
-        foreach ($contacts->childNodes as $child) {
-            if ($child->nodeType == XML_ELEMENT_NODE) {
-                $contact = new Contact();
-                $libelle = new Libelle();
-                $lgs = [];
-                foreach ($child->childNodes as $cat) {
-                    if ($cat->nodeType == XML_ELEMENT_NODE) {
-                        if ($cat->nodeName == 'communications') {
-                            $contact->communications = $this->extractCommunications($cat);
-                        } else {
-                            if ($cat->nodeName === 'lib') {
-                                if ($lg = $cat->getAttributeNode('lg')) {
-                                    $lgs[$cat->getAttributeNode('lg')->nodeValue] = $cat->nodeValue;
-                                } else {
-                                    $lgs['main'] = $cat->nodeValue;
-                                }
-                            }
-                            $this->propertyAccessor->setValue($contact, $cat->nodeName, $cat->nodeValue);
-                        }
-                    }
-                }
-                $contact->lgs = $lgs;
-                $data[] = $contact;
-            }
-        }
-
-        return $data;
-    }
-
     /**
      * @param DOMElement $offreDom
      * @return Description[]
@@ -333,7 +294,7 @@ class OffreParser
                         $libelle->add('default', $label->nodeValue);
                     }
                 }
-                $category->libelle = $libelle;
+                $category->lib = $libelle;
                 $data[] = $category;
             }
         }
@@ -402,7 +363,7 @@ class OffreParser
                         $libelle->add('default', $label->nodeValue);
                     }
                 }
-                $horaire->libelle = $libelle;
+                $horaire->lib = $libelle;
                 $textes = $this->xpath->query("texte", $horaireDom);
                 $libelle = new Libelle();
                 foreach ($textes as $texte) {

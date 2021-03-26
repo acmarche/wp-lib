@@ -11,7 +11,7 @@ class Categorie
      */
     public $id;
     /**
-     * @var string
+     * @var Libelle
      */
     public $lib;
     /**
@@ -19,11 +19,20 @@ class Categorie
      */
     public $value;
     /**
-     * @var Libelle
-     */
-    public $libelle;
-    /**
      * @var string
      */
     public $tri;
+
+    public function getLib(?string $language = 'fr'): string
+    {
+        if ($this->lib->get($language) && $this->lib->get($language)) {
+            return $this->lib->get($language);
+        }
+        //try in french
+        if ($titre = $this->getLib()) {
+            return $titre;
+        }
+
+        return '';
+    }
 }

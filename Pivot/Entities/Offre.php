@@ -67,6 +67,10 @@ class Offre implements OffreInterface
      * @var string|null
      */
     public $publiable;
+    /**
+     * @var string|null
+     */
+    public $image;
 
     public function __construct()
     {
@@ -74,6 +78,29 @@ class Offre implements OffreInterface
         $this->medias = [];
         $this->contacts = [];
         $this->horaires = [];
+    }
+
+    public static function createFromDom(\DOMElement $offreDom, \DOMDocument $document): ?Offre
+    {
+        $parser = new OffreParser($document, $offreDom);
+        $offre = new self();
+        $offre->id = $parser->offreId();
+        $offre->libelle = $parser->getTitre($offreDom);
+        $offre->publiable = $parser->getAttributs('publiable');
+        $offre->reference = $parser->getAttributs('off_id_ref');
+        $offre->modif_date = $parser->getAttributs('modif_date');
+        $offre->categories = $parser->categories($offreDom);
+        $offre->medias = $parser->medias($offreDom);
+        $offre->geocode = $parser->geocodes($offreDom);
+        $offre->localisation = $parser->localisation($offreDom);
+        $offre->descriptions = $parser->descriptions($offreDom);
+        $offre->selections = $parser->selections();
+        $offre->contacts = $parser->contacts($offreDom);
+        $offre->horaires = $parser->horaires($offreDom);
+        $offre->datesR = $offre->dates();
+        $offre->image = $offre->firstImage();
+
+        return $offre;
     }
 
     public function getTitre(?string $language = 'fr'): string
@@ -147,34 +174,6 @@ class Offre implements OffreInterface
         }
 
         return null;
-    }
-
-    public static function createFromDom(\DOMElement $offreDom, \DOMDocument $document): ?Offre
-    {
-        $xpath = new \DOMXPath($document);
-        $parser = new OffreParser($document, $offreDom);
-        $offre = new self();
-        $offre->id = $parser->offreId();
-
-        //$datas = $xpath->query("/root/offres/offre/modif_date");
-        //dump($datas->item(0)->nodeValue);
-
-        $offre->libelle = $parser->getTitre($offreDom);
-        $offre->publiable = $parser->getAttributs('publiable');
-        $offre->reference = $parser->getAttributs('off_id_ref');
-        $offre->modif_date = $parser->getAttributs('modif_date');
-        $offre->categories = $parser->categories($offreDom);
-        $offre->medias = $parser->medias($offreDom);
-        $offre->geocode = $parser->geocodes($offreDom);
-        $offre->localisation = $parser->localisation($offreDom);
-        $offre->descriptions = $parser->descriptions($offreDom);
-        $offre->selections = $parser->selections();
-        $offre->contacts = $parser->contacts($offreDom);
-        $offre->horaires = $parser->horaires($offreDom);
-        $offre->datesR = $offre->dates();
-        $offre->image = $offre->firstImage();
-
-        return $offre;
     }
 
     /**

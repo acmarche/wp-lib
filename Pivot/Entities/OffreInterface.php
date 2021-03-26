@@ -32,6 +32,8 @@ namespace AcMarche\Pivot\Entities;
  */
 interface OffreInterface
 {
+    public function getTitre(?string $language): string;
+
     function contactPrincipal(): ?Contact;
 
     function communcationPrincipal(): array;

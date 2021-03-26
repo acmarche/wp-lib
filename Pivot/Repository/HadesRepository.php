@@ -46,7 +46,7 @@ class HadesRepository
 
         foreach ($offresXml->childNodes as $offre) {
             if ($offre->nodeType == XML_ELEMENT_NODE) {
-                $offres[] = Offre::createFromDom($offre,$domdoc);
+                $offres[] = Offre::createFromDom($offre, $domdoc);
             }
         }
 
@@ -150,8 +150,22 @@ class HadesRepository
                 if ($domdoc === null) {
                     return null;
                 }
+                if ($xmlString === null) {
+                    return null;
+                }
+                if ($domdoc === null) {
+                    return null;
+                }
+                $data = $domdoc->getElementsByTagName('offres');
+                $offresXml = $data->item(0);
 
-                return Offre::createFromDom($domdoc);
+                foreach ($offresXml->childNodes as $offre) {
+                    if ($offre->nodeType == XML_ELEMENT_NODE) {
+                        return Offre::createFromDom($offre, $domdoc);
+                    }
+                }
+
+                return null;
             }
         );
     }

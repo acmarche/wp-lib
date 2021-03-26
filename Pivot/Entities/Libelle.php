@@ -37,8 +37,15 @@ class Libelle
         return isset($this->languages[$language]) ? $this->languages[$language] : null;
     }
 
-    public function libelle(string $language)
+    private function libelle(string $language)
     {
-        return isset($languages[$language]) ? $this->languages[$language] : $this->languages[self::DEFAULT];
+        if (isset($languages[$language])) {
+            return $this->languages[$language];
+        }
+        if (isset($languages[self::DEFAULT])) {
+            return $this->languages[self::DEFAULT];
+        }
+
+        return '';
     }
 }
