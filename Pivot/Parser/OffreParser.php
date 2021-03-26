@@ -198,9 +198,9 @@ class OffreParser
                 foreach ($textes as $texte) {
                     $language = $texte->getAttributeNode('lg');
                     if ($language) {
-                        $libelle->add($language->nodeValue, $lib->nodeValue);
+                        $libelle->add($language->nodeValue, $texte->nodeValue);
                     } else {
-                        $libelle->add('default', $lib->nodeValue);
+                        $libelle->add('default', $texte->nodeValue);
                     }
                 }
                 $description->texte = $libelle;
