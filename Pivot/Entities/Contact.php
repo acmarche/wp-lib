@@ -10,7 +10,7 @@ class Contact
      */
     public $id;
     /**
-     * @var string
+     * @var Libelle
      */
     public $lib;
     /**
@@ -65,6 +65,10 @@ class Contact
      * @var array
      */
     public $lgs;
+    /**
+     * @var string
+     */
+    public $tri;
 
     public function __construct()
     {

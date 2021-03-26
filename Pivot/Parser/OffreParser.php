@@ -124,7 +124,48 @@ class OffreParser
         return $data;
     }
 
-    public function contacts()
+    /**
+     * @param DOMElement $offreDom
+     * @return Contact[]
+     */
+    public function contacts(DOMElement $offreDom): array
+    {
+        $data = [];
+        $contacts = $this->xpath->query("contacts", $offreDom);
+        foreach ($contacts->item(0)->childNodes as $contactDom) {
+            if ($contactDom->nodeType == XML_ELEMENT_NODE) {
+                $contact = new Contact();
+                $libelle = new Libelle();
+                $contact->tri = $contactDom->getAttributeNode('tri')->nodeValue;
+                $libs = $this->xpath->query("lib", $contactDom);
+                foreach ($libs as $lib) {
+                    $language = $lib->getAttributeNode('lg');
+                    if ($language) {
+                        $libelle->add($language->nodeValue, $lib->nodeValue);
+                    } else {
+                        $libelle->add('default', $lib->nodeValue);
+                    }
+                }
+                $contact->lib = $libelle;
+                $contact->communications = $this->extractCommunications($contactDom);
+                foreach ($contactDom->childNodes as $attribute) {
+                    if ($attribute->nodeType == XML_ELEMENT_NODE) {
+                        if ($attribute->nodeName != 'lib' && $attribute->nodeName != 'communications') {
+                            $this->propertyAccessor->setValue($contact, $attribute->nodeName, $attribute->nodeValue);
+                        }
+                    }
+                }
+                dump($contact);
+                $data[] = $contact;
+            }
+
+        }
+
+        return $data;
+
+    }
+
+    public function contactsd()
     {
         $data = [];
         $contacts = $this->offre->getElementsByTagName('contacts');
@@ -239,6 +280,9 @@ class OffreParser
         return $data;
     }
 
+    /**
+     * @return Selection[]
+     */
     public function selections(): array
     {
         $data = [];
@@ -296,28 +340,37 @@ class OffreParser
         return $data;
     }
 
-    private function extractCommunications(DOMElement $communicationDom): array
+    /**
+     * @param DOMElement $contactDom
+     * @return Communication[]
+     */
+    private function extractCommunications(DOMElement $contactDom): array
     {
         $data = [];
-        foreach ($communicationDom->childNodes as $childNode) {
-            $communication = new Communication();
-            if ($childNode->nodeType == XML_ELEMENT_NODE) {
-                $type = $this->getAttribute($childNode, 'typ');
-                $communication->type = $type;
-                foreach ($childNode->childNodes as $node) {
-                    if ($node->nodeType == XML_ELEMENT_NODE) {
-                        $lg = $this->getAttribute($node, 'lg');
-                        if ($lg == 'fr') {
-                            $communication->name = $node->nodeValue;
-                        }
-                        if ($node->nodeName == 'val') {
-                            $communication->value = $node->nodeValue;
+        $communications = $this->xpath->query("communications", $contactDom);
+        foreach ($communications as $communicationsDom) {
+            foreach ($communicationsDom->childNodes as $communicationDom) {
+                if ($communicationDom instanceof DOMElement) {
+                    $communication = new Communication();
+                    $communication->typ = $communicationDom->getAttributeNode('typ')->nodeValue;
+                    $communication->tri = $communicationDom->getAttributeNode('tri')->nodeValue;
+                    $labels = $this->xpath->query("lib", $communicationDom);
+                    $libelle = new Libelle();
+                    foreach ($labels as $label) {
+                        $language = $label->getAttributeNode('lg');
+                        if ($language) {
+                            $libelle->add($language->nodeValue, $label->nodeValue);
+                        } else {
+                            $libelle->add('default', $label->nodeValue);
                         }
                     }
+                    $communication->lib = $libelle;
+                    $vals = $this->xpath->query("val", $communicationDom);
+                    $communication->val = $vals->item(0)->nodeValue;
+                    if ($communication->val != '') {
+                        $data[] = $communication;
+                    }
                 }
-            }
-            if ($communication->value != '') {
-                $data[] = $communication;
             }
         }
 

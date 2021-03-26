@@ -55,6 +55,18 @@ class Offre implements OffreInterface
      * @var Horaire[]
      */
     public $horaires;
+    /**
+     * @var string|null
+     */
+    public $modif_date;
+    /**
+     * @var Horline[]
+     */
+    public $datesR;
+    /**
+     * @var string|null
+     */
+    public $publiable;
 
     public function __construct()
     {
@@ -145,27 +157,25 @@ class Offre implements OffreInterface
         $offre = new self();
         $offre->id = $parser->offreId();
 
-        $datas = $xpath->query("/root/offres/offre/modif_date");
+        //$datas = $xpath->query("/root/offres/offre/modif_date");
         //  dump($datas->item(0)->nodeValue);
 
         $offre->libelle = $parser->getTitre($offreDom);
+        $offre->publiable = $parser->getAttributs('publiable');
+        $offre->reference = $parser->getAttributs('off_id_ref');
+        $offre->modif_date = $parser->getAttributs('modif_date');
         $offre->categories = $parser->categories($offreDom);
         $offre->medias = $parser->medias($offreDom);
         $offre->geocode = $parser->geocodes($offreDom);
         $offre->localisation = $parser->localisation($offreDom);
         $offre->descriptions = $parser->descriptions($offreDom);
+        $offre->selections = $parser->selections();
+        $offre->contacts = $parser->contacts($offreDom);
         $offre->horaires = $parser->horaires($offreDom);
         $offre->datesR = $offre->dates();
+        $offre->image = $offre->firstImage();
 
         //dump($offre);
-
-        return $offre;
-        $offre->publiable = $parser->getAttributs('publiable');
-        $offre->reference = $parser->getAttributs('off_id_ref');
-        $offre->modif_date = $parser->getAttributs('modif_date');
-        $offre->contacts = $parser->contacts();
-        $offre->selections = $parser->selections();
-        $offre->image = $offre->firstImage();
 
         return $offre;
     }

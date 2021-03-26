@@ -9,13 +9,17 @@ class Communication
     /**
      * @var string
      */
-    public $type;
+    public $val;
     /**
      * @var string
      */
-    public $name;
+    public $typ;
     /**
      * @var string
      */
-    public $value;
+    public $tri;
+    /**
+     * @var Libelle
+     */
+    public $lib;
 }
