@@ -44,12 +44,13 @@ class ConseilDb
         return $query->fetchAll();
     }
 
-    public function getAllPvs():array
+    public function getAllPvs(): array
     {
         $pvs = [];
         foreach (range(2013, 2025) as $year) {
             $pvs[$year] = $this->getPvByYear($year);
         }
+        krsort($pvs);
 
         return $pvs;
     }
