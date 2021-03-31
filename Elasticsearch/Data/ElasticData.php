@@ -124,18 +124,28 @@ class ElasticData
         $datas = [];
 
         foreach ($posts as $post) {
-            $datas[] = $this->postToDocumentElastic($post);
+            if ($document = $this->postToDocumentElastic($post)) {
+                $datas[] = $document;
+            } else {
+                Mailer::sendError(
+                    "update elastic error ",
+                    "create document ".$post->post_title
+                );
+                //  var_dump($post);
+            }
         }
 
         return $datas;
     }
 
-    public function postToDocumentElastic(WP_Post $post):?DocumentElastic {
+    public function postToDocumentElastic(WP_Post $post): ?DocumentElastic
+    {
         try {
             return $this->createDocumentElastic($post);
         } catch (\Exception $exception) {
             Mailer::sendError("update elastic", "create document ".$post->post_title.' => '.$exception->getMessage());
         }
+
         return null;
     }
 
@@ -253,7 +263,7 @@ class ElasticData
      */
     public function getAllCategoriesBottin(): array
     {
-        $data = $this->bottinRepository->getAllCategories();
+        $data       = $this->bottinRepository->getAllCategories();
         $categories = [];
         foreach ($data as $category) {
             $document          = new DocumentElastic();
