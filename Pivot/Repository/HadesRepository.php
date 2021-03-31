@@ -64,7 +64,7 @@ class HadesRepository
         $types = count($types) === 0 ? array_keys(Hades::EVENEMENTS) : $types;
 
         return $this->cache->get(
-            'events_hades'.time(),
+            'events_hades',
             function () use ($types) {
                 $events = [];
                 $offres = $this->getOffres($types);
@@ -87,7 +87,7 @@ class HadesRepository
         $types = count($types) === 0 ? array_keys(Hades::HEBERGEMENTS) : $types;
 
         return $this->cache->get(
-            'hebergement_hades'.time(),
+            'hebergement_hades',
             function () use ($types) {
                 return $this->getOffres($types);
             }
@@ -99,7 +99,7 @@ class HadesRepository
         $types = count($types) === 0 ? array_keys(Hades::RESTAURATIONS) : $types;
 
         return $this->cache->get(
-            'resto_hades'.time(),
+            'resto_hades',
             function () use ($types) {
                 return $this->getOffres($types);
             }
@@ -143,7 +143,7 @@ class HadesRepository
     public function getOffre(string $id): ?OffreInterface
     {
         return $this->cache->get(
-            'offre_hades-'.$id.time(),
+            'offre_hades-'.$id,
             function () use ($id) {
                 $xmlString = $this->hadesRemoteRepository->getOffreById($id);
                 $domdoc    = $this->loadXml($xmlString);
