@@ -9,6 +9,7 @@ use AcMarche\Theme\Inc\Theme;
 use Elastica\Document;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\SerializerInterface;
+use WP_Post;
 
 class ElasticIndexer
 {
@@ -27,7 +28,7 @@ class ElasticIndexer
      */
     private $outPut;
 
-    public function __construct(?SymfonyStyle $outPut)
+    public function __construct(?SymfonyStyle $outPut = null)
     {
         $this->connect();
         $this->serializer  = (new AcSerializer())->create();
@@ -43,12 +44,27 @@ class ElasticIndexer
 
         foreach ($sites as $siteId => $nom) {
             switch_to_blog($siteId);
-            $this->outPut->section($nom);
-            $posts = $this->elasticData->getPosts();
-            foreach ($posts as $post) {
-                $this->outPut->writeln($post->name);
-                $this->addPost($post, $siteId);
+            if ($this->outPut) {
+                $this->outPut->section($nom);
             }
+            $documentElastics = $this->elasticData->getPosts();
+            foreach ($documentElastics as $documentElastic) {
+                if ($this->outPut) {
+                    $this->outPut->writeln($documentElastic->name);
+                }
+                $this->addPost($documentElastic, $siteId);
+            }
+        }
+    }
+
+    public function indexPost(WP_Post $post, int $siteId)
+    {
+        $documentElactic = $this->elasticData->postToDocumentElastic($post);
+        if ($documentElactic) {
+            if ($this->outPut) {
+                $this->outPut->writeln($post->name);
+            }
+            $this->addPost($documentElactic, $siteId);
         }
     }
 
@@ -56,17 +72,30 @@ class ElasticIndexer
     {
         $posts = $this->elasticData->indexPagesSpecial();
         foreach ($posts as $post) {
-            $this->outPut->writeln($post->name);
+            if ($this->outPut) {
+                $this->outPut->writeln($post->name);
+            }
             $this->addPost($post, Theme::ADMINISTRATION);
         }
     }
 
-    private function addPost(DocumentElastic $documentElastic, int $blogId)
+    public function addPost(DocumentElastic $documentElastic, int $blogId)
     {
         $content = $this->serializer->serialize($documentElastic, 'json');
-        $id      = 'post_'.$blogId.'_'.$documentElastic->id;
+        $id      = $this->createIdPost($documentElastic->id, $blogId);
         $doc     = new Document($id, $content);
         $this->index->addDocument($doc);
+    }
+
+    public function deletePost(int $postId, int $siteId)
+    {
+        $id = $this->createIdPost($postId, $siteId);
+        $this->index->deleteById($id);
+    }
+
+    protected function createIdPost(int $postId, int $siteId): string
+    {
+        return 'post_'.$siteId.'_'.$postId;
     }
 
     public function indexAllCategories(array $sites = array())
@@ -77,11 +106,15 @@ class ElasticIndexer
 
         foreach ($sites as $siteId => $nom) {
             switch_to_blog($siteId);
-            $this->outPut->section($nom);
+            if ($this->outPut) {
+                $this->outPut->section($nom);
+            }
             $categories = $this->elasticData->getCategoriesBySite();
             foreach ($categories as $documentElastic) {
                 $this->addCategory($documentElastic, $siteId);
-                $this->outPut->writeln($documentElastic->name);
+                if ($this->outPut) {
+                    $this->outPut->writeln($documentElastic->name);
+                }
             }
         }
     }
@@ -108,7 +141,9 @@ class ElasticIndexer
             $id      = 'fiche_'.$documentElastic->id;
             $doc     = new Document($id, $content);
             $this->index->addDocument($doc);
-            $this->outPut->writeln($documentElastic->name);
+            if ($this->outPut) {
+                $this->outPut->writeln($documentElastic->name);
+            }
         }
     }
 
@@ -120,7 +155,9 @@ class ElasticIndexer
             $id      = 'fiche_'.$documentElastic->id;
             $doc     = new Document($id, $content);
             $this->index->addDocument($doc);
-            $this->outPut->writeln($documentElastic->name);
+            if ($this->outPut) {
+                $this->outPut->writeln($documentElastic->name);
+            }
         }
     }
 }

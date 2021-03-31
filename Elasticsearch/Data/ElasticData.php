@@ -9,6 +9,7 @@ use AcMarche\Common\Mailer;
 use AcMarche\Theme\Inc\Theme;
 use AcMarche\Theme\Lib\WpRepository;
 use BottinCategoryMetaBox;
+use WP_Post;
 
 class ElasticData
 {
@@ -68,10 +69,10 @@ class ElasticData
             $date    = $today->format('Y-m-d');
             $content = $description;
 
-            foreach ($this->getPosts($category->cat_ID) as $post) {
-                $content .= $post->name;
-                $content .= $post->excerpt;
-                $content .= $post->content;
+            foreach ($this->getPosts($category->cat_ID) as $documentElastic) {
+                $content .= $documentElastic->name;
+                $content .= $documentElastic->excerpt;
+                $content .= $documentElastic->content;
             }
 
             $content .= $this->getContentFiches($category);
@@ -123,14 +124,19 @@ class ElasticData
         $datas = [];
 
         foreach ($posts as $post) {
-            try {
-                $datas[] = $this->createDocumentElastic($post);
-            } catch (\Exception $exception) {
-                Mailer::sendError("update elastic", "create document ".$post->post_title.' => '.$exception->getMessage());
-            }
+            $datas[] = $this->postToDocumentElastic($post);
         }
 
         return $datas;
+    }
+
+    public function postToDocumentElastic(WP_Post $post):?DocumentElastic {
+        try {
+            return $this->createDocumentElastic($post);
+        } catch (\Exception $exception) {
+            Mailer::sendError("update elastic", "create document ".$post->post_title.' => '.$exception->getMessage());
+        }
+        return null;
     }
 
     /**
@@ -176,7 +182,7 @@ class ElasticData
         return $datas;
     }
 
-    private function createDocumentElastic(\WP_Post $post): DocumentElastic
+    private function createDocumentElastic(WP_Post $post): DocumentElastic
     {
         list($date, $time) = explode(" ", $post->post_date);
         $categories = array();
