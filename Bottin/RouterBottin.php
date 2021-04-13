@@ -3,6 +3,7 @@
 
 namespace AcMarche\Bottin;
 
+use AcMarche\Common\Mailer;
 use AcMarche\Common\Router;
 use AcMarche\Theme\Inc\Theme;
 
@@ -27,7 +28,10 @@ class RouterBottin extends Router
 
     public static function getUrlFicheBottin(\stdClass $fiche): string
     {
-        return self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_FICHE_URL.$fiche->slug;
+        $url = self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_FICHE_URL.$fiche->slug;
+        Mailer::sendError("404 url fiche: ", $fiche->societe.' \n qurl: '.$url);
+
+        return $url;
     }
 
     public function addRouteBottin()
