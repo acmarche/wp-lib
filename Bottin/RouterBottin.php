@@ -22,7 +22,7 @@ class RouterBottin extends Router
 
     public static function getUrlCategoryBottin(\stdClass $category): string
     {
-        return self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_CATEGORY_URL.$category->slug;
+        return self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_CATEGORY_URL.'/'.$category->slug;
     }
 
     public static function getUrlFicheBottin(\stdClass $fiche): string
