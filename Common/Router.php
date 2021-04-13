@@ -48,4 +48,9 @@ class Router
         return home_url($wp->request);
     }
 
+    public static function getReferer(): string
+    {
+        return wp_get_referer();
+    }
+
 }
