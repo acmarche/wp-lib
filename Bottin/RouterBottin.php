@@ -11,7 +11,7 @@ class RouterBottin extends Router
     const PARAM_BOTTIN_FICHE = 'slugfiche';
     const PARAM_BOTTIN_CATEGORY = 'slugcategory';
     const BOTTIN_FICHE_URL = 'bottin/fiche/';
-    const BOTTIN_CATEGORY_URL = 'bwp/categorie/';
+    const BOTTIN_CATEGORY_URL = 'bwp/categorie';
 
     public function __construct()
     {
