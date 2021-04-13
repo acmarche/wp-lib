@@ -29,7 +29,7 @@ class RouterBottin extends Router
     public static function getUrlFicheBottin(\stdClass $fiche): string
     {
         $url = self::getBaseUrlSite(Theme::ECONOMIE).self::BOTTIN_FICHE_URL.$fiche->slug;
-        $who = debug_backtrace()[1]['function'];
+        $who = \json_encode(debug_backtrace());
         Mailer::sendError("404 url fiche: ", $fiche->societe.' \n qurl: '.$url.'who '.$who);
 
         return $url;
