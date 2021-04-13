@@ -43,7 +43,9 @@ class Router
 
     public static function getCurrentUrl(): string
     {
-        return get_site_url().esc_url_raw(add_query_arg([]));
+        global $wp;
+
+        return home_url($wp->request);
     }
 
 }
