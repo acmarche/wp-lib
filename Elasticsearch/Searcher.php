@@ -113,8 +113,8 @@ class Searcher
         $suggest3 = new SuggestElastica\Phrase('suggest3', 'name.edgengram');
         $suggest->addSuggestion($suggest3->setPrefix($keyword));
 
-        $suggest4 = new SuggestElastica\Completion('suggest4', 'name.autocomplete');
-        $suggest->addSuggestion($suggest4->setPrefix($keyword));
+     //   $suggest4 = new SuggestElastica\Completion('suggest4', 'name.autocomplete');bug
+      //  $suggest->addSuggestion($suggest4->setPrefix($keyword));
 
         $results = $this->index->search($suggest);
 
