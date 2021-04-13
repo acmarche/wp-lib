@@ -74,7 +74,7 @@ class RouterBottin extends Router
             'init',
             function () {
                 add_rewrite_rule(
-                    self::BOTTIN_CATEGORY_URL.'([a-zA-Z0-9-]+)[/]?$',
+                    self::BOTTIN_CATEGORY_URL.'/([a-zA-Z0-9-]+)[/]?$',
                     'index.php?'.self::PARAM_BOTTIN_CATEGORY.'=$matches[1]',
                     'top'
                 );
