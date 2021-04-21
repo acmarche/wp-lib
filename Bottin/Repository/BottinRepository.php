@@ -66,9 +66,14 @@ class BottinRepository
                 return null;
             }
         );
-        $classementPrincipal = count($classementPrincipal) > 0 ? $classementPrincipal[0] : $categories[0];
+        if (count($classementPrincipal) > 0) {
+            return $classementPrincipal[0];
+        }
+        if (count($categories) > 0) {
+            return $categories[0];
+        }
 
-        return $classementPrincipal;
+        return null;
     }
 
     /**
