@@ -4,6 +4,8 @@ namespace AcMarche\Concours;
 
 use PDO;
 
+require_once(__DIR__.'/../wp-load.php');
+
 class MarcheDb
 {
     private $bdd;
