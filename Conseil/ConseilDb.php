@@ -48,10 +48,7 @@ class ConseilDb
     {
         $year = date('Y');
 
-        $pvs = $this->getPvByYear($year);
-
-
-        return $pvs;
+        return $this->getPvByYear($year);
     }
 
     public function getArchivesPv(): array
