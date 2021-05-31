@@ -44,10 +44,8 @@ class ConseilDb
         return $query->fetchAll();
     }
 
-    public function getCurrentYearPvs(): array
+    public function getByYearPvs(int $year): array
     {
-        $year = date('Y');
-
         return $this->getPvByYear($year);
     }
 
