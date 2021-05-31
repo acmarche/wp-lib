@@ -49,18 +49,6 @@ class ConseilDb
         return $this->getPvByYear($year);
     }
 
-    public function getArchivesPv(): array
-    {
-        $currentYear = date('Y') - 1;
-        $pvs = [];
-        foreach (range(2013, $currentYear) as $year) {
-            $pvs[$year] = $this->getPvByYear($year);
-        }
-        krsort($pvs);
-
-        return $pvs;
-    }
-
     /**
      * @param string $nom
      * @param string $dateOrdre
