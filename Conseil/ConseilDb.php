@@ -44,10 +44,21 @@ class ConseilDb
         return $query->fetchAll();
     }
 
-    public function getAllPvs(): array
+    public function getCurrentYearPvs(): array
     {
+        $year = date('Y');
+
+        $pvs = $this->getPvByYear($year);
+
+
+        return $pvs;
+    }
+
+    public function getArchivesPv(): array
+    {
+        $currentYear = date('Y') - 1;
         $pvs = [];
-        foreach (range(2013, 2025) as $year) {
+        foreach (range(2013, $currentYear) as $year) {
             $pvs[$year] = $this->getPvByYear($year);
         }
         krsort($pvs);
