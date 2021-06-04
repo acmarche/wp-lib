@@ -55,10 +55,12 @@ class MarcheDb
         $sth->bindParam(':accord', $accord, \PDO::PARAM_STR);
         $sth->bindParam(':codepostal', $codepostal, \PDO::PARAM_STR);
         $sth->bindParam(':localite', $localite, \PDO::PARAM_STR);
+
         if ( ! $sth->execute()) {
             var_dump($sth->queryString);
             var_dump($sth->errorInfo());
-            $error  = $sth->errorInfo();
+            var_dump($sth->debugDumpParams());
+            $error  = $sth->errorInfo();$sth->debugDumpParams();
             $result = ['danger', $error];
         } else {
             $message = $this->bdd->lastInsertId();
