@@ -38,7 +38,7 @@ class MarcheDb
         string $accord,
         int $codepostal,
         string $localite
-    ) {
+    ): array {
         $date  = new \DateTime();
         $today = $date->format('Y-m-d h:i:s');
 
@@ -62,7 +62,7 @@ class MarcheDb
             $message = $this->bdd->lastInsertId();
             $result  = ['success', $message];
         }
-
+var_dump($result);
         return $result;
     }
 
