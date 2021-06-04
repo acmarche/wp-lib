@@ -56,11 +56,8 @@ class MarcheDb
         $sth->bindParam(':localite', $localite, \PDO::PARAM_STR);
 
         if ( ! $sth->execute()) {
-            var_dump($sth->queryString);
-            var_dump($sth->errorInfo());
-            var_dump($sth->debugDumpParams());
             $error = $sth->errorInfo();
-            $sth->debugDumpParams();
+          //  $sth->debugDumpParams();
             $result = ['danger', $error];
         } else {
             $message = $this->bdd->lastInsertId();
