@@ -29,15 +29,24 @@ class MarcheDb
         return $reponse->fetchAll();
     }
 
-    function insertSante($nom, $prenom, $email, $telephone, $accord, $codepostal, $localite)
-    {
+    function insert(
+        string $table,
+        string $nom,
+        string $prenom,
+        string $email,
+        string $telephone,
+        string $accord,
+        int $codepostal,
+        string $localite
+    ) {
         $date  = new \DateTime();
         $today = $date->format('Y-m-d h:i:s');
 
         $sth = $this->bdd->prepare(
-            'INSERT INTO inscrits_sante (nom, prenom, email, telephone, inscrit_le, accord, codepostal, localite) VALUES 
+            'INSERT INTO :table (nom, prenom, email, telephone, inscrit_le, accord, codepostal, localite) VALUES 
 (:nom, :prenom, :email, :telephone, :today, :accord, :codepostal, :localite )'
         );
+        $sth->bindParam(':table', $table, \PDO::PARAM_STR);
         $sth->bindParam(':nom', $nom, \PDO::PARAM_STR);
         $sth->bindParam(':prenom', $prenom, \PDO::PARAM_STR);
         $sth->bindParam(':email', $email, \PDO::PARAM_STR);
@@ -57,59 +66,7 @@ class MarcheDb
         return $result;
     }
 
-    function insertRoman($nom, $prenom, $email, $accord, $vote, $comite)
-    {
-        $date  = new \DateTime();
-        $today = $date->format('Y-m-d h:i:s');
-
-        $sth = $this->bdd->prepare(
-            'INSERT INTO inscrits_roman (nom, prenom, email, inscrit_le, accord, vote, comite) VALUES 
-(:nom, :prenom, :email, :today, :accord, :vote, :comite )'
-        );
-        $sth->bindParam(':nom', $nom, \PDO::PARAM_STR);
-        $sth->bindParam(':prenom', $prenom, \PDO::PARAM_STR);
-        $sth->bindParam(':email', $email, \PDO::PARAM_STR);
-        $sth->bindParam(':today', $today, \PDO::PARAM_STR);
-        $sth->bindParam(':accord', $accord, \PDO::PARAM_STR);
-        $sth->bindParam(':vote', $vote, \PDO::PARAM_STR);
-        $sth->bindParam(':comite', $comite, \PDO::PARAM_STR);
-        if ( ! $sth->execute()) {
-            $error  = $sth->errorInfo();
-            $result = ['danger', $error];
-        } else {
-            $message = $this->bdd->lastInsertId();
-            $result  = ['success', $message];
-        }
-
-        return $result;
-    }
-
-    function insert($nom, $prenom, $email, $telephone, $accord, $table = 'inscrits')
-    {
-        $date  = new \DateTime();
-        $today = $date->format('Y-m-d h:i:s');
-
-        $sth = $this->bdd->prepare(
-            'INSERT INTO '.$table.' (nom, prenom, email, telephone, inscrit_le, accord) VALUES (:nom, :prenom, :email, :telephone, :today, :accord )'
-        );
-        $sth->bindParam(':nom', $nom, \PDO::PARAM_STR);
-        $sth->bindParam(':prenom', $prenom, \PDO::PARAM_STR);
-        $sth->bindParam(':email', $email, \PDO::PARAM_STR);
-        $sth->bindParam(':telephone', $telephone, \PDO::PARAM_STR);
-        $sth->bindParam(':today', $today, \PDO::PARAM_STR);
-        $sth->bindParam(':accord', $accord, \PDO::PARAM_STR);
-        if ( ! $sth->execute()) {
-            $error  = $sth->errorInfo();
-            $result = ['danger', $error];
-        } else {
-            $message = $this->bdd->lastInsertId();
-            $result  = ['success', $message];
-        }
-
-        return $result;
-    }
-
-    function insertGagant($gagnant, string $table = 'gagnants')
+    function insertGagant(array $gagnant, string $table = 'gagnants')
     {
         $date   = new \DateTime();
         $today  = $date->format('Y-m-d h:i:s');
@@ -136,9 +93,9 @@ class MarcheDb
         exit();
     }
 
-    function redirectEquitable()
+    function redirectEuro()
     {
-        header('Location: /equitable/validation.php');
+        header('Location: /concours-euro/validation.php');
         exit();
     }
 
