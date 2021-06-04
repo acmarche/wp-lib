@@ -36,17 +36,16 @@ class MarcheDb
         string $email,
         string $telephone,
         string $accord,
-        int $codepostal,
+        string $codepostal,
         string $localite
     ): array {
         $date  = new \DateTime();
         $today = $date->format('Y-m-d h:i:s');
 
         $sth = $this->bdd->prepare(
-            'INSERT INTO :table (nom, prenom, email, telephone, inscrit_le, accord, codepostal, localite) VALUES 
+            'INSERT INTO '.$table.' (nom, prenom, email, telephone, inscrit_le, accord, codepostal, localite) VALUES 
 (:nom, :prenom, :email, :telephone, :today, :accord, :codepostal, :localite )'
         );
-        $sth->bindParam(':table', $table, \PDO::PARAM_STR);
         $sth->bindParam(':nom', $nom, \PDO::PARAM_STR);
         $sth->bindParam(':prenom', $prenom, \PDO::PARAM_STR);
         $sth->bindParam(':email', $email, \PDO::PARAM_STR);
@@ -60,7 +59,8 @@ class MarcheDb
             var_dump($sth->queryString);
             var_dump($sth->errorInfo());
             var_dump($sth->debugDumpParams());
-            $error  = $sth->errorInfo();$sth->debugDumpParams();
+            $error = $sth->errorInfo();
+            $sth->debugDumpParams();
             $result = ['danger', $error];
         } else {
             $message = $this->bdd->lastInsertId();
