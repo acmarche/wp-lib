@@ -62,7 +62,7 @@ class MarcheDb
             $message = $this->bdd->lastInsertId();
             $result  = ['success', $message];
         }
-var_dump($result);
+
         return $result;
     }
 
