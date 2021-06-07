@@ -59,7 +59,7 @@ class MarcheDb
 
         if ( ! $sth->execute()) {
             $error = $sth->errorInfo();
-            //  $sth->debugDumpParams();
+              $sth->debugDumpParams();
             $result = ['danger', $error];
         } else {
             $message = $this->bdd->lastInsertId();
