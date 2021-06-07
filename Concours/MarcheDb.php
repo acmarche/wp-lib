@@ -36,6 +36,7 @@ class MarcheDb
         string $email,
         string $telephone,
         string $accord,
+        string $reglement,
         string $codepostal,
         string $localite
     ): array {
@@ -43,8 +44,8 @@ class MarcheDb
         $today = $date->format('Y-m-d h:i:s');
 
         $sth = $this->bdd->prepare(
-            'INSERT INTO '.$table.' (nom, prenom, email, telephone, inscrit_le, accord, codepostal, localite) VALUES 
-(:nom, :prenom, :email, :telephone, :today, :accord, :codepostal, :localite )'
+            'INSERT INTO '.$table.' (nom, prenom, email, telephone, inscrit_le, accord, reglement, codepostal, localite) VALUES 
+(:nom, :prenom, :email, :telephone, :today, :accord, :reglement, :codepostal, :localite )'
         );
         $sth->bindParam(':nom', $nom, \PDO::PARAM_STR);
         $sth->bindParam(':prenom', $prenom, \PDO::PARAM_STR);
@@ -52,12 +53,13 @@ class MarcheDb
         $sth->bindParam(':telephone', $telephone, \PDO::PARAM_STR);
         $sth->bindParam(':today', $today, \PDO::PARAM_STR);
         $sth->bindParam(':accord', $accord, \PDO::PARAM_STR);
+        $sth->bindParam(':reglement', $reglement, \PDO::PARAM_STR);
         $sth->bindParam(':codepostal', $codepostal, \PDO::PARAM_STR);
         $sth->bindParam(':localite', $localite, \PDO::PARAM_STR);
 
         if ( ! $sth->execute()) {
             $error = $sth->errorInfo();
-          //  $sth->debugDumpParams();
+            //  $sth->debugDumpParams();
             $result = ['danger', $error];
         } else {
             $message = $this->bdd->lastInsertId();
