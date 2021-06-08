@@ -41,7 +41,7 @@ class MarcheDb
         string $localite
     ): array {
         $date  = new \DateTime();
-        $today = $date->format('Y-m-d h:i:s');
+        $today = $date->format('Y-m-d H:i:s');
 
         $sth = $this->bdd->prepare(
             'INSERT INTO '.$table.' (nom, prenom, email, telephone, inscrit_le, accord, reglement, codepostal, localite) VALUES 
@@ -72,7 +72,7 @@ class MarcheDb
     function insertGagant(array $gagnant, string $table = 'gagnants')
     {
         $date   = new \DateTime();
-        $today  = $date->format('Y-m-d h:i:s');
+        $today  = $date->format('Y-m-d H:i:s');
         $nom    = $gagnant['nom'];
         $prenom = $gagnant['prenom'];
         $email  = $gagnant['email'];
@@ -90,12 +90,6 @@ class MarcheDb
         }
     }
 
-    function redirect()
-    {
-        header('Location: /marche/validation.php');
-        exit();
-    }
-
     function redirectEuro()
     {
         header('Location: /concours-euro/validation.php');
@@ -104,13 +98,7 @@ class MarcheDb
 
     function redirectSante()
     {
-        header('Location: /sante-concours/validation.php');
-        exit();
-    }
-
-    function redirectRoman()
-    {
-        header('Location: /roman/validation.php');
+        header('Location: /concours-sante/validation.php');
         exit();
     }
 
