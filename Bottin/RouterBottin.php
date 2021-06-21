@@ -3,7 +3,6 @@
 
 namespace AcMarche\Bottin;
 
-use AcMarche\Common\Mailer;
 use AcMarche\Common\Router;
 use AcMarche\Theme\Inc\Theme;
 

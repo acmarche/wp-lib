@@ -5,26 +5,26 @@ namespace AcMarche\Bottin\Category;
 
 use AcMarche\Bottin\Repository\WpBottinRepository;
 use AcMarche\Bottin\Repository\BottinRepository;
-use AcMarche\Theme\Lib\MarcheConst;
+use AcMarche\Theme\Inc\Theme;
 
 class CategorySynchronizer
 {
     /**
      * @var int
      */
-    private $categoryId;
+    private int $categoryId;
     /**
      * @var WpBottinRepository
      */
-    private $wpRepository;
+    private WpBottinRepository $wpRepository;
     /**
      * @var BottinRepository
      */
-    private $bottinRepository;
+    private BottinRepository $bottinRepository;
     /**
      * @var CategoryCreator
      */
-    private $categoryCreator;
+    private CategoryCreator $categoryCreator;
 
     public function __construct(int $categoryId)
     {
@@ -37,7 +37,7 @@ class CategorySynchronizer
     public function synchronize()
     {
         $category = $this->bottinRepository->getCategory($this->categoryId);
-        foreach (MarcheConst::SITES as $site) {
+        foreach (Theme::SITES as $site) {
             switch_to_blog($site);
             $this->execute($category);
         }
