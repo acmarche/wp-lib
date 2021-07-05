@@ -70,4 +70,14 @@ class Cache
     {
         return 'bottin-fiche-'.$blogId.'-'.$slug;
     }
+
+    public static function generateCodeArticle(int $blogId, int $postId): string
+    {
+        return 'post-'.$blogId.'-'.$postId;
+    }
+
+    public static function generateCodeCategory(int $blogId, int $categoryId): string
+    {
+        return 'category-'.$blogId.'-'.$categoryId;
+    }
 }
