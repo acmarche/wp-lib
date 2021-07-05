@@ -51,6 +51,7 @@ class Cache
                 );
         }
 
+        //return new TagAwareAdapter(self::$instanceObject, self::$instanceObject);
         return self::$instanceObject;
     }
 
@@ -63,5 +64,10 @@ class Cache
         if ($refresh) {
             $cache->delete($code);
         }
+    }
+
+    public static function generateCodeBottin(int $blogId, string $slug): string
+    {
+        return 'bottin-fiche-'.$blogId.'-'.$slug;
     }
 }
