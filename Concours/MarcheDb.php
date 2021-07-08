@@ -90,6 +90,12 @@ class MarcheDb
         }
     }
 
+    function redirect()
+    {
+        header('Location: /concours/validation.php');
+        exit();
+    }
+
     function redirectEuro()
     {
         header('Location: /concours-euro/validation.php');
