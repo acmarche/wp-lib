@@ -96,6 +96,12 @@ class MarcheDb
         exit();
     }
 
+    function redirectName(string $url)
+    {
+        header('Location: '.$url);
+        exit();
+    }
+
     function redirectEuro()
     {
         header('Location: /concours-euro/validation.php');
@@ -118,6 +124,11 @@ class MarcheDb
         }
 
         return true;
+    }
+
+    function truncate(string $table = 'inscrits'):bool
+    {
+        return $this->bdd->query("TRUNCATE `$table`")->execute();
     }
 
 }
